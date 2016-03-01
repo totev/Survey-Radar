@@ -67,8 +67,11 @@ export default class SubCategories {
 			.attr("fill", subCat.color);
 	}
 
-	renderTitles() {
+	renderTitles(withBackground) {
 		for(let subCat of this.subCats) {
+			if(withBackground) {
+				this.renderTitleBackground(subCat);
+			}
 			this.renderTitle(subCat);
 		}
 	}
@@ -117,6 +120,25 @@ export default class SubCategories {
 		});
 	}
 
+	renderTitleBackground(subCat) {
+		let centerX = this.cfg.centerX,
+			centerY = this.cfg.centerY;
+
+		let subCatTitleInnerRadius = this.subCatTitleInnerRadius,
+			subCatTitleOuterRadius = this.subCatTitleOuterRadius;
+
+		let arc = d3.svg.arc()
+					.innerRadius(subCatTitleInnerRadius)
+					.outerRadius(subCatTitleOuterRadius)
+					.startAngle(subCat.startAngle)
+					.endAngle(subCat.endAngle);
+
+		this.g.append("path")
+			.attr("d", arc)
+			.attr("transform", `translate(${centerX}, ${centerY})`)
+			.attr("fill", subCat.color);
+	}
+
 	renderLines() {
 		let centerX = this.cfg.centerX,
 			centerY = this.cfg.centerY,
@@ -139,5 +161,4 @@ export default class SubCategories {
 			.style("stroke", "black")
 			.style("stroke-width", "2px");
 	}
-
 }

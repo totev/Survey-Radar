@@ -3,6 +3,64 @@ import SubCategories from './subCategories.js'
 import Questions from './questions.js'
 import Circles from './circles.js'
 
+let circles = [{
+		height: 0.09, // percentage of total radius
+		stroke: "grey",
+		strength: "1px",
+		legendValue: 25,
+		type: "scale"
+	}, {
+		height: 0.09, // percentage of total radius
+		stroke: "grey",
+		strength: "1px",
+		legendValue: 50,
+		type: "scale"
+	}, {
+		height: 0.09, // percentage of total radius
+		stroke: "grey",
+		strength: "1px",
+		legendValue: 75,
+		type: "scale"
+	}, {
+		height: 0.09, // percentage of total radius
+		stroke: "black",
+		strength: "1px",
+		type: "heading"
+	}, {
+		height: 0.09, // percentage of total radius
+		stroke: "black",
+		strength: "1px",
+		type: "heading"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "grey",
+		strength: "1px",
+		legendValue: 25,
+		type: "scale"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "grey",
+		strength: "1px",
+		legendValue: 50,
+		type: "scale"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "grey",
+		strength: "1px",
+		legendValue: 75,
+		type: "scale"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "black",
+		strength: "1px",
+		type: "heading"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "black",
+		strength: "1px",
+		type: "heading"
+	}];
+
 var mainCats = [
 			{
 				mainCat: "PERFORMANCE",
@@ -287,17 +345,23 @@ let g = d3.select(id)
 
 
 
-let c = new Circles(g, cfg);
+let c = new Circles(g, cfg, circles);
 
-let mc = new MainCategories(g, cfg, mainCats, c.questionsTitleOuterRadiusPct);
+let subCatTitleInnerRadiusPct = c.circles[3].radiusPct,
+	subCatTitleOuterRadiusPct = c.circles[4].radiusPct,
+	questionsStartRadiusPct = subCatTitleOuterRadiusPct,
+	questionsTitleInnerRadiusPct = c.circles[8].radiusPct,
+	questionsTitleOuterRadiusPct = c.circles[9].radiusPct;
+
+let mc = new MainCategories(g, cfg, mainCats, questionsTitleOuterRadiusPct);
 
 let subCats = mainCats.map((mainCat) => mainCat.subCats)
 					.reduce((aggregate, next) => aggregate.concat(next));
-let sc = new SubCategories(g, cfg, subCats, c.subCatTitleInnerRadiusPct, c.subCatTitleOuterRadiusPct, c.questionsTitleOuterRadiusPct);
+let sc = new SubCategories(g, cfg, subCats, subCatTitleInnerRadiusPct, subCatTitleOuterRadiusPct, questionsTitleOuterRadiusPct);
 
 let questions = subCats.map((subCat) => subCat.questions)
 					.reduce((aggregate, next) => aggregate.concat(next));
-let q = new Questions(g, cfg, questions, c.subCatTitleOuterRadiusPct, c.questionsTitleInnerRadiusPct, c.questionsTitleOuterRadiusPct);
+let q = new Questions(g, cfg, questions, subCatTitleOuterRadiusPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
 
 
 mc.renderBackgrounds();

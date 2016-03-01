@@ -13,7 +13,6 @@ export default class Questions {
 		};
 
 		this.questions = questions;
-		this.prepare();
 
 		this.questionsStartRadius = questionsStartRadiusPct * this.cfg.radius;
 		this.questionsStartRadiusPct = questionsStartRadiusPct;
@@ -22,16 +21,28 @@ export default class Questions {
 		this.questionsTitleOuterRadius = questionsTitleOuterRadiusPct * this.cfg.radius;
 		this.questionsTitleOuterRadiusPct = questionsTitleOuterRadiusPct;
 		this.questionsTitleMiddleRadius = (questionsTitleInnerRadiusPct + (questionsTitleOuterRadiusPct - questionsTitleInnerRadiusPct) / 2) * this.cfg.radius;
+
+		this.prepare();
 	}
 
 	prepare() {
 		let radians = this.cfg.radians,
-			questionsNr = this.cfg.questionsNr;
+			questionsNr = this.cfg.questionsNr,
+			centerX = this.cfg.centerX,
+			centerY = this.cfg.centerY;
+		let questionsTitleInnerRadiusPct = this.questionsTitleInnerRadiusPct,
+			questionsStartRadiusPct = this.questionsStartRadiusPct;
+
+		let avgRad = radians / questionsNr;
 
 		this.questions.forEach((question, i) => {
 			question.idx = i;
-			question.startAngle = (radians / questionsNr) * i;
-			question.endAngle = (radians / questionsNr) * (i + 1);
+			question.startAngle = avgRad * i;
+			question.endAngle = avgRad * (i + 1);
+			question.avgX = centerX * (1 - (question.value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.sin(-(i+0.5) * avgRad)) 
+							 			 - (questionsStartRadiusPct * Math.sin(-(i+0.5) * avgRad)));
+			question.avgY = centerY * (1 - (question.value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.cos(-(i+0.5) * avgRad)) 
+							 			 - (questionsStartRadiusPct * Math.cos(-(i+0.5) * avgRad)));
 		});
 	}
 
@@ -128,5 +139,33 @@ export default class Questions {
 			.attr("class", "line")
 			.style("stroke", "black")
 			.style("stroke-width", "1px");
+	}
+
+	renderAverages() {
+		this.g.selectAll(".area")
+			 .data([this.questions])
+			 .enter()
+			 .append("polygon")
+			 .attr("class", "radar-chart-series")
+			 .style("stroke-width", "2px")
+			 .style("stroke", "red")
+			 .attr("points", function(questions) {
+				 let str="";
+				 for(let question of questions){
+					 str += question.avgX + "," + question.avgY + " ";
+				 }
+				 return str;
+			  })
+			 .style("fill", "none");
+
+		this.g.selectAll(".nodes")
+			.data(this.questions).enter()
+			.append("svg:circle")
+			.attr("class", "radar-chart-series")
+			.attr('r', "3px")
+			.attr("cx", (question) => question.avgX)
+			.attr("cy", (question) => question.avgY)
+			.attr("title", (question) => question.title)
+			.style("fill", "red").style("fill-opacity", .9);
 	}
 }

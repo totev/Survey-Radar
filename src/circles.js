@@ -1,6 +1,6 @@
 export default class Circles {
 
-	constructor(g, cfg) {
+	constructor(g, cfg, circles) {
 		this.g = g;
 		this.cfg = {
 			radius: cfg.radius,
@@ -9,7 +9,7 @@ export default class Circles {
 			centerDotPct: cfg.centerDotPct,
 			legendDotPct: cfg.legendDotPct
 		};
-		this.circles = this.constructor.circles;
+		this.circles = circles;
 		this.prepare();
 	}
 
@@ -23,12 +23,6 @@ export default class Circles {
 			radiusPct += circle.height;
 			circle.radiusPct = radiusPct;
 		}
-
-		this.subCatTitleInnerRadiusPct = this.circles[3].radiusPct;
-		this.subCatTitleOuterRadiusPct = this.circles[4].radiusPct;
-		this.questionsStartRadiusPct = this.subCatTitleOuterRadiusPct;
-		this.questionsTitleInnerRadiusPct = this.circles[8].radiusPct;
-		this.questionsTitleOuterRadiusPct = this.circles[9].radiusPct;
 	}
 
 	renderCircles(type) {
@@ -93,61 +87,3 @@ export default class Circles {
 		}
 	}
 }
-
-Circles.circles =  [{
-		height: 0.09, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		legendValue: 25,
-		type: "scale"
-	}, {
-		height: 0.09, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		legendValue: 50,
-		type: "scale"
-	}, {
-		height: 0.09, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		legendValue: 75,
-		type: "scale"
-	}, {
-		height: 0.09, // percentage of total radius
-		stroke: "black",
-		strength: "1px",
-		type: "heading"
-	}, {
-		height: 0.09, // percentage of total radius
-		stroke: "black",
-		strength: "1px",
-		type: "heading"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		legendValue: 25,
-		type: "scale"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		legendValue: 50,
-		type: "scale"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		legendValue: 75,
-		type: "scale"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "black",
-		strength: "1px",
-		type: "heading"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "black",
-		strength: "1px",
-		type: "heading"
-	}];
