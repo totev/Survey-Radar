@@ -7,7 +7,8 @@ export default class Circles {
 			centerX: cfg.centerX,
 			centerY: cfg.centerY,
 			centerDotPct: cfg.centerDotPct,
-			legendDotPct: cfg.legendDotPct
+			legendDotPct: cfg.legendDotPct,
+			pixel: cfg.pixel
 		};
 		this.circles = circles;
 		this.prepare();
@@ -28,7 +29,8 @@ export default class Circles {
 	renderCircles(type) {
 		let radius = this.cfg.radius,
 			centerX = this.cfg.centerX,
-			centerY = this.cfg.centerY;
+			centerY = this.cfg.centerY,
+			pixel = this.cfg.pixel;
 
 		let circles = !type ? this.circles : this.circles.filter((c) => c.type === type);
 
@@ -41,7 +43,7 @@ export default class Circles {
 			.attr("r", (c) => c.radiusPct * radius)
 			.attr("fill", "none")
 			.attr("stroke", (c) => c.stroke)
-			.attr("stroke-width", (c) => c.strength);
+			.attr("stroke-width", (c) => (c.strength * pixel) + "px");
 	}
 	
 	renderCenterDot() {

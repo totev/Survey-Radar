@@ -9,7 +9,8 @@ export default class Questions {
 			radius: cfg.radius,
 			questionsNr: cfg.questionsNr,
 			turnTextThresholds: cfg.turnTextThresholds,
-			questionFontSize: cfg.questionFontSize
+			questionFontSize: cfg.questionFontSize,
+			pixel: cfg.pixel
 		};
 
 		this.questions = questions;
@@ -27,11 +28,7 @@ export default class Questions {
 
 	prepare() {
 		let radians = this.cfg.radians,
-			questionsNr = this.cfg.questionsNr,
-			centerX = this.cfg.centerX,
-			centerY = this.cfg.centerY;
-		let questionsTitleInnerRadiusPct = this.questionsTitleInnerRadiusPct,
-			questionsStartRadiusPct = this.questionsStartRadiusPct;
+			questionsNr = this.cfg.questionsNr;
 
 		let avgRad = radians / questionsNr;
 
@@ -39,11 +36,32 @@ export default class Questions {
 			question.idx = i;
 			question.startAngle = avgRad * i;
 			question.endAngle = avgRad * (i + 1);
-			question.avgX = centerX * (1 - (question.value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.sin(-(i+0.5) * avgRad)) 
-							 			 - (questionsStartRadiusPct * Math.sin(-(i+0.5) * avgRad)));
-			question.avgY = centerY * (1 - (question.value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.cos(-(i+0.5) * avgRad)) 
-							 			 - (questionsStartRadiusPct * Math.cos(-(i+0.5) * avgRad)));
+			[question.avgX, question.avgY] = this.calculateXY(avgRad, i, question.value, 0.5);
+
+			question.minDetail = 1;
+			question.maxDetail = 0;
+
+			let border = 0.15;
+			let offset = (1 - (2*border)) / (question.details.length - 1);
+			question.details.forEach((detail, j) => {
+				[detail.posX, detail.posY] = this.calculateXY(avgRad, i, detail.value, j * offset + border)
+				if(detail.value > question.maxDetail) question.maxDetail = detail.value;
+				if(detail.value < question.minDetail) question.minDetail = detail.value;
+			});
 		});
+	}
+
+	calculateXY(avgRad, i, value, offset) {
+		let centerX = this.cfg.centerX,
+			centerY = this.cfg.centerY;
+		let questionsTitleInnerRadiusPct = this.questionsTitleInnerRadiusPct,
+			questionsStartRadiusPct = this.questionsStartRadiusPct;
+
+		let x = centerX * (1 - (value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.sin(-(i+offset) * avgRad)) 
+						 	 - (questionsStartRadiusPct * Math.sin(-(i+offset) * avgRad))),
+			y = centerY * (1 - (value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.cos(-(i+offset) * avgRad)) 
+						 	 - (questionsStartRadiusPct * Math.cos(-(i+offset) * avgRad)));
+		return [x, y];
 	}
 
 	renderFillings() {
@@ -87,6 +105,8 @@ export default class Questions {
 			questionsTitleOuterRadius = this.questionsTitleOuterRadius,
 			questionsTitleMiddleRadius = this.questionsTitleMiddleRadius;
 
+		let id = Math.random() * new Date();
+
 		var textArc = d3.svg.arc()
 					.innerRadius(questionsTitleMiddleRadius)
 					.outerRadius(questionsTitleMiddleRadius)
@@ -96,7 +116,7 @@ export default class Questions {
 		this.g.append("path")
 			.attr("d", textArc)
 			.attr("transform", `translate(${centerX}, ${centerY})`)
-			.attr("id", "question_" + question.idx);
+			.attr("id", "question_" + id);
 
 		var textMiddle = question.idx / questionsNr;
 		var offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
@@ -111,7 +131,7 @@ export default class Questions {
 			.attr("class", "questionTitle")
 			.attr("dy", linesNr === 1 ? fontSize / 3 : (((-linesNr / 2) + i) + 0.75) * fontSize)
 		   	.append("textPath")
-			.attr("xlink:href", "#question_" + question.idx)
+			.attr("xlink:href", "#question_" + id)
 			.text(line)
 			.attr("startOffset", startOffset + "%")
 			.style("text-anchor","middle")
@@ -121,7 +141,8 @@ export default class Questions {
 
 	renderLines() {
 		let centerX = this.cfg.centerX,
-			centerY = this.cfg.centerY;
+			centerY = this.cfg.centerY,
+			pixel = this.cfg.pixel;
 		let questionsStartRadiusPct = this.questionsStartRadiusPct,
 			questionsTitleOuterRadiusPct = this.questionsTitleOuterRadiusPct;
 
@@ -138,17 +159,21 @@ export default class Questions {
 			.attr("y2", (question) => centerY * (1 - questionsTitleOuterRadiusPct * Math.cos(question.startAngle)))
 			.attr("class", "line")
 			.style("stroke", "black")
-			.style("stroke-width", "1px");
+			.style("stroke-width", 1*pixel + "px");
 	}
 
 	renderAverages() {
+		let pixel = this.cfg.pixel;
+
+		let color = "rgb(237, 52, 52)";
+
 		this.g.selectAll(".area")
 			 .data([this.questions])
 			 .enter()
 			 .append("polygon")
 			 .attr("class", "radar-chart-series")
-			 .style("stroke-width", "2px")
-			 .style("stroke", "red")
+			 .style("stroke-width", (pixel * 1.5) + "px")
+			 .style("stroke", color)
 			 .attr("points", function(questions) {
 				 let str="";
 				 for(let question of questions){
@@ -158,14 +183,57 @@ export default class Questions {
 			  })
 			 .style("fill", "none");
 
-		this.g.selectAll(".nodes")
+		this.g.selectAll(".avgNodes")
 			.data(this.questions).enter()
 			.append("svg:circle")
 			.attr("class", "radar-chart-series")
-			.attr('r', "3px")
+			.attr('r', (pixel * 2) + "px")
 			.attr("cx", (question) => question.avgX)
 			.attr("cy", (question) => question.avgY)
+			.style("fill", color);
+	}
+
+	renderAllDetails() {
+		for(let question of this.questions) {
+			this.renderQuestionDetails(question);
+		}
+	}
+
+	renderQuestionDetails(question) {
+		let pixel = this.cfg.pixel;
+
+		this.g.selectAll(".detailNodes")
+			.data(question.details).enter()
+			.append("svg:circle")
+			.attr("class", "radar-chart-series")
+			.attr('r', (pixel * 2) + "px")
+			.attr("cx", (detail) => detail.posX)
+			.attr("cy", (detail) => detail.posY)
 			.attr("title", (question) => question.title)
-			.style("fill", "red").style("fill-opacity", .9);
+			.style("fill", "black");
+	}
+
+	renderMinMaxs() {
+		for(let question of this.questions) {
+			this.renderMinMax(question);
+		}
+	}
+
+	renderMinMax(question) {
+		let centerX = this.cfg.centerX,
+			centerY = this.cfg.centerY;
+		let questionsStartRadius = this.questionsStartRadius,
+			questionsTitleInnerRadius = this.questionsTitleInnerRadius;
+
+		let fillingArc = d3.svg.arc()
+						.innerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.minDetail)
+						.outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.maxDetail)
+						.startAngle(question.startAngle)
+						.endAngle(question.endAngle);
+
+		this.g.append("path")
+			.attr("d", fillingArc)
+			.attr("transform", `translate(${centerX}, ${centerY})`)
+			.attr("fill", "rgba(128, 128, 128, 0.33)");
 	}
 }

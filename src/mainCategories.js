@@ -11,7 +11,8 @@ export default class MainCategories {
 			backgroundOpacity: cfg.backgroundOpacity,
 			mainCatFontSize: cfg.mainCatFontSize,
 			mainCatLetterSpacing: cfg.mainCatLetterSpacing,
-			turnTextThresholds: cfg.turnTextThresholds
+			turnTextThresholds: cfg.turnTextThresholds,
+			pixel: cfg.pixel
 		};
 
 		this.mainCats = mainCats;
@@ -80,7 +81,10 @@ export default class MainCategories {
 			questionsNr = this.cfg.questionsNr,
 			mainCatFontSize = this.cfg.mainCatFontSize,
 			letterSpacing = this.cfg.mainCatLetterSpacing,
-			turnTextThresholds = this.cfg.turnTextThresholds;
+			turnTextThresholds = this.cfg.turnTextThresholds,
+			pixel = this.cfg.pixel;
+
+		let id = Math.random() * new Date();
 
 		let arc = d3.svg.arc()
 						.innerRadius(innerTitleRadius)
@@ -104,7 +108,7 @@ export default class MainCategories {
 		this.g.append("path")
 			.attr("d", textArc)
 			.attr("transform", `translate(${centerX}, ${centerY})`)
-			.attr("id", "mainCat_" + mainCat.firstQuestionIdx);			
+			.attr("id", "mainCat_" + id);			
 
 		let textMiddle = (mainCat.firstQuestionIdx + mainCat.questionsNr / 2) / questionsNr;
 		let offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
@@ -115,20 +119,21 @@ export default class MainCategories {
 			.attr("class", "mainCatTitle")
 			.attr("dy", fontSize / 3)
 		   	.append("textPath")
-			.attr("xlink:href", "#mainCat_" + mainCat.firstQuestionIdx)
+			.attr("xlink:href", "#mainCat_" + id)
 			.text(mainCat.mainCat)
 			.attr("fill", "white")
 			.attr("startOffset", startOffset + "%")
 			.style("text-anchor","middle")
 			.style("font-size", fontSize + "px")
-			.style("letter-spacing", letterSpacing + "px");
+			.style("letter-spacing", (letterSpacing * pixel) + "px");
 	}
 
 	renderLines() {
 		let radians = this.cfg.radians,
 			questionsNr = this.cfg.questionsNr,
 			centerX = this.cfg.centerX,
-			centerY = this.cfg.centerY;
+			centerY = this.cfg.centerY,
+			pixel = this.cfg.pixel;
 
 		let mainCatAxis = this.g.selectAll(".mainAxis")
 			.data(this.mainCats)
@@ -143,7 +148,7 @@ export default class MainCategories {
 			.attr("y2", (mainCat, i) => centerY * (1 - Math.cos(-mainCat.firstQuestionIdx * radians / questionsNr)))
 			.attr("class", "line")
 			.style("stroke", "black")
-			.style("stroke-width", "3px");
+			.style("stroke-width", (3 * pixel) + "px");
 	}
 
 }

@@ -10,7 +10,8 @@ export default class SubCategories {
 			questionsNr: cfg.questionsNr,
 			centerDotSize: cfg.centerDotSize,
 			subCatFontSize: cfg.subCatFontSize,
-			turnTextThresholds: cfg.turnTextThresholds
+			turnTextThresholds: cfg.turnTextThresholds,
+			pixel: cfg.pixel
 		};
 
 		this.subCats = subCats;
@@ -86,6 +87,8 @@ export default class SubCategories {
 		let subCatTitleInnerRadius = this.subCatTitleInnerRadius,
 			subCatTitleOuterRadius = this.subCatTitleOuterRadius,
 			subCatTitleMiddleRadius = this.subCatTitleMiddleRadius;
+
+		let id = Math.random() * new Date();
 			
 		let textArc = d3.svg.arc()
 					.innerRadius(subCatTitleMiddleRadius)
@@ -96,7 +99,7 @@ export default class SubCategories {
 		this.g.append("path")
 			.attr("d", textArc)
 			.attr("transform", `translate(${centerX}, ${centerY})`)
-			.attr("id", "subCat_" + subCat.firstQuestionIdx);
+			.attr("id", "subCat_" + id);
 
 		let textMiddle = (subCat.firstQuestionIdx + subCat.questionsNr / 2) / questionsNr;
 		let offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
@@ -112,7 +115,7 @@ export default class SubCategories {
 			.attr("class", "subCatTitle")
 			.attr("dy", linesNr === 1 ? fontSize / 3 : (((-linesNr / 2) + i) + 0.75) * fontSize)
 		   	.append("textPath")
-			.attr("xlink:href", "#subCat_" + subCat.firstQuestionIdx)
+			.attr("xlink:href", "#subCat_" + id)
 			.text(line)
 			.attr("startOffset", startOffset + "%")
 			.style("text-anchor","middle")
@@ -143,7 +146,8 @@ export default class SubCategories {
 		let centerX = this.cfg.centerX,
 			centerY = this.cfg.centerY,
 			radians = this.cfg.radians,
-			questionsNr = this.cfg.questionsNr;
+			questionsNr = this.cfg.questionsNr,
+			pixel = this.cfg.pixel;
 		let subAxisEndPct = this.subAxisEndPct;
 
 		let subCatAxis = this.g.selectAll(".subAxis")
@@ -159,6 +163,6 @@ export default class SubCategories {
 			.attr("y2", (subCat) => centerY * (1 - subAxisEndPct * Math.cos(-subCat.firstQuestionIdx * radians / questionsNr)))
 			.attr("class", "line")
 			.style("stroke", "black")
-			.style("stroke-width", "2px");
+			.style("stroke-width", (pixel * 2) + "px");
 	}
 }

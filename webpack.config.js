@@ -2,7 +2,7 @@ var webpack = require('webpack');
 
 module.exports = {
 	entry: [
-		'./src/radar2.js'
+		'./src/index.js'
 	],
 	module: {
 	    loaders: [{

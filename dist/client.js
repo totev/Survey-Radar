@@ -53,89 +53,15 @@
 
 	'use strict';
 
-	var _mainCategories = __webpack_require__(2);
+	var _radar = __webpack_require__(7);
 
-	var _mainCategories2 = _interopRequireDefault(_mainCategories);
+	var _radar2 = _interopRequireDefault(_radar);
 
-	var _subCategories = __webpack_require__(3);
+	var _radar3 = __webpack_require__(2);
 
-	var _subCategories2 = _interopRequireDefault(_subCategories);
-
-	var _questions = __webpack_require__(4);
-
-	var _questions2 = _interopRequireDefault(_questions);
-
-	var _circles = __webpack_require__(5);
-
-	var _circles2 = _interopRequireDefault(_circles);
+	var _radar4 = _interopRequireDefault(_radar3);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var circles = [{
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		legendValue: 20,
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		legendValue: 40,
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		legendValue: 60,
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		legendValue: 80,
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: "1px",
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "black",
-		strength: "1px",
-		type: "heading"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "black",
-		strength: "1px",
-		type: "heading"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "black",
-		strength: "1px",
-		type: "heading"
-	}];
 
 	var mainCats = [{
 		mainCat: "PERFORMANCE",
@@ -149,19 +75,19 @@
 				color: "rgba(59, 128, 62, 0.7)",
 				value: 0.4,
 				details: [{
-					title: "",
+					title: "asd1",
 					value: 0.111
 				}, {
-					title: "",
+					title: "asd2",
 					value: 0.444
 				}, {
-					title: "",
+					title: "asd3",
 					value: 0.222
 				}, {
-					title: "",
+					title: "asd4",
 					value: 0.888
 				}, {
-					title: "",
+					title: "asd5",
 					value: 0.333
 				}]
 			}, {
@@ -169,17 +95,17 @@
 				color: "rgba(59, 128, 62, 0.7)",
 				value: 0.4,
 				details: [{
-					title: "",
-					value: 0.111
+					title: "bsd1",
+					value: 0.555
 				}, {
-					title: "",
+					title: "bsd2",
 					value: 0.444
 				}, {
 					title: "",
 					value: 0.222
 				}, {
 					title: "",
-					value: 0.888
+					value: 0.444
 				}, {
 					title: "",
 					value: 0.333
@@ -190,16 +116,7 @@
 				value: 0.4,
 				details: [{
 					title: "",
-					value: 0.111
-				}, {
-					title: "",
-					value: 0.444
-				}, {
-					title: "",
-					value: 0.222
-				}, {
-					title: "",
-					value: 0.888
+					value: 0.666
 				}, {
 					title: "",
 					value: 0.333
@@ -999,7 +916,175 @@
 		}]
 	}];
 
-	var cfg = {
+	var r1 = new _radar2.default(mainCats, {
+		h: 400,
+		w: 400
+	});
+	r1.render('#surveyRadar1');
+
+	var r2 = new _radar4.default(mainCats, {
+		subCatFontSize: 0.45
+	});
+	r2.render('#surveyRadar2');
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _mainCategories = __webpack_require__(3);
+
+	var _mainCategories2 = _interopRequireDefault(_mainCategories);
+
+	var _subCategories = __webpack_require__(4);
+
+	var _subCategories2 = _interopRequireDefault(_subCategories);
+
+	var _questions = __webpack_require__(5);
+
+	var _questions2 = _interopRequireDefault(_questions);
+
+	var _circles = __webpack_require__(6);
+
+	var _circles2 = _interopRequireDefault(_circles);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Radar2 = function () {
+		function Radar2(mainCats, config) {
+			_classCallCheck(this, Radar2);
+
+			this.circles = this.constructor.circles;
+			this.mainCats = JSON.parse(JSON.stringify(mainCats)); // create clone to avoid messing with the input data
+			this.cfg = this.prepareConfig(Object.assign(this.constructor.cfg, config));
+		}
+
+		_createClass(Radar2, [{
+			key: 'prepareConfig',
+			value: function prepareConfig(cfg) {
+				var _iteratorNormalCompletion = true;
+				var _didIteratorError = false;
+				var _iteratorError = undefined;
+
+				try {
+					for (var _iterator = this.mainCats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+						var mainCat = _step.value;
+						var _iteratorNormalCompletion2 = true;
+						var _didIteratorError2 = false;
+						var _iteratorError2 = undefined;
+
+						try {
+							for (var _iterator2 = mainCat.subCats[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+								var subCat = _step2.value;
+
+								cfg.questionsNr += subCat.questions.length;
+							}
+						} catch (err) {
+							_didIteratorError2 = true;
+							_iteratorError2 = err;
+						} finally {
+							try {
+								if (!_iteratorNormalCompletion2 && _iterator2.return) {
+									_iterator2.return();
+								}
+							} finally {
+								if (_didIteratorError2) {
+									throw _iteratorError2;
+								}
+							}
+						}
+					}
+				} catch (err) {
+					_didIteratorError = true;
+					_iteratorError = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion && _iterator.return) {
+							_iterator.return();
+						}
+					} finally {
+						if (_didIteratorError) {
+							throw _iteratorError;
+						}
+					}
+				}
+
+				cfg.centerX = cfg.w / 2;
+				cfg.centerY = cfg.h / 2;
+				cfg.radius = Math.min(cfg.centerX, cfg.centerY);
+				cfg.pixel = cfg.radius / 400;
+
+				return cfg;
+			}
+		}, {
+			key: 'render',
+			value: function render(containerId) {
+				var cfg = this.cfg;
+
+				d3.select(containerId).select("svg").remove();
+
+				var g = d3.select(containerId).append("svg").attr("width", cfg.w + cfg.ExtraWidthX).attr("height", cfg.h + cfg.ExtraWidthY).append("g").attr("transform", 'translate(' + cfg.TranslateX + ', ' + cfg.TranslateY + ')');
+
+				var c = new _circles2.default(g, cfg, this.circles);
+
+				var subCatTitleInnerRadiusPct = c.circles[10].radiusPct,
+				    subCatTitleOuterRadiusPct = c.circles[11].radiusPct,
+				    questionsTitleInnerRadiusPct = c.circles[9].radiusPct,
+				    questionsTitleOuterRadiusPct = subCatTitleInnerRadiusPct;
+
+				var mc = new _mainCategories2.default(g, cfg, this.mainCats, subCatTitleOuterRadiusPct);
+
+				var subCats = this.mainCats.map(function (mainCat) {
+					return mainCat.subCats;
+				}).reduce(function (aggregate, next) {
+					return aggregate.concat(next);
+				});
+				var sc = new _subCategories2.default(g, cfg, subCats, subCatTitleInnerRadiusPct, subCatTitleOuterRadiusPct, subCatTitleOuterRadiusPct);
+
+				var questions = subCats.map(function (subCat) {
+					return subCat.questions;
+				}).reduce(function (aggregate, next) {
+					return aggregate.concat(next);
+				});
+				var q = new _questions2.default(g, cfg, questions, cfg.centerDotPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
+
+				q.renderTitles();
+				sc.renderTitles(true);
+				mc.renderTitles();
+
+				c.renderCircles("scale");
+
+				q.renderMinMaxs();
+
+				q.renderLines();
+				sc.renderLines();
+				mc.renderLines();
+
+				c.renderCircles("heading");
+				c.renderCenterDot();
+				c.renderLegend();
+
+				q.renderAverages();
+				q.renderAllDetails();
+			}
+		}]);
+
+		return Radar2;
+	}();
+
+	exports.default = Radar2;
+
+
+	Radar2.cfg = {
 		w: 800,
 		h: 800,
 		radians: 2 * Math.PI,
@@ -1011,7 +1096,7 @@
 		turnTextThresholds: [0.25, 0.75],
 		backgroundOpacity: 0.1,
 		mainCatFontSize: 0.7,
-		mainCatLetterSpacing: 2,
+		mainCatLetterSpacing: 5,
 		centerDotSize: 0.04,
 		subCatFontSize: 0.36,
 		questionFontSize: 0.26,
@@ -1019,103 +1104,74 @@
 		legendDotPct: 0.015
 	};
 
-	var _iteratorNormalCompletion = true;
-	var _didIteratorError = false;
-	var _iteratorError = undefined;
-
-	try {
-		for (var _iterator = mainCats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-			var mainCat = _step.value;
-			var _iteratorNormalCompletion2 = true;
-			var _didIteratorError2 = false;
-			var _iteratorError2 = undefined;
-
-			try {
-				for (var _iterator2 = mainCat.subCats[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-					var subCat = _step2.value;
-
-					cfg.questionsNr += subCat.questions.length;
-				}
-			} catch (err) {
-				_didIteratorError2 = true;
-				_iteratorError2 = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion2 && _iterator2.return) {
-						_iterator2.return();
-					}
-				} finally {
-					if (_didIteratorError2) {
-						throw _iteratorError2;
-					}
-				}
-			}
-		}
-	} catch (err) {
-		_didIteratorError = true;
-		_iteratorError = err;
-	} finally {
-		try {
-			if (!_iteratorNormalCompletion && _iterator.return) {
-				_iterator.return();
-			}
-		} finally {
-			if (_didIteratorError) {
-				throw _iteratorError;
-			}
-		}
-	}
-
-	cfg.centerX = cfg.w / 2;
-	cfg.centerY = cfg.h / 2;
-	cfg.radius = Math.min(cfg.centerX, cfg.centerY);
-
-	var id = "#surveyRadar2";
-	d3.select(id).select("svg").remove();
-
-	var g = d3.select(id).append("svg").attr("width", cfg.w + cfg.ExtraWidthX).attr("height", cfg.h + cfg.ExtraWidthY).append("g").attr("transform", 'translate(' + cfg.TranslateX + ', ' + cfg.TranslateY + ')');
-
-	var c = new _circles2.default(g, cfg, circles);
-
-	var subCatTitleInnerRadiusPct = c.circles[10].radiusPct,
-	    subCatTitleOuterRadiusPct = c.circles[11].radiusPct,
-	    questionsTitleInnerRadiusPct = c.circles[9].radiusPct,
-	    questionsTitleOuterRadiusPct = subCatTitleInnerRadiusPct;
-
-	var mc = new _mainCategories2.default(g, cfg, mainCats, subCatTitleOuterRadiusPct);
-
-	var subCats = mainCats.map(function (mainCat) {
-		return mainCat.subCats;
-	}).reduce(function (aggregate, next) {
-		return aggregate.concat(next);
-	});
-	var sc = new _subCategories2.default(g, cfg, subCats, subCatTitleInnerRadiusPct, subCatTitleOuterRadiusPct, subCatTitleOuterRadiusPct);
-
-	var questions = subCats.map(function (subCat) {
-		return subCat.questions;
-	}).reduce(function (aggregate, next) {
-		return aggregate.concat(next);
-	});
-	var q = new _questions2.default(g, cfg, questions, cfg.centerDotPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
-
-	q.renderTitles();
-	sc.renderTitles(true);
-	mc.renderTitles();
-
-	c.renderCircles("scale");
-
-	q.renderLines();
-	sc.renderLines();
-	mc.renderLines();
-
-	c.renderCircles("heading");
-	c.renderCenterDot();
-	c.renderLegend();
-
-	q.renderAverages();
+	Radar2.circles = [{
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 20,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 40,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 60,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 80,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "black",
+		strength: 1,
+		type: "heading"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "black",
+		strength: 1,
+		type: "heading"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "black",
+		strength: 1,
+		type: "heading"
+	}];
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1142,7 +1198,8 @@
 				backgroundOpacity: cfg.backgroundOpacity,
 				mainCatFontSize: cfg.mainCatFontSize,
 				mainCatLetterSpacing: cfg.mainCatLetterSpacing,
-				turnTextThresholds: cfg.turnTextThresholds
+				turnTextThresholds: cfg.turnTextThresholds,
+				pixel: cfg.pixel
 			};
 
 			this.mainCats = mainCats;
@@ -1291,7 +1348,10 @@
 				    questionsNr = this.cfg.questionsNr,
 				    mainCatFontSize = this.cfg.mainCatFontSize,
 				    letterSpacing = this.cfg.mainCatLetterSpacing,
-				    turnTextThresholds = this.cfg.turnTextThresholds;
+				    turnTextThresholds = this.cfg.turnTextThresholds,
+				    pixel = this.cfg.pixel;
+
+				var id = Math.random() * new Date();
 
 				var arc = d3.svg.arc().innerRadius(innerTitleRadius).outerRadius(radius).startAngle(mainCat.startAngle).endAngle(mainCat.endAngle);
 
@@ -1299,14 +1359,14 @@
 
 				this.g.append("path").attr("class", "arc").attr("d", arc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", mainCat.color).attr("stroke", mainCat.color);
 
-				this.g.append("path").attr("d", textArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("id", "mainCat_" + mainCat.firstQuestionIdx);
+				this.g.append("path").attr("d", textArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("id", "mainCat_" + id);
 
 				var textMiddle = (mainCat.firstQuestionIdx + mainCat.questionsNr / 2) / questionsNr;
 				var offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
 				var startOffset = 25 + 50 * offset;
 				var fontSize = (radius - innerTitleRadius) * mainCatFontSize;
 
-				this.g.append("text").attr("class", "mainCatTitle").attr("dy", fontSize / 3).append("textPath").attr("xlink:href", "#mainCat_" + mainCat.firstQuestionIdx).text(mainCat.mainCat).attr("fill", "white").attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px").style("letter-spacing", letterSpacing + "px");
+				this.g.append("text").attr("class", "mainCatTitle").attr("dy", fontSize / 3).append("textPath").attr("xlink:href", "#mainCat_" + id).text(mainCat.mainCat).attr("fill", "white").attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px").style("letter-spacing", letterSpacing * pixel + "px");
 			}
 		}, {
 			key: "renderLines",
@@ -1314,7 +1374,8 @@
 				var radians = this.cfg.radians,
 				    questionsNr = this.cfg.questionsNr,
 				    centerX = this.cfg.centerX,
-				    centerY = this.cfg.centerY;
+				    centerY = this.cfg.centerY,
+				    pixel = this.cfg.pixel;
 
 				var mainCatAxis = this.g.selectAll(".mainAxis").data(this.mainCats).enter().append("g").attr("class", "mainAxis");
 
@@ -1322,7 +1383,7 @@
 					return centerX * (1 - Math.sin(-mainCat.firstQuestionIdx * radians / questionsNr));
 				}).attr("y2", function (mainCat, i) {
 					return centerY * (1 - Math.cos(-mainCat.firstQuestionIdx * radians / questionsNr));
-				}).attr("class", "line").style("stroke", "black").style("stroke-width", "3px");
+				}).attr("class", "line").style("stroke", "black").style("stroke-width", 3 * pixel + "px");
 			}
 		}]);
 
@@ -1332,7 +1393,7 @@
 	exports.default = MainCategories;
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1358,7 +1419,8 @@
 				questionsNr: cfg.questionsNr,
 				centerDotSize: cfg.centerDotSize,
 				subCatFontSize: cfg.subCatFontSize,
-				turnTextThresholds: cfg.turnTextThresholds
+				turnTextThresholds: cfg.turnTextThresholds,
+				pixel: cfg.pixel
 			};
 
 			this.subCats = subCats;
@@ -1499,9 +1561,11 @@
 				    subCatTitleOuterRadius = this.subCatTitleOuterRadius,
 				    subCatTitleMiddleRadius = this.subCatTitleMiddleRadius;
 
+				var id = Math.random() * new Date();
+
 				var textArc = d3.svg.arc().innerRadius(subCatTitleMiddleRadius).outerRadius(subCatTitleMiddleRadius).startAngle(subCat.startAngle).endAngle(subCat.endAngle);
 
-				this.g.append("path").attr("d", textArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("id", "subCat_" + subCat.firstQuestionIdx);
+				this.g.append("path").attr("d", textArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("id", "subCat_" + id);
 
 				var textMiddle = (subCat.firstQuestionIdx + subCat.questionsNr / 2) / questionsNr;
 				var offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
@@ -1512,7 +1576,7 @@
 				var linesNr = lines.length;
 
 				lines.forEach(function (line, i) {
-					_this.g.append("text").attr("class", "subCatTitle").attr("dy", linesNr === 1 ? fontSize / 3 : (-linesNr / 2 + i + 0.75) * fontSize).append("textPath").attr("xlink:href", "#subCat_" + subCat.firstQuestionIdx).text(line).attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px");
+					_this.g.append("text").attr("class", "subCatTitle").attr("dy", linesNr === 1 ? fontSize / 3 : (-linesNr / 2 + i + 0.75) * fontSize).append("textPath").attr("xlink:href", "#subCat_" + id).text(line).attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px");
 				});
 			}
 		}, {
@@ -1534,7 +1598,8 @@
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY,
 				    radians = this.cfg.radians,
-				    questionsNr = this.cfg.questionsNr;
+				    questionsNr = this.cfg.questionsNr,
+				    pixel = this.cfg.pixel;
 				var subAxisEndPct = this.subAxisEndPct;
 
 				var subCatAxis = this.g.selectAll(".subAxis").data(this.subCats).enter().append("g").attr("class", "subAxis");
@@ -1543,7 +1608,7 @@
 					return centerX * (1 - subAxisEndPct * Math.sin(-subCat.firstQuestionIdx * radians / questionsNr));
 				}).attr("y2", function (subCat) {
 					return centerY * (1 - subAxisEndPct * Math.cos(-subCat.firstQuestionIdx * radians / questionsNr));
-				}).attr("class", "line").style("stroke", "black").style("stroke-width", "2px");
+				}).attr("class", "line").style("stroke", "black").style("stroke-width", pixel * 2 + "px");
 			}
 		}]);
 
@@ -1553,7 +1618,7 @@
 	exports.default = SubCategories;
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1561,6 +1626,8 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
+
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -1578,7 +1645,8 @@
 				radius: cfg.radius,
 				questionsNr: cfg.questionsNr,
 				turnTextThresholds: cfg.turnTextThresholds,
-				questionFontSize: cfg.questionFontSize
+				questionFontSize: cfg.questionFontSize,
+				pixel: cfg.pixel
 			};
 
 			this.questions = questions;
@@ -1597,12 +1665,10 @@
 		_createClass(Questions, [{
 			key: "prepare",
 			value: function prepare() {
+				var _this = this;
+
 				var radians = this.cfg.radians,
-				    questionsNr = this.cfg.questionsNr,
-				    centerX = this.cfg.centerX,
-				    centerY = this.cfg.centerY;
-				var questionsTitleInnerRadiusPct = this.questionsTitleInnerRadiusPct,
-				    questionsStartRadiusPct = this.questionsStartRadiusPct;
+				    questionsNr = this.cfg.questionsNr;
 
 				var avgRad = radians / questionsNr;
 
@@ -1610,9 +1676,44 @@
 					question.idx = i;
 					question.startAngle = avgRad * i;
 					question.endAngle = avgRad * (i + 1);
-					question.avgX = centerX * (1 - question.value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.sin(-(i + 0.5) * avgRad) - questionsStartRadiusPct * Math.sin(-(i + 0.5) * avgRad));
-					question.avgY = centerY * (1 - question.value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.cos(-(i + 0.5) * avgRad) - questionsStartRadiusPct * Math.cos(-(i + 0.5) * avgRad));
+
+					var _calculateXY = _this.calculateXY(avgRad, i, question.value, 0.5);
+
+					var _calculateXY2 = _slicedToArray(_calculateXY, 2);
+
+					question.avgX = _calculateXY2[0];
+					question.avgY = _calculateXY2[1];
+
+
+					question.minDetail = 1;
+					question.maxDetail = 0;
+
+					var border = 0.15;
+					var offset = (1 - 2 * border) / (question.details.length - 1);
+					question.details.forEach(function (detail, j) {
+						var _calculateXY3 = _this.calculateXY(avgRad, i, detail.value, j * offset + border);
+
+						var _calculateXY4 = _slicedToArray(_calculateXY3, 2);
+
+						detail.posX = _calculateXY4[0];
+						detail.posY = _calculateXY4[1];
+
+						if (detail.value > question.maxDetail) question.maxDetail = detail.value;
+						if (detail.value < question.minDetail) question.minDetail = detail.value;
+					});
 				});
+			}
+		}, {
+			key: "calculateXY",
+			value: function calculateXY(avgRad, i, value, offset) {
+				var centerX = this.cfg.centerX,
+				    centerY = this.cfg.centerY;
+				var questionsTitleInnerRadiusPct = this.questionsTitleInnerRadiusPct,
+				    questionsStartRadiusPct = this.questionsStartRadiusPct;
+
+				var x = centerX * (1 - value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.sin(-(i + offset) * avgRad) - questionsStartRadiusPct * Math.sin(-(i + offset) * avgRad)),
+				    y = centerY * (1 - value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.cos(-(i + offset) * avgRad) - questionsStartRadiusPct * Math.cos(-(i + offset) * avgRad));
+				return [x, y];
 			}
 		}, {
 			key: "renderFillings",
@@ -1685,7 +1786,7 @@
 		}, {
 			key: "renderTitle",
 			value: function renderTitle(question) {
-				var _this = this;
+				var _this2 = this;
 
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY,
@@ -1696,9 +1797,11 @@
 				    questionsTitleOuterRadius = this.questionsTitleOuterRadius,
 				    questionsTitleMiddleRadius = this.questionsTitleMiddleRadius;
 
+				var id = Math.random() * new Date();
+
 				var textArc = d3.svg.arc().innerRadius(questionsTitleMiddleRadius).outerRadius(questionsTitleMiddleRadius).startAngle(question.startAngle).endAngle(question.endAngle);
 
-				this.g.append("path").attr("d", textArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("id", "question_" + question.idx);
+				this.g.append("path").attr("d", textArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("id", "question_" + id);
 
 				var textMiddle = question.idx / questionsNr;
 				var offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
@@ -1709,14 +1812,15 @@
 				var linesNr = lines.length;
 
 				lines.forEach(function (line, i) {
-					_this.g.append("text").attr("class", "questionTitle").attr("dy", linesNr === 1 ? fontSize / 3 : (-linesNr / 2 + i + 0.75) * fontSize).append("textPath").attr("xlink:href", "#question_" + question.idx).text(line).attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px");
+					_this2.g.append("text").attr("class", "questionTitle").attr("dy", linesNr === 1 ? fontSize / 3 : (-linesNr / 2 + i + 0.75) * fontSize).append("textPath").attr("xlink:href", "#question_" + id).text(line).attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px");
 				});
 			}
 		}, {
 			key: "renderLines",
 			value: function renderLines() {
 				var centerX = this.cfg.centerX,
-				    centerY = this.cfg.centerY;
+				    centerY = this.cfg.centerY,
+				    pixel = this.cfg.pixel;
 				var questionsStartRadiusPct = this.questionsStartRadiusPct,
 				    questionsTitleOuterRadiusPct = this.questionsTitleOuterRadiusPct;
 
@@ -1730,12 +1834,16 @@
 					return centerX * (1 - questionsTitleOuterRadiusPct * Math.sin(question.startAngle));
 				}).attr("y2", function (question) {
 					return centerY * (1 - questionsTitleOuterRadiusPct * Math.cos(question.startAngle));
-				}).attr("class", "line").style("stroke", "black").style("stroke-width", "1px");
+				}).attr("class", "line").style("stroke", "black").style("stroke-width", 1 * pixel + "px");
 			}
 		}, {
 			key: "renderAverages",
 			value: function renderAverages() {
-				this.g.selectAll(".area").data([this.questions]).enter().append("polygon").attr("class", "radar-chart-series").style("stroke-width", "2px").style("stroke", "red").attr("points", function (questions) {
+				var pixel = this.cfg.pixel;
+
+				var color = "rgb(237, 52, 52)";
+
+				this.g.selectAll(".area").data([this.questions]).enter().append("polygon").attr("class", "radar-chart-series").style("stroke-width", pixel * 1.5 + "px").style("stroke", color).attr("points", function (questions) {
 					var str = "";
 					var _iteratorNormalCompletion3 = true;
 					var _didIteratorError3 = false;
@@ -1765,13 +1873,92 @@
 					return str;
 				}).style("fill", "none");
 
-				this.g.selectAll(".nodes").data(this.questions).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', "3px").attr("cx", function (question) {
+				this.g.selectAll(".avgNodes").data(this.questions).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (question) {
 					return question.avgX;
 				}).attr("cy", function (question) {
 					return question.avgY;
+				}).style("fill", color);
+			}
+		}, {
+			key: "renderAllDetails",
+			value: function renderAllDetails() {
+				var _iteratorNormalCompletion4 = true;
+				var _didIteratorError4 = false;
+				var _iteratorError4 = undefined;
+
+				try {
+					for (var _iterator4 = this.questions[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+						var question = _step4.value;
+
+						this.renderQuestionDetails(question);
+					}
+				} catch (err) {
+					_didIteratorError4 = true;
+					_iteratorError4 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion4 && _iterator4.return) {
+							_iterator4.return();
+						}
+					} finally {
+						if (_didIteratorError4) {
+							throw _iteratorError4;
+						}
+					}
+				}
+			}
+		}, {
+			key: "renderQuestionDetails",
+			value: function renderQuestionDetails(question) {
+				var pixel = this.cfg.pixel;
+
+				this.g.selectAll(".detailNodes").data(question.details).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (detail) {
+					return detail.posX;
+				}).attr("cy", function (detail) {
+					return detail.posY;
 				}).attr("title", function (question) {
 					return question.title;
-				}).style("fill", "red").style("fill-opacity", .9);
+				}).style("fill", "black");
+			}
+		}, {
+			key: "renderMinMaxs",
+			value: function renderMinMaxs() {
+				var _iteratorNormalCompletion5 = true;
+				var _didIteratorError5 = false;
+				var _iteratorError5 = undefined;
+
+				try {
+					for (var _iterator5 = this.questions[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+						var question = _step5.value;
+
+						this.renderMinMax(question);
+					}
+				} catch (err) {
+					_didIteratorError5 = true;
+					_iteratorError5 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion5 && _iterator5.return) {
+							_iterator5.return();
+						}
+					} finally {
+						if (_didIteratorError5) {
+							throw _iteratorError5;
+						}
+					}
+				}
+			}
+		}, {
+			key: "renderMinMax",
+			value: function renderMinMax(question) {
+				var centerX = this.cfg.centerX,
+				    centerY = this.cfg.centerY;
+				var questionsStartRadius = this.questionsStartRadius,
+				    questionsTitleInnerRadius = this.questionsTitleInnerRadius;
+
+				var fillingArc = d3.svg.arc().innerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.minDetail).outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.maxDetail).startAngle(question.startAngle).endAngle(question.endAngle);
+
+				this.g.append("path").attr("d", fillingArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", "rgba(128, 128, 128, 0.33)");
 			}
 		}]);
 
@@ -1781,7 +1968,7 @@
 	exports.default = Questions;
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1804,7 +1991,8 @@
 				centerX: cfg.centerX,
 				centerY: cfg.centerY,
 				centerDotPct: cfg.centerDotPct,
-				legendDotPct: cfg.legendDotPct
+				legendDotPct: cfg.legendDotPct,
+				pixel: cfg.pixel
 			};
 			this.circles = circles;
 			this.prepare();
@@ -1849,7 +2037,8 @@
 			value: function renderCircles(type) {
 				var radius = this.cfg.radius,
 				    centerX = this.cfg.centerX,
-				    centerY = this.cfg.centerY;
+				    centerY = this.cfg.centerY,
+				    pixel = this.cfg.pixel;
 
 				var circles = !type ? this.circles : this.circles.filter(function (c) {
 					return c.type === type;
@@ -1860,7 +2049,7 @@
 				}).attr("fill", "none").attr("stroke", function (c) {
 					return c.stroke;
 				}).attr("stroke-width", function (c) {
-					return c.strength;
+					return c.strength * pixel + "px";
 				});
 			}
 		}, {
@@ -1922,6 +2111,242 @@
 	}();
 
 	exports.default = Circles;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _mainCategories = __webpack_require__(3);
+
+	var _mainCategories2 = _interopRequireDefault(_mainCategories);
+
+	var _subCategories = __webpack_require__(4);
+
+	var _subCategories2 = _interopRequireDefault(_subCategories);
+
+	var _questions = __webpack_require__(5);
+
+	var _questions2 = _interopRequireDefault(_questions);
+
+	var _circles = __webpack_require__(6);
+
+	var _circles2 = _interopRequireDefault(_circles);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Radar1 = function () {
+		function Radar1(mainCats, config) {
+			_classCallCheck(this, Radar1);
+
+			this.circles = this.constructor.circles;
+			this.mainCats = JSON.parse(JSON.stringify(mainCats));
+			this.cfg = this.prepareConfig(Object.assign(this.constructor.cfg, config));
+		}
+
+		_createClass(Radar1, [{
+			key: 'prepareConfig',
+			value: function prepareConfig(cfg) {
+				var _iteratorNormalCompletion = true;
+				var _didIteratorError = false;
+				var _iteratorError = undefined;
+
+				try {
+					for (var _iterator = this.mainCats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+						var mainCat = _step.value;
+						var _iteratorNormalCompletion2 = true;
+						var _didIteratorError2 = false;
+						var _iteratorError2 = undefined;
+
+						try {
+							for (var _iterator2 = mainCat.subCats[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+								var subCat = _step2.value;
+
+								cfg.questionsNr += subCat.questions.length;
+							}
+						} catch (err) {
+							_didIteratorError2 = true;
+							_iteratorError2 = err;
+						} finally {
+							try {
+								if (!_iteratorNormalCompletion2 && _iterator2.return) {
+									_iterator2.return();
+								}
+							} finally {
+								if (_didIteratorError2) {
+									throw _iteratorError2;
+								}
+							}
+						}
+					}
+				} catch (err) {
+					_didIteratorError = true;
+					_iteratorError = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion && _iterator.return) {
+							_iterator.return();
+						}
+					} finally {
+						if (_didIteratorError) {
+							throw _iteratorError;
+						}
+					}
+				}
+
+				cfg.centerX = cfg.w / 2;
+				cfg.centerY = cfg.h / 2;
+				cfg.radius = Math.min(cfg.centerX, cfg.centerY);
+				cfg.pixel = cfg.radius / 400;
+
+				return cfg;
+			}
+		}, {
+			key: 'render',
+			value: function render(containerId) {
+				var cfg = this.cfg;
+
+				d3.select(containerId).select("svg").remove();
+
+				var g = d3.select(containerId).append("svg").attr("width", cfg.w + cfg.ExtraWidthX).attr("height", cfg.h + cfg.ExtraWidthY).append("g").attr("transform", 'translate(' + cfg.TranslateX + ', ' + cfg.TranslateY + ')');
+
+				var c = new _circles2.default(g, cfg, this.circles);
+
+				var subCatTitleInnerRadiusPct = c.circles[3].radiusPct,
+				    subCatTitleOuterRadiusPct = c.circles[4].radiusPct,
+				    questionsStartRadiusPct = subCatTitleOuterRadiusPct,
+				    questionsTitleInnerRadiusPct = c.circles[8].radiusPct,
+				    questionsTitleOuterRadiusPct = c.circles[9].radiusPct;
+
+				var mc = new _mainCategories2.default(g, cfg, this.mainCats, questionsTitleOuterRadiusPct);
+
+				var subCats = this.mainCats.map(function (mainCat) {
+					return mainCat.subCats;
+				}).reduce(function (aggregate, next) {
+					return aggregate.concat(next);
+				});
+				var sc = new _subCategories2.default(g, cfg, subCats, subCatTitleInnerRadiusPct, subCatTitleOuterRadiusPct, questionsTitleOuterRadiusPct);
+
+				var questions = subCats.map(function (subCat) {
+					return subCat.questions;
+				}).reduce(function (aggregate, next) {
+					return aggregate.concat(next);
+				});
+				var q = new _questions2.default(g, cfg, questions, subCatTitleOuterRadiusPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
+
+				mc.renderBackgrounds();
+
+				q.renderTitles();
+				sc.renderTitles();
+				mc.renderTitles();
+
+				c.renderCircles("scale");
+
+				sc.renderFillings();
+				q.renderFillings();
+
+				q.renderLines();
+				sc.renderLines();
+				mc.renderLines();
+
+				c.renderCircles("heading");
+				c.renderCenterDot();
+				c.renderLegend();
+			}
+		}]);
+
+		return Radar1;
+	}();
+
+	exports.default = Radar1;
+
+
+	Radar1.cfg = {
+		w: 800,
+		h: 800,
+		radians: 2 * Math.PI,
+		TranslateX: 80,
+		TranslateY: 30,
+		ExtraWidthX: 100,
+		ExtraWidthY: 100,
+		questionsNr: 0,
+		turnTextThresholds: [0.25, 0.75],
+		backgroundOpacity: 0.1,
+		mainCatFontSize: 0.7,
+		mainCatLetterSpacing: 5,
+		centerDotSize: 0.04,
+		subCatFontSize: 0.36,
+		questionFontSize: 0.26,
+		centerDotPct: 0.04,
+		legendDotPct: 0.015
+	};
+
+	Radar1.circles = [{
+		height: 0.09, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 25,
+		type: "scale"
+	}, {
+		height: 0.09, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 50,
+		type: "scale"
+	}, {
+		height: 0.09, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 75,
+		type: "scale"
+	}, {
+		height: 0.09, // percentage of total radius
+		stroke: "black",
+		strength: 1,
+		type: "heading"
+	}, {
+		height: 0.09, // percentage of total radius
+		stroke: "black",
+		strength: 1,
+		type: "heading"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 25,
+		type: "scale"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 50,
+		type: "scale"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 75,
+		type: "scale"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "black",
+		strength: 1,
+		type: "heading"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "black",
+		strength: 1,
+		type: "heading"
+	}];
 
 /***/ }
 /******/ ]);
