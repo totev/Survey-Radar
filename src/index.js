@@ -1,5 +1,4 @@
-import Radar1 from './radar1.js'
-import Radar2 from './radar2.js'
+import {Radar1, Radar2} from './radarLib/index.js'
 
 let mainCats = [
 			{

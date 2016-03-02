@@ -3,13 +3,14 @@ import SubCategories from './subCategories.js'
 import Questions from './questions.js'
 import Circles from './circles.js'
 
-
-export default class Radar1 {
+export default class Radar2 {
 
 	constructor(mainCats, config) {
-		this.circles = this.constructor.circles;
-		this.mainCats = JSON.parse(JSON.stringify(mainCats));
-		this.cfg = this.prepareConfig(Object.assign(this.constructor.cfg, config));
+		this.circles = JSON.parse(JSON.stringify(this.constructor.circles));
+		this.mainCats = JSON.parse(JSON.stringify(mainCats)); // create clone to avoid messing with the input data
+
+		let cfg = JSON.parse(JSON.stringify(this.constructor.cfg));
+		this.cfg = this.prepareConfig(Object.assign(cfg, config));
 	}
 
 	prepareConfig(cfg) {
@@ -25,7 +26,7 @@ export default class Radar1 {
 
 		return cfg;
 	}
-
+	
 
 	render(containerId) {
 		let cfg = this.cfg;
@@ -43,33 +44,28 @@ export default class Radar1 {
 
 		let c = new Circles(g, cfg, this.circles);
 
-		let subCatTitleInnerRadiusPct = c.circles[3].radiusPct,
-			subCatTitleOuterRadiusPct = c.circles[4].radiusPct,
-			questionsStartRadiusPct = subCatTitleOuterRadiusPct,
-			questionsTitleInnerRadiusPct = c.circles[8].radiusPct,
-			questionsTitleOuterRadiusPct = c.circles[9].radiusPct;
+		let subCatTitleInnerRadiusPct = c.circles[10].radiusPct,
+			subCatTitleOuterRadiusPct = c.circles[11].radiusPct,
+			questionsTitleInnerRadiusPct = c.circles[9].radiusPct,
+			questionsTitleOuterRadiusPct = subCatTitleInnerRadiusPct;
 
-		let mc = new MainCategories(g, cfg, this.mainCats, questionsTitleOuterRadiusPct);
+		let mc = new MainCategories(g, cfg, this.mainCats, subCatTitleOuterRadiusPct);
 
 		let subCats = this.mainCats.map((mainCat) => mainCat.subCats)
 							.reduce((aggregate, next) => aggregate.concat(next));
-		let sc = new SubCategories(g, cfg, subCats, subCatTitleInnerRadiusPct, subCatTitleOuterRadiusPct, questionsTitleOuterRadiusPct);
+		let sc = new SubCategories(g, cfg, subCats, subCatTitleInnerRadiusPct, subCatTitleOuterRadiusPct, subCatTitleOuterRadiusPct);
 
 		let questions = subCats.map((subCat) => subCat.questions)
 							.reduce((aggregate, next) => aggregate.concat(next));
-		let q = new Questions(g, cfg, questions, subCatTitleOuterRadiusPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
-
-
-		mc.renderBackgrounds();
+		let q = new Questions(g, cfg, questions, cfg.centerDotPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
 
 		mc.renderTitles();
+		sc.renderTitles(true);		
 		q.renderTitles();
-		sc.renderTitles();
 
 		c.renderCircles("scale");
 
-		sc.renderFillings();
-		q.renderFillings();
+		q.renderMinMaxs();
 
 		q.renderLines();
 		sc.renderLines();
@@ -78,10 +74,13 @@ export default class Radar1 {
 		c.renderCircles("heading");
 		c.renderCenterDot();
 		c.renderLegend();
+
+		q.renderAverages();
+		q.renderAllDetails();
 	}
 }
 
-Radar1.cfg = {
+Radar2.cfg = {
 		 	w: 800,
 		 	h: 800,
 		 	radians: 2 * Math.PI,
@@ -102,53 +101,60 @@ Radar1.cfg = {
 		 	legendDotPct: 0.015
 		};
 
-
-Radar1.circles = [{
-		height: 0.09, // percentage of total radius
+Radar2.circles = [{
+		height: 0.07, // percentage of total radius
 		stroke: "grey",
 		strength: 1,
-		legendValue: 25,
 		type: "scale"
 	}, {
-		height: 0.09, // percentage of total radius
+		height: 0.07, // percentage of total radius
 		stroke: "grey",
 		strength: 1,
-		legendValue: 50,
+		legendValue: 20,
 		type: "scale"
 	}, {
-		height: 0.09, // percentage of total radius
+		height: 0.07, // percentage of total radius
 		stroke: "grey",
 		strength: 1,
-		legendValue: 75,
 		type: "scale"
 	}, {
-		height: 0.09, // percentage of total radius
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 40,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 60,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 80,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
 		stroke: "black",
 		strength: 1,
 		type: "heading"
-	}, {
-		height: 0.09, // percentage of total radius
-		stroke: "black",
-		strength: 1,
-		type: "heading"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		legendValue: 25,
-		type: "scale"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		legendValue: 50,
-		type: "scale"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		legendValue: 75,
-		type: "scale"
 	}, {
 		height: 0.08, // percentage of total radius
 		stroke: "black",
