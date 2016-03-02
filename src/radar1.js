@@ -62,9 +62,9 @@ export default class Radar1 {
 
 		mc.renderBackgrounds();
 
+		mc.renderTitles();
 		q.renderTitles();
 		sc.renderTitles();
-		mc.renderTitles();
 
 		c.renderCircles("scale");
 
@@ -95,8 +95,9 @@ Radar1.cfg = {
 		 	mainCatFontSize: 0.7,
 		 	mainCatLetterSpacing: 5,
 		 	centerDotSize: 0.04,
-		 	subCatFontSize: 0.36,
+		 	subCatFontSize: 0.35,
 		 	questionFontSize: 0.26,
+		 	tooltipFontSize: 7,
 		 	centerDotPct: 0.04,
 		 	legendDotPct: 0.015
 		};

@@ -9,7 +9,6 @@ export default class Questions {
 			radius: cfg.radius,
 			questionsNr: cfg.questionsNr,
 			turnTextThresholds: cfg.turnTextThresholds,
-			questionFontSize: cfg.questionFontSize,
 			pixel: cfg.pixel
 		};
 
@@ -22,6 +21,9 @@ export default class Questions {
 		this.questionsTitleOuterRadius = questionsTitleOuterRadiusPct * this.cfg.radius;
 		this.questionsTitleOuterRadiusPct = questionsTitleOuterRadiusPct;
 		this.questionsTitleMiddleRadius = (questionsTitleInnerRadiusPct + (questionsTitleOuterRadiusPct - questionsTitleInnerRadiusPct) / 2) * this.cfg.radius;
+
+		this.fontSize = (this.questionsTitleOuterRadius - this.questionsTitleInnerRadius) * cfg.questionFontSize;
+		this.tooltipFontSize = cfg.pixel * cfg.tooltipFontSize;
 
 		this.prepare();
 	}
@@ -92,6 +94,7 @@ export default class Questions {
 	renderTitles() {
 		for(let question of this.questions) {
 			this.renderTitle(question);
+			this.renderTitleBackground(question);
 		}
 	}
 
@@ -99,11 +102,11 @@ export default class Questions {
 		let centerX = this.cfg.centerX,
 			centerY = this.cfg.centerY,
 			questionsNr = this.cfg.questionsNr,
-			questionFontSize = this.cfg.questionFontSize,
 			turnTextThresholds = this.cfg.turnTextThresholds;
 		let questionsTitleInnerRadius = this.questionsTitleInnerRadius,
 			questionsTitleOuterRadius = this.questionsTitleOuterRadius,
-			questionsTitleMiddleRadius = this.questionsTitleMiddleRadius;
+			questionsTitleMiddleRadius = this.questionsTitleMiddleRadius,
+			fontSize = this.fontSize;
 
 		let id = Math.random() * new Date();
 
@@ -121,7 +124,6 @@ export default class Questions {
 		var textMiddle = question.idx / questionsNr;
 		var offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
 		var startOffset = 25 + 50 * offset;
-		var fontSize = (questionsTitleOuterRadius - questionsTitleInnerRadius) * questionFontSize;
 
 		var lines = question.title.split("\n");
 		var linesNr = lines.length;
@@ -137,6 +139,54 @@ export default class Questions {
 			.style("text-anchor","middle")
 			.style("font-size", fontSize + "px");
 		});
+	}
+
+	renderTitleBackground(question) {
+		let centerX = this.cfg.centerX,
+			centerY = this.cfg.centerY;
+
+		let questionsTitleInnerRadius = this.questionsTitleInnerRadius,
+			questionsTitleOuterRadius = this.questionsTitleOuterRadius,
+			fontSize = this.tooltipFontSize;
+
+		let arc = d3.svg.arc()
+					.innerRadius(questionsTitleInnerRadius)
+					.outerRadius(questionsTitleOuterRadius)
+					.startAngle(question.startAngle)
+					.endAngle(question.endAngle);
+
+		let divHtml = "<strong>Details:</strong>";
+		for(let detail of question.details) {
+			divHtml += `<br />${detail.title}: ${detail.value}`;
+		}
+		let div = d3.select("body").append("div")
+					.html(divHtml)
+				    .attr("class", "tooltip")
+				    .style("font-size", fontSize * 1.5 + "px")				
+				    .style("opacity", 0)
+				    .style("border-color", question.color);
+
+		this.g.append("path")
+			.attr("d", arc)
+			.attr("transform", `translate(${centerX}, ${centerY})`)
+			.attr("fill", "white")
+			.style("opacity", 0)
+			.on("mouseover", () => {		
+	            div.transition()		
+	                .duration(200)		
+	                .style("opacity", .9);		
+	            div.style("left", (d3.event.pageX + 10) + "px")		
+	               .style("top", (d3.event.pageY) + "px");	
+            })
+            .on("mousemove", () => {			
+	            div.style("left", (d3.event.pageX + 10) + "px")		
+	               .style("top", (d3.event.pageY) + "px");	
+            })					
+	        .on("mouseout", () => {		
+	            div.transition()		
+	                .duration(500)		
+	                .style("opacity", 0);	
+	        });
 	}
 
 	renderLines() {
@@ -167,8 +217,10 @@ export default class Questions {
 
 		let color = "rgb(237, 52, 52)";
 
+		let renderables = this.questions.filter((q) => q.value);
+
 		this.g.selectAll(".area")
-			 .data([this.questions])
+			 .data([renderables])
 			 .enter()
 			 .append("polygon")
 			 .attr("class", "radar-chart-series")
@@ -184,7 +236,7 @@ export default class Questions {
 			 .style("fill", "none");
 
 		this.g.selectAll(".avgNodes")
-			.data(this.questions).enter()
+			.data(renderables).enter()
 			.append("svg:circle")
 			.attr("class", "radar-chart-series")
 			.attr('r', (pixel * 2) + "px")
@@ -215,7 +267,9 @@ export default class Questions {
 
 	renderMinMaxs() {
 		for(let question of this.questions) {
-			this.renderMinMax(question);
+			if(question.details.length > 0) {
+				this.renderMinMax(question);				
+			}
 		}
 	}
 

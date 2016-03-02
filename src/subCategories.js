@@ -9,7 +9,6 @@ export default class SubCategories {
 			radius: cfg.radius,
 			questionsNr: cfg.questionsNr,
 			centerDotSize: cfg.centerDotSize,
-			subCatFontSize: cfg.subCatFontSize,
 			turnTextThresholds: cfg.turnTextThresholds,
 			pixel: cfg.pixel
 		};
@@ -19,11 +18,12 @@ export default class SubCategories {
 
 		this.subAxisEndPct = subAxisEndPct;
 
-		this.subCatTitleInnerRadius = subCatTitleInnerRadiusPct * this.cfg.radius; // TODO pass with cfg?
-		this.subCatTitleOuterRadius = subCatTitleOuterRadiusPct * this.cfg.radius; // TODO pass with cfg?
+		this.subCatTitleInnerRadius = subCatTitleInnerRadiusPct * this.cfg.radius;
+		this.subCatTitleOuterRadius = subCatTitleOuterRadiusPct * this.cfg.radius;
 		this.subCatTitleMiddleRadius = this.subCatTitleInnerRadius + (this.subCatTitleOuterRadius - this.subCatTitleInnerRadius) / 2;
 
 		this.centerDotSizePx = this.cfg.centerDotSize * this.cfg.radius;
+		this.fontSize = (this.subCatTitleOuterRadius - this.subCatTitleInnerRadius) * cfg.subCatFontSize;
 	}
 
 	prepare() {
@@ -81,12 +81,12 @@ export default class SubCategories {
 		let centerX = this.cfg.centerX,
 			centerY = this.cfg.centerY,
 			questionsNr = this.cfg.questionsNr,
-			subCatFontSize = this.cfg.subCatFontSize,
 			turnTextThresholds = this.cfg.turnTextThresholds;
 
 		let subCatTitleInnerRadius = this.subCatTitleInnerRadius,
 			subCatTitleOuterRadius = this.subCatTitleOuterRadius,
-			subCatTitleMiddleRadius = this.subCatTitleMiddleRadius;
+			subCatTitleMiddleRadius = this.subCatTitleMiddleRadius,
+			fontSize = this.fontSize;
 
 		let id = Math.random() * new Date();
 			
@@ -104,8 +104,6 @@ export default class SubCategories {
 		let textMiddle = (subCat.firstQuestionIdx + subCat.questionsNr / 2) / questionsNr;
 		let offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
 		let startOffset = 25 + 50 * offset;
-		let fontSize = (subCatTitleOuterRadius - subCatTitleInnerRadius) * subCatFontSize;
-
 		
 		let lines = subCat.title.split("\n");
 		let linesNr = lines.length;

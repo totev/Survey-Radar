@@ -53,11 +53,11 @@
 
 	'use strict';
 
-	var _radar = __webpack_require__(7);
+	var _radar = __webpack_require__(2);
 
 	var _radar2 = _interopRequireDefault(_radar);
 
-	var _radar3 = __webpack_require__(2);
+	var _radar3 = __webpack_require__(7);
 
 	var _radar4 = _interopRequireDefault(_radar3);
 
@@ -875,23 +875,8 @@
 			questions: [{
 				title: "Roles",
 				color: "rgba(208, 89, 61, 0.7)",
-				value: 0.7,
-				details: [{
-					title: "",
-					value: 0.111
-				}, {
-					title: "",
-					value: 0.444
-				}, {
-					title: "",
-					value: 0.222
-				}, {
-					title: "",
-					value: 0.888
-				}, {
-					title: "",
-					value: 0.333
-				}]
+				value: null,
+				details: []
 			}, {
 				title: "Generalizing\nSpecialists",
 				color: "rgba(208, 89, 61, 0.7)",
@@ -917,14 +902,12 @@
 	}];
 
 	var r1 = new _radar2.default(mainCats, {
-		h: 400,
-		w: 400
+		h: 900,
+		w: 900
 	});
 	r1.render('#surveyRadar1');
 
-	var r2 = new _radar4.default(mainCats, {
-		subCatFontSize: 0.45
-	});
+	var r2 = new _radar4.default(mainCats, {});
 	r2.render('#surveyRadar2');
 
 /***/ },
@@ -959,16 +942,16 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Radar2 = function () {
-		function Radar2(mainCats, config) {
-			_classCallCheck(this, Radar2);
+	var Radar1 = function () {
+		function Radar1(mainCats, config) {
+			_classCallCheck(this, Radar1);
 
 			this.circles = this.constructor.circles;
-			this.mainCats = JSON.parse(JSON.stringify(mainCats)); // create clone to avoid messing with the input data
+			this.mainCats = JSON.parse(JSON.stringify(mainCats));
 			this.cfg = this.prepareConfig(Object.assign(this.constructor.cfg, config));
 		}
 
-		_createClass(Radar2, [{
+		_createClass(Radar1, [{
 			key: 'prepareConfig',
 			value: function prepareConfig(cfg) {
 				var _iteratorNormalCompletion = true;
@@ -1036,34 +1019,38 @@
 
 				var c = new _circles2.default(g, cfg, this.circles);
 
-				var subCatTitleInnerRadiusPct = c.circles[10].radiusPct,
-				    subCatTitleOuterRadiusPct = c.circles[11].radiusPct,
-				    questionsTitleInnerRadiusPct = c.circles[9].radiusPct,
-				    questionsTitleOuterRadiusPct = subCatTitleInnerRadiusPct;
+				var subCatTitleInnerRadiusPct = c.circles[3].radiusPct,
+				    subCatTitleOuterRadiusPct = c.circles[4].radiusPct,
+				    questionsStartRadiusPct = subCatTitleOuterRadiusPct,
+				    questionsTitleInnerRadiusPct = c.circles[8].radiusPct,
+				    questionsTitleOuterRadiusPct = c.circles[9].radiusPct;
 
-				var mc = new _mainCategories2.default(g, cfg, this.mainCats, subCatTitleOuterRadiusPct);
+				var mc = new _mainCategories2.default(g, cfg, this.mainCats, questionsTitleOuterRadiusPct);
 
 				var subCats = this.mainCats.map(function (mainCat) {
 					return mainCat.subCats;
 				}).reduce(function (aggregate, next) {
 					return aggregate.concat(next);
 				});
-				var sc = new _subCategories2.default(g, cfg, subCats, subCatTitleInnerRadiusPct, subCatTitleOuterRadiusPct, subCatTitleOuterRadiusPct);
+				var sc = new _subCategories2.default(g, cfg, subCats, subCatTitleInnerRadiusPct, subCatTitleOuterRadiusPct, questionsTitleOuterRadiusPct);
 
 				var questions = subCats.map(function (subCat) {
 					return subCat.questions;
 				}).reduce(function (aggregate, next) {
 					return aggregate.concat(next);
 				});
-				var q = new _questions2.default(g, cfg, questions, cfg.centerDotPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
+				var q = new _questions2.default(g, cfg, questions, subCatTitleOuterRadiusPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
 
-				q.renderTitles();
-				sc.renderTitles(true);
+				mc.renderBackgrounds();
+
 				mc.renderTitles();
+				q.renderTitles();
+				sc.renderTitles();
 
 				c.renderCircles("scale");
 
-				q.renderMinMaxs();
+				sc.renderFillings();
+				q.renderFillings();
 
 				q.renderLines();
 				sc.renderLines();
@@ -1072,19 +1059,16 @@
 				c.renderCircles("heading");
 				c.renderCenterDot();
 				c.renderLegend();
-
-				q.renderAverages();
-				q.renderAllDetails();
 			}
 		}]);
 
-		return Radar2;
+		return Radar1;
 	}();
 
-	exports.default = Radar2;
+	exports.default = Radar1;
 
 
-	Radar2.cfg = {
+	Radar1.cfg = {
 		w: 800,
 		h: 800,
 		radians: 2 * Math.PI,
@@ -1098,66 +1082,59 @@
 		mainCatFontSize: 0.7,
 		mainCatLetterSpacing: 5,
 		centerDotSize: 0.04,
-		subCatFontSize: 0.36,
+		subCatFontSize: 0.35,
 		questionFontSize: 0.26,
+		tooltipFontSize: 7,
 		centerDotPct: 0.04,
 		legendDotPct: 0.015
 	};
 
-	Radar2.circles = [{
-		height: 0.07, // percentage of total radius
+	Radar1.circles = [{
+		height: 0.09, // percentage of total radius
 		stroke: "grey",
 		strength: 1,
+		legendValue: 25,
 		type: "scale"
 	}, {
-		height: 0.07, // percentage of total radius
+		height: 0.09, // percentage of total radius
 		stroke: "grey",
 		strength: 1,
-		legendValue: 20,
+		legendValue: 50,
 		type: "scale"
 	}, {
-		height: 0.07, // percentage of total radius
+		height: 0.09, // percentage of total radius
 		stroke: "grey",
 		strength: 1,
+		legendValue: 75,
 		type: "scale"
 	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		legendValue: 40,
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		legendValue: 60,
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		legendValue: 80,
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		type: "scale"
-	}, {
-		height: 0.07, // percentage of total radius
+		height: 0.09, // percentage of total radius
 		stroke: "black",
 		strength: 1,
 		type: "heading"
+	}, {
+		height: 0.09, // percentage of total radius
+		stroke: "black",
+		strength: 1,
+		type: "heading"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 25,
+		type: "scale"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 50,
+		type: "scale"
+	}, {
+		height: 0.08, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 75,
+		type: "scale"
 	}, {
 		height: 0.08, // percentage of total radius
 		stroke: "black",
@@ -1418,7 +1395,6 @@
 				radius: cfg.radius,
 				questionsNr: cfg.questionsNr,
 				centerDotSize: cfg.centerDotSize,
-				subCatFontSize: cfg.subCatFontSize,
 				turnTextThresholds: cfg.turnTextThresholds,
 				pixel: cfg.pixel
 			};
@@ -1428,11 +1404,12 @@
 
 			this.subAxisEndPct = subAxisEndPct;
 
-			this.subCatTitleInnerRadius = subCatTitleInnerRadiusPct * this.cfg.radius; // TODO pass with cfg?
-			this.subCatTitleOuterRadius = subCatTitleOuterRadiusPct * this.cfg.radius; // TODO pass with cfg?
+			this.subCatTitleInnerRadius = subCatTitleInnerRadiusPct * this.cfg.radius;
+			this.subCatTitleOuterRadius = subCatTitleOuterRadiusPct * this.cfg.radius;
 			this.subCatTitleMiddleRadius = this.subCatTitleInnerRadius + (this.subCatTitleOuterRadius - this.subCatTitleInnerRadius) / 2;
 
 			this.centerDotSizePx = this.cfg.centerDotSize * this.cfg.radius;
+			this.fontSize = (this.subCatTitleOuterRadius - this.subCatTitleInnerRadius) * cfg.subCatFontSize;
 		}
 
 		_createClass(SubCategories, [{
@@ -1554,12 +1531,12 @@
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY,
 				    questionsNr = this.cfg.questionsNr,
-				    subCatFontSize = this.cfg.subCatFontSize,
 				    turnTextThresholds = this.cfg.turnTextThresholds;
 
 				var subCatTitleInnerRadius = this.subCatTitleInnerRadius,
 				    subCatTitleOuterRadius = this.subCatTitleOuterRadius,
-				    subCatTitleMiddleRadius = this.subCatTitleMiddleRadius;
+				    subCatTitleMiddleRadius = this.subCatTitleMiddleRadius,
+				    fontSize = this.fontSize;
 
 				var id = Math.random() * new Date();
 
@@ -1570,7 +1547,6 @@
 				var textMiddle = (subCat.firstQuestionIdx + subCat.questionsNr / 2) / questionsNr;
 				var offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
 				var startOffset = 25 + 50 * offset;
-				var fontSize = (subCatTitleOuterRadius - subCatTitleInnerRadius) * subCatFontSize;
 
 				var lines = subCat.title.split("\n");
 				var linesNr = lines.length;
@@ -1645,7 +1621,6 @@
 				radius: cfg.radius,
 				questionsNr: cfg.questionsNr,
 				turnTextThresholds: cfg.turnTextThresholds,
-				questionFontSize: cfg.questionFontSize,
 				pixel: cfg.pixel
 			};
 
@@ -1658,6 +1633,9 @@
 			this.questionsTitleOuterRadius = questionsTitleOuterRadiusPct * this.cfg.radius;
 			this.questionsTitleOuterRadiusPct = questionsTitleOuterRadiusPct;
 			this.questionsTitleMiddleRadius = (questionsTitleInnerRadiusPct + (questionsTitleOuterRadiusPct - questionsTitleInnerRadiusPct) / 2) * this.cfg.radius;
+
+			this.fontSize = (this.questionsTitleOuterRadius - this.questionsTitleInnerRadius) * cfg.questionFontSize;
+			this.tooltipFontSize = cfg.pixel * cfg.tooltipFontSize;
 
 			this.prepare();
 		}
@@ -1767,6 +1745,7 @@
 						var question = _step2.value;
 
 						this.renderTitle(question);
+						this.renderTitleBackground(question);
 					}
 				} catch (err) {
 					_didIteratorError2 = true;
@@ -1791,11 +1770,11 @@
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY,
 				    questionsNr = this.cfg.questionsNr,
-				    questionFontSize = this.cfg.questionFontSize,
 				    turnTextThresholds = this.cfg.turnTextThresholds;
 				var questionsTitleInnerRadius = this.questionsTitleInnerRadius,
 				    questionsTitleOuterRadius = this.questionsTitleOuterRadius,
-				    questionsTitleMiddleRadius = this.questionsTitleMiddleRadius;
+				    questionsTitleMiddleRadius = this.questionsTitleMiddleRadius,
+				    fontSize = this.fontSize;
 
 				var id = Math.random() * new Date();
 
@@ -1806,13 +1785,61 @@
 				var textMiddle = question.idx / questionsNr;
 				var offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
 				var startOffset = 25 + 50 * offset;
-				var fontSize = (questionsTitleOuterRadius - questionsTitleInnerRadius) * questionFontSize;
 
 				var lines = question.title.split("\n");
 				var linesNr = lines.length;
 
 				lines.forEach(function (line, i) {
 					_this2.g.append("text").attr("class", "questionTitle").attr("dy", linesNr === 1 ? fontSize / 3 : (-linesNr / 2 + i + 0.75) * fontSize).append("textPath").attr("xlink:href", "#question_" + id).text(line).attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px");
+				});
+			}
+		}, {
+			key: "renderTitleBackground",
+			value: function renderTitleBackground(question) {
+				var centerX = this.cfg.centerX,
+				    centerY = this.cfg.centerY;
+
+				var questionsTitleInnerRadius = this.questionsTitleInnerRadius,
+				    questionsTitleOuterRadius = this.questionsTitleOuterRadius,
+				    fontSize = this.tooltipFontSize;
+
+				var arc = d3.svg.arc().innerRadius(questionsTitleInnerRadius).outerRadius(questionsTitleOuterRadius).startAngle(question.startAngle).endAngle(question.endAngle);
+
+				var divHtml = "<strong>Details:</strong>";
+				var _iteratorNormalCompletion3 = true;
+				var _didIteratorError3 = false;
+				var _iteratorError3 = undefined;
+
+				try {
+					for (var _iterator3 = question.details[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+						var detail = _step3.value;
+
+						divHtml += "<br />" + detail.title + ": " + detail.value;
+					}
+				} catch (err) {
+					_didIteratorError3 = true;
+					_iteratorError3 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion3 && _iterator3.return) {
+							_iterator3.return();
+						}
+					} finally {
+						if (_didIteratorError3) {
+							throw _iteratorError3;
+						}
+					}
+				}
+
+				var div = d3.select("body").append("div").html(divHtml).attr("class", "tooltip").style("font-size", fontSize * 1.5 + "px").style("opacity", 0).style("border-color", question.color);
+
+				this.g.append("path").attr("d", arc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", "white").style("opacity", 0).on("mouseover", function () {
+					div.transition().duration(200).style("opacity", .9);
+					div.style("left", d3.event.pageX + 10 + "px").style("top", d3.event.pageY + "px");
+				}).on("mousemove", function () {
+					div.style("left", d3.event.pageX + 10 + "px").style("top", d3.event.pageY + "px");
+				}).on("mouseout", function () {
+					div.transition().duration(500).style("opacity", 0);
 				});
 			}
 		}, {
@@ -1843,29 +1870,33 @@
 
 				var color = "rgb(237, 52, 52)";
 
-				this.g.selectAll(".area").data([this.questions]).enter().append("polygon").attr("class", "radar-chart-series").style("stroke-width", pixel * 1.5 + "px").style("stroke", color).attr("points", function (questions) {
+				var renderables = this.questions.filter(function (q) {
+					return q.value;
+				});
+
+				this.g.selectAll(".area").data([renderables]).enter().append("polygon").attr("class", "radar-chart-series").style("stroke-width", pixel * 1.5 + "px").style("stroke", color).attr("points", function (questions) {
 					var str = "";
-					var _iteratorNormalCompletion3 = true;
-					var _didIteratorError3 = false;
-					var _iteratorError3 = undefined;
+					var _iteratorNormalCompletion4 = true;
+					var _didIteratorError4 = false;
+					var _iteratorError4 = undefined;
 
 					try {
-						for (var _iterator3 = questions[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-							var question = _step3.value;
+						for (var _iterator4 = questions[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+							var question = _step4.value;
 
 							str += question.avgX + "," + question.avgY + " ";
 						}
 					} catch (err) {
-						_didIteratorError3 = true;
-						_iteratorError3 = err;
+						_didIteratorError4 = true;
+						_iteratorError4 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion3 && _iterator3.return) {
-								_iterator3.return();
+							if (!_iteratorNormalCompletion4 && _iterator4.return) {
+								_iterator4.return();
 							}
 						} finally {
-							if (_didIteratorError3) {
-								throw _iteratorError3;
+							if (_didIteratorError4) {
+								throw _iteratorError4;
 							}
 						}
 					}
@@ -1873,7 +1904,7 @@
 					return str;
 				}).style("fill", "none");
 
-				this.g.selectAll(".avgNodes").data(this.questions).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (question) {
+				this.g.selectAll(".avgNodes").data(renderables).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (question) {
 					return question.avgX;
 				}).attr("cy", function (question) {
 					return question.avgY;
@@ -1882,27 +1913,27 @@
 		}, {
 			key: "renderAllDetails",
 			value: function renderAllDetails() {
-				var _iteratorNormalCompletion4 = true;
-				var _didIteratorError4 = false;
-				var _iteratorError4 = undefined;
+				var _iteratorNormalCompletion5 = true;
+				var _didIteratorError5 = false;
+				var _iteratorError5 = undefined;
 
 				try {
-					for (var _iterator4 = this.questions[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-						var question = _step4.value;
+					for (var _iterator5 = this.questions[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+						var question = _step5.value;
 
 						this.renderQuestionDetails(question);
 					}
 				} catch (err) {
-					_didIteratorError4 = true;
-					_iteratorError4 = err;
+					_didIteratorError5 = true;
+					_iteratorError5 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion4 && _iterator4.return) {
-							_iterator4.return();
+						if (!_iteratorNormalCompletion5 && _iterator5.return) {
+							_iterator5.return();
 						}
 					} finally {
-						if (_didIteratorError4) {
-							throw _iteratorError4;
+						if (_didIteratorError5) {
+							throw _iteratorError5;
 						}
 					}
 				}
@@ -1923,27 +1954,29 @@
 		}, {
 			key: "renderMinMaxs",
 			value: function renderMinMaxs() {
-				var _iteratorNormalCompletion5 = true;
-				var _didIteratorError5 = false;
-				var _iteratorError5 = undefined;
+				var _iteratorNormalCompletion6 = true;
+				var _didIteratorError6 = false;
+				var _iteratorError6 = undefined;
 
 				try {
-					for (var _iterator5 = this.questions[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-						var question = _step5.value;
+					for (var _iterator6 = this.questions[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+						var question = _step6.value;
 
-						this.renderMinMax(question);
+						if (question.details.length > 0) {
+							this.renderMinMax(question);
+						}
 					}
 				} catch (err) {
-					_didIteratorError5 = true;
-					_iteratorError5 = err;
+					_didIteratorError6 = true;
+					_iteratorError6 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion5 && _iterator5.return) {
-							_iterator5.return();
+						if (!_iteratorNormalCompletion6 && _iterator6.return) {
+							_iterator6.return();
 						}
 					} finally {
-						if (_didIteratorError5) {
-							throw _iteratorError5;
+						if (_didIteratorError6) {
+							throw _iteratorError6;
 						}
 					}
 				}
@@ -2144,16 +2177,16 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Radar1 = function () {
-		function Radar1(mainCats, config) {
-			_classCallCheck(this, Radar1);
+	var Radar2 = function () {
+		function Radar2(mainCats, config) {
+			_classCallCheck(this, Radar2);
 
 			this.circles = this.constructor.circles;
-			this.mainCats = JSON.parse(JSON.stringify(mainCats));
+			this.mainCats = JSON.parse(JSON.stringify(mainCats)); // create clone to avoid messing with the input data
 			this.cfg = this.prepareConfig(Object.assign(this.constructor.cfg, config));
 		}
 
-		_createClass(Radar1, [{
+		_createClass(Radar2, [{
 			key: 'prepareConfig',
 			value: function prepareConfig(cfg) {
 				var _iteratorNormalCompletion = true;
@@ -2221,38 +2254,34 @@
 
 				var c = new _circles2.default(g, cfg, this.circles);
 
-				var subCatTitleInnerRadiusPct = c.circles[3].radiusPct,
-				    subCatTitleOuterRadiusPct = c.circles[4].radiusPct,
-				    questionsStartRadiusPct = subCatTitleOuterRadiusPct,
-				    questionsTitleInnerRadiusPct = c.circles[8].radiusPct,
-				    questionsTitleOuterRadiusPct = c.circles[9].radiusPct;
+				var subCatTitleInnerRadiusPct = c.circles[10].radiusPct,
+				    subCatTitleOuterRadiusPct = c.circles[11].radiusPct,
+				    questionsTitleInnerRadiusPct = c.circles[9].radiusPct,
+				    questionsTitleOuterRadiusPct = subCatTitleInnerRadiusPct;
 
-				var mc = new _mainCategories2.default(g, cfg, this.mainCats, questionsTitleOuterRadiusPct);
+				var mc = new _mainCategories2.default(g, cfg, this.mainCats, subCatTitleOuterRadiusPct);
 
 				var subCats = this.mainCats.map(function (mainCat) {
 					return mainCat.subCats;
 				}).reduce(function (aggregate, next) {
 					return aggregate.concat(next);
 				});
-				var sc = new _subCategories2.default(g, cfg, subCats, subCatTitleInnerRadiusPct, subCatTitleOuterRadiusPct, questionsTitleOuterRadiusPct);
+				var sc = new _subCategories2.default(g, cfg, subCats, subCatTitleInnerRadiusPct, subCatTitleOuterRadiusPct, subCatTitleOuterRadiusPct);
 
 				var questions = subCats.map(function (subCat) {
 					return subCat.questions;
 				}).reduce(function (aggregate, next) {
 					return aggregate.concat(next);
 				});
-				var q = new _questions2.default(g, cfg, questions, subCatTitleOuterRadiusPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
+				var q = new _questions2.default(g, cfg, questions, cfg.centerDotPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
 
-				mc.renderBackgrounds();
-
-				q.renderTitles();
-				sc.renderTitles();
 				mc.renderTitles();
+				sc.renderTitles(true);
+				q.renderTitles();
 
 				c.renderCircles("scale");
 
-				sc.renderFillings();
-				q.renderFillings();
+				q.renderMinMaxs();
 
 				q.renderLines();
 				sc.renderLines();
@@ -2261,16 +2290,19 @@
 				c.renderCircles("heading");
 				c.renderCenterDot();
 				c.renderLegend();
+
+				q.renderAverages();
+				q.renderAllDetails();
 			}
 		}]);
 
-		return Radar1;
+		return Radar2;
 	}();
 
-	exports.default = Radar1;
+	exports.default = Radar2;
 
 
-	Radar1.cfg = {
+	Radar2.cfg = {
 		w: 800,
 		h: 800,
 		radians: 2 * Math.PI,
@@ -2284,58 +2316,67 @@
 		mainCatFontSize: 0.7,
 		mainCatLetterSpacing: 5,
 		centerDotSize: 0.04,
-		subCatFontSize: 0.36,
+		subCatFontSize: 0.35,
 		questionFontSize: 0.26,
+		tooltipFontSize: 7,
 		centerDotPct: 0.04,
 		legendDotPct: 0.015
 	};
 
-	Radar1.circles = [{
-		height: 0.09, // percentage of total radius
+	Radar2.circles = [{
+		height: 0.07, // percentage of total radius
 		stroke: "grey",
 		strength: 1,
-		legendValue: 25,
 		type: "scale"
 	}, {
-		height: 0.09, // percentage of total radius
+		height: 0.07, // percentage of total radius
 		stroke: "grey",
 		strength: 1,
-		legendValue: 50,
+		legendValue: 20,
 		type: "scale"
 	}, {
-		height: 0.09, // percentage of total radius
+		height: 0.07, // percentage of total radius
 		stroke: "grey",
 		strength: 1,
-		legendValue: 75,
 		type: "scale"
 	}, {
-		height: 0.09, // percentage of total radius
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 40,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 60,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		legendValue: 80,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
+		stroke: "grey",
+		strength: 1,
+		type: "scale"
+	}, {
+		height: 0.07, // percentage of total radius
 		stroke: "black",
 		strength: 1,
 		type: "heading"
-	}, {
-		height: 0.09, // percentage of total radius
-		stroke: "black",
-		strength: 1,
-		type: "heading"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		legendValue: 25,
-		type: "scale"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		legendValue: 50,
-		type: "scale"
-	}, {
-		height: 0.08, // percentage of total radius
-		stroke: "grey",
-		strength: 1,
-		legendValue: 75,
-		type: "scale"
 	}, {
 		height: 0.08, // percentage of total radius
 		stroke: "black",

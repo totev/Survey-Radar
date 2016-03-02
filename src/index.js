@@ -814,23 +814,8 @@ let mainCats = [
 					questions: [{
 						title: "Roles",
 						color: "rgba(208, 89, 61, 0.7)",
-						value: 0.7,
-						details: [{
-							title: "",
-							value: 0.111
-						}, {
-							title: "",
-							value: 0.444
-						}, {
-							title: "",
-							value: 0.222
-						}, {
-							title: "",
-							value: 0.888
-						}, {
-							title: "",
-							value: 0.333
-						}]
+						value: null,
+						details: []
 					}, {
 						title: "Generalizing\nSpecialists",
 						color: "rgba(208, 89, 61, 0.7)",
@@ -857,12 +842,12 @@ let mainCats = [
 		];
 
 let r1 = new Radar1(mainCats, {
-	h: 400,
-	w: 400
+	h: 900,
+	w: 900
 });
 r1.render('#surveyRadar1');
 
 let r2 = new Radar2(mainCats, {
-	subCatFontSize: 0.45
+
 });
 r2.render('#surveyRadar2');
