@@ -1745,7 +1745,7 @@
 						var question = _step2.value;
 
 						this.renderTitle(question);
-						this.renderTitleBackground(question);
+						this.renderTitleForeground(question);
 					}
 				} catch (err) {
 					_didIteratorError2 = true;
@@ -1794,8 +1794,8 @@
 				});
 			}
 		}, {
-			key: "renderTitleBackground",
-			value: function renderTitleBackground(question) {
+			key: "renderTitleForeground",
+			value: function renderTitleForeground(question) {
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY;
 
@@ -1805,42 +1805,48 @@
 
 				var arc = d3.svg.arc().innerRadius(questionsTitleInnerRadius).outerRadius(questionsTitleOuterRadius).startAngle(question.startAngle).endAngle(question.endAngle);
 
-				var divHtml = "<strong>Details:</strong>";
-				var _iteratorNormalCompletion3 = true;
-				var _didIteratorError3 = false;
-				var _iteratorError3 = undefined;
+				var foreground = this.g.append("path").attr("d", arc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", "white").style("opacity", 0);
 
-				try {
-					for (var _iterator3 = question.details[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-						var detail = _step3.value;
+				if (question.details.length > 0) {
+					(function () {
+						var divHtml = "<strong>Details:</strong>";
+						var _iteratorNormalCompletion3 = true;
+						var _didIteratorError3 = false;
+						var _iteratorError3 = undefined;
 
-						divHtml += "<br />" + detail.title + ": " + detail.value;
-					}
-				} catch (err) {
-					_didIteratorError3 = true;
-					_iteratorError3 = err;
-				} finally {
-					try {
-						if (!_iteratorNormalCompletion3 && _iterator3.return) {
-							_iterator3.return();
+						try {
+							for (var _iterator3 = question.details[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+								var detail = _step3.value;
+
+								divHtml += "<br />" + detail.title + ": " + detail.value;
+							}
+						} catch (err) {
+							_didIteratorError3 = true;
+							_iteratorError3 = err;
+						} finally {
+							try {
+								if (!_iteratorNormalCompletion3 && _iterator3.return) {
+									_iterator3.return();
+								}
+							} finally {
+								if (_didIteratorError3) {
+									throw _iteratorError3;
+								}
+							}
 						}
-					} finally {
-						if (_didIteratorError3) {
-							throw _iteratorError3;
-						}
-					}
+
+						var div = d3.select("body").append("div").html(divHtml).attr("class", "tooltip").style("font-size", fontSize * 1.5 + "px").style("opacity", 0).style("border-color", question.color);
+
+						foreground.on("mouseover", function () {
+							div.transition().duration(200).style("opacity", .9);
+							div.style("left", d3.event.pageX + 10 + "px").style("top", d3.event.pageY + "px");
+						}).on("mousemove", function () {
+							div.style("left", d3.event.pageX + 10 + "px").style("top", d3.event.pageY + "px");
+						}).on("mouseout", function () {
+							div.transition().duration(500).style("opacity", 0);
+						});
+					})();
 				}
-
-				var div = d3.select("body").append("div").html(divHtml).attr("class", "tooltip").style("font-size", fontSize * 1.5 + "px").style("opacity", 0).style("border-color", question.color);
-
-				this.g.append("path").attr("d", arc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", "white").style("opacity", 0).on("mouseover", function () {
-					div.transition().duration(200).style("opacity", .9);
-					div.style("left", d3.event.pageX + 10 + "px").style("top", d3.event.pageY + "px");
-				}).on("mousemove", function () {
-					div.style("left", d3.event.pageX + 10 + "px").style("top", d3.event.pageY + "px");
-				}).on("mouseout", function () {
-					div.transition().duration(500).style("opacity", 0);
-				});
 			}
 		}, {
 			key: "renderLines",

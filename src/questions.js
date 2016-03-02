@@ -94,7 +94,7 @@ export default class Questions {
 	renderTitles() {
 		for(let question of this.questions) {
 			this.renderTitle(question);
-			this.renderTitleBackground(question);
+			this.renderTitleForeground(question);
 		}
 	}
 
@@ -141,7 +141,7 @@ export default class Questions {
 		});
 	}
 
-	renderTitleBackground(question) {
+	renderTitleForeground(question) {
 		let centerX = this.cfg.centerX,
 			centerY = this.cfg.centerY;
 
@@ -155,38 +155,42 @@ export default class Questions {
 					.startAngle(question.startAngle)
 					.endAngle(question.endAngle);
 
-		let divHtml = "<strong>Details:</strong>";
-		for(let detail of question.details) {
-			divHtml += `<br />${detail.title}: ${detail.value}`;
-		}
-		let div = d3.select("body").append("div")
-					.html(divHtml)
-				    .attr("class", "tooltip")
-				    .style("font-size", fontSize * 1.5 + "px")				
-				    .style("opacity", 0)
-				    .style("border-color", question.color);
-
-		this.g.append("path")
+		let foreground = this.g.append("path")
 			.attr("d", arc)
 			.attr("transform", `translate(${centerX}, ${centerY})`)
 			.attr("fill", "white")
-			.style("opacity", 0)
-			.on("mouseover", () => {		
-	            div.transition()		
-	                .duration(200)		
-	                .style("opacity", .9);		
-	            div.style("left", (d3.event.pageX + 10) + "px")		
-	               .style("top", (d3.event.pageY) + "px");	
-            })
-            .on("mousemove", () => {			
-	            div.style("left", (d3.event.pageX + 10) + "px")		
-	               .style("top", (d3.event.pageY) + "px");	
-            })					
-	        .on("mouseout", () => {		
-	            div.transition()		
-	                .duration(500)		
-	                .style("opacity", 0);	
-	        });
+			.style("opacity", 0);
+
+		if(question.details.length > 0) {
+			let divHtml = "<strong>Details:</strong>";
+			for(let detail of question.details) {
+				divHtml += `<br />${detail.title}: ${detail.value}`;
+			}
+			let div = d3.select("body").append("div")
+						.html(divHtml)
+					    .attr("class", "tooltip")
+					    .style("font-size", fontSize * 1.5 + "px")				
+					    .style("opacity", 0)
+					    .style("border-color", question.color);
+
+
+			foreground.on("mouseover", () => {		
+		            div.transition()		
+		               .duration(200)		
+		               .style("opacity", .9);		
+		            div.style("left", (d3.event.pageX + 10) + "px")		
+		               .style("top", (d3.event.pageY) + "px");	
+	            })
+	            .on("mousemove", () => {			
+		            div.style("left", (d3.event.pageX + 10) + "px")		
+		               .style("top", (d3.event.pageY) + "px");	
+	            })					
+		        .on("mouseout", () => {		
+		            div.transition()		
+		                .duration(500)		
+		                .style("opacity", 0);	
+		        });
+		}
 	}
 
 	renderLines() {
