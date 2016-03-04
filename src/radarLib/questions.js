@@ -9,7 +9,8 @@ export default class Questions {
 			radius: cfg.radius,
 			questionsNr: cfg.questionsNr,
 			turnTextThresholds: cfg.turnTextThresholds,
-			pixel: cfg.pixel
+			pixel: cfg.pixel,
+			questionLineWidth: cfg.questionLineWidth
 		};
 
 		this.questions = questions;
@@ -196,7 +197,8 @@ export default class Questions {
 	renderLines() {
 		let centerX = this.cfg.centerX,
 			centerY = this.cfg.centerY,
-			pixel = this.cfg.pixel;
+			pixel = this.cfg.pixel,
+			questionLineWidth = this.cfg.questionLineWidth;
 		let questionsStartRadiusPct = this.questionsStartRadiusPct,
 			questionsTitleOuterRadiusPct = this.questionsTitleOuterRadiusPct;
 
@@ -213,7 +215,7 @@ export default class Questions {
 			.attr("y2", (question) => centerY * (1 - questionsTitleOuterRadiusPct * Math.cos(question.startAngle)))
 			.attr("class", "line")
 			.style("stroke", "black")
-			.style("stroke-width", 1*pixel + "px");
+			.style("stroke-width", (questionLineWidth * pixel) + "px");
 	}
 
 	renderAverages() {

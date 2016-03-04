@@ -12,7 +12,8 @@ export default class MainCategories {
 			mainCatFontSize: cfg.mainCatFontSize,
 			mainCatLetterSpacing: cfg.mainCatLetterSpacing,
 			turnTextThresholds: cfg.turnTextThresholds,
-			pixel: cfg.pixel
+			pixel: cfg.pixel,
+			mainCatLineWidth: cfg.mainCatLineWidth
 		};
 
 		this.mainCats = mainCats;
@@ -133,7 +134,8 @@ export default class MainCategories {
 			questionsNr = this.cfg.questionsNr,
 			centerX = this.cfg.centerX,
 			centerY = this.cfg.centerY,
-			pixel = this.cfg.pixel;
+			pixel = this.cfg.pixel,
+			mainCatLineWidth = this.cfg.mainCatLineWidth;
 
 		let mainCatAxis = this.g.selectAll(".mainAxis")
 			.data(this.mainCats)
@@ -148,7 +150,7 @@ export default class MainCategories {
 			.attr("y2", (mainCat, i) => centerY * (1 - Math.cos(-mainCat.firstQuestionIdx * radians / questionsNr)))
 			.attr("class", "line")
 			.style("stroke", "black")
-			.style("stroke-width", (3 * pixel) + "px");
+			.style("stroke-width", (mainCatLineWidth * pixel) + "px");
 	}
 
 }

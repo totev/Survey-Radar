@@ -10,7 +10,8 @@ export default class SubCategories {
 			questionsNr: cfg.questionsNr,
 			centerDotSize: cfg.centerDotSize,
 			turnTextThresholds: cfg.turnTextThresholds,
-			pixel: cfg.pixel
+			pixel: cfg.pixel,
+			subCatLineWidth: cfg.subCatLineWidth
 		};
 
 		this.subCats = subCats;
@@ -145,7 +146,8 @@ export default class SubCategories {
 			centerY = this.cfg.centerY,
 			radians = this.cfg.radians,
 			questionsNr = this.cfg.questionsNr,
-			pixel = this.cfg.pixel;
+			pixel = this.cfg.pixel,
+			subCatLineWidth = this.cfg.subCatLineWidth;
 		let subAxisEndPct = this.subAxisEndPct;
 
 		let subCatAxis = this.g.selectAll(".subAxis")
@@ -161,6 +163,6 @@ export default class SubCategories {
 			.attr("y2", (subCat) => centerY * (1 - subAxisEndPct * Math.cos(-subCat.firstQuestionIdx * radians / questionsNr)))
 			.attr("class", "line")
 			.style("stroke", "black")
-			.style("stroke-width", (pixel * 2) + "px");
+			.style("stroke-width", (pixel * subCatLineWidth) + "px");
 	}
 }

@@ -6,7 +6,7 @@ export default class Circles {
 			radius: cfg.radius,
 			centerX: cfg.centerX,
 			centerY: cfg.centerY,
-			centerDotPct: cfg.centerDotPct,
+			centerDotSize: cfg.centerDotSize,
 			legendDotPct: cfg.legendDotPct,
 			pixel: cfg.pixel
 		};
@@ -15,9 +15,9 @@ export default class Circles {
 	}
 
 	prepare() {
-		let centerDotPct = this.cfg.centerDotPct;
+		let centerDotSize = this.cfg.centerDotSize;
 
-		this.circles[0].height += centerDotPct;
+		this.circles[0].height += centerDotSize;
 
 		let radiusPct = 0;
 		for(let circle of this.circles) {
@@ -49,13 +49,13 @@ export default class Circles {
 	renderCenterDot() {
 		let centerX = this.cfg.centerX,
 			centerY = this.cfg.centerY,
-			centerDotPct = this.cfg.centerDotPct,
+			centerDotSize = this.cfg.centerDotSize,
 			radius = this.cfg.radius;
 
 		this.g.append("circle")
 		.attr("cx", centerX)
 		.attr("cy", centerY)
-		.attr("r", centerDotPct * radius)
+		.attr("r", centerDotSize * radius)
 		.attr("fill", "black");
 	}
 

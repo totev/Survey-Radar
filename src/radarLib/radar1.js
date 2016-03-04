@@ -99,8 +99,10 @@ Radar1.cfg = {
 		 	subCatFontSize: 0.35,
 		 	questionFontSize: 0.26,
 		 	tooltipFontSize: 7,
-		 	centerDotPct: 0.04,
-		 	legendDotPct: 0.015
+		 	legendDotPct: 0.015,
+			mainCatLineWidth: 3,
+			subCatLineWidth: 2,
+			questionLineWidth: 1
 		};
 
 

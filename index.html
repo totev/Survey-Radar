@@ -24,30 +24,70 @@
 			    pointer-events: none;
 			    background: white;
 			}
+
+			input[type="number"] {
+				width: 65px !important;
+			}
 		</style>
   </head>
   <body>
     <div id="body" ng-controller="MainCtrl as m">
-		<table class="table">
+		<table class="table table-condensed">
 			<tr>
-				<td>
-					Width: <input type="number" ng-model="m.cfg.w" /> px
+				<td class="form-inline">
+					Diagram width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.w" min="100" step="10" /> <div class="input-group-addon">px</div></div>
 				</td>
-				<td>
-					Height: <input type="number" ng-model="m.cfg.h" /> px
+				<td class="form-inline">
+					Diagram height: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.h" min="100" step="10" /> <div class="input-group-addon">px</div></div>
 				</td>
-				<td>
-
+				<td class="form-inline">
+					Turn text threshold: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.turnTextThresholds[0]" min="0" max="1" step="0.05" /> <div class="input-group-addon">/1</div></div> - <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.turnTextThresholds[1]" min="0" max="1" step="0.05" /> <div class="input-group-addon">/1</div></div>
+				</td>
+				<td class="form-inline">
+					Background opacity: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.backgroundOpacity" min="0" max="1" step="0.05" /> <div class="input-group-addon">/1</div></div>
+				</td>
+				<td class="form-inline">
+					Main category letter spacing: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.mainCatLetterSpacing" min="0" step="1" /> <div class="input-group-addon">x</div></div>
 				</td>
 			</tr>
 			<tr>
-				<td>
-					<button class="btn btn-sm" ng-click="m.rerender()">Rerender</button>
+				<td class="form-inline">
+					Center dot size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.centerDotSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
+				</td>
+				<td class="form-inline">
+					Main category font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.mainCatFontSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
+				</td>
+				<td class="form-inline">
+					Subcategory font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.subCatFontSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
+				</td>
+				<td class="form-inline">
+					Question font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.questionFontSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
+				</td>
+				<td class="form-inline">
+					Tooltip font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.tooltipFontSize" min="0" step="1" /> <div class="input-group-addon">x</div></div>
+				</td>
+			</tr>
+			<tr>
+				<td class="form-inline">
+					Legend dots size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.legendDotPct" min="0" max="1" step="0.001" /> <div class="input-group-addon">/1</div></div>
+				</td>
+				<td class="form-inline">
+					Main category divider width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.mainCatLineWidth" min="0" step="0.5" /> <div class="input-group-addon">x</div></div>
+				</td>
+				<td class="form-inline">
+					Subcategory divider width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.subCatLineWidth" min="0" step="0.5" /> <div class="input-group-addon">x</div></div>
+				</td>
+				<td class="form-inline">
+					Question divider width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.questionLineWidth" min="0" step="0.5" /> <div class="input-group-addon">x</div></div>
+				</td>
+				<td class="form-inline text-right">
+					<button class="btn btn-sm btn-primary" ng-click="m.render()">Rerender</button>
+					<button class="btn btn-sm btn-default" ng-click="m.reset()">Reset to default</button>
 				</td>
 			</tr>
 		</table>
 		<div>
-			<div id="surveyRadar1"></div>
+			<div id="surveyRadar1" class="pull-left"></div>
 			<div id="surveyRadar2"></div>
 		</div>
     </div>

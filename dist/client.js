@@ -30523,19 +30523,38 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var MainCtrl = function () {
-	    function MainCtrl() {
+	    function MainCtrl($scope, $timeout) {
+	        var _this = this;
+
 	        _classCallCheck(this, MainCtrl);
 
 	        this.mainCats = this.constructor.mainCats;
-	        this.cfg = { w: 300, h: 300 };
-	        this.rerender();
+	        this.cfgR1 = _index.Radar1.cfg;
+
+	        this.render(); // initial render
+
+	        var timeoutPromise = undefined;
+	        $scope.$watch(function () {
+	            return _this.cfgR1;
+	        }, function (newVal, oldVal) {
+	            if (oldVal !== newVal) {
+	                if (oldVal.w !== newVal.w && newVal.w !== newVal.h) newVal.h = newVal.w;else if (oldVal.h !== newVal.h && newVal.h !== newVal.w) newVal.w = newVal.h;else {
+	                    $timeout.cancel(timeoutPromise);
+	                    timeoutPromise = $timeout(function () {
+	                        _this.render();
+	                    }, 400);
+	                }
+	            }
+	        }, true);
+	        this.$scope = $scope;
 	    }
 
 	    _createClass(MainCtrl, [{
-	        key: 'rerender',
-	        value: function rerender() {
-	            this.renderRadar2(this.mainCats, this.cfg);
-	            this.renderRadar1(this.mainCats, this.cfg);
+	        key: 'render',
+	        value: function render() {
+	            console.info(new Date().toLocaleTimeString() + ": Rendering Radars");
+	            this.renderRadar1(this.mainCats, this.cfgR1);
+	            this.renderRadar2(this.mainCats, this.cfgR1);
 	        }
 	    }, {
 	        key: 'renderRadar1',
@@ -30548,6 +30567,12 @@
 	        value: function renderRadar2(mainCats, cfg) {
 	            var r2 = new _index.Radar2(mainCats, cfg);
 	            r2.render('#surveyRadar2');
+	        }
+	    }, {
+	        key: 'reset',
+	        value: function reset() {
+	            this.cfgR1 = _index.Radar1.cfg;
+	            this.$scope.$apply(); //TODO doesn't work yet
 	        }
 	    }]);
 
@@ -41158,8 +41183,10 @@
 		subCatFontSize: 0.35,
 		questionFontSize: 0.26,
 		tooltipFontSize: 7,
-		centerDotPct: 0.04,
-		legendDotPct: 0.015
+		legendDotPct: 0.015,
+		mainCatLineWidth: 3,
+		subCatLineWidth: 2,
+		questionLineWidth: 1
 	};
 
 	Radar1.circles = [{
@@ -41249,7 +41276,8 @@
 				mainCatFontSize: cfg.mainCatFontSize,
 				mainCatLetterSpacing: cfg.mainCatLetterSpacing,
 				turnTextThresholds: cfg.turnTextThresholds,
-				pixel: cfg.pixel
+				pixel: cfg.pixel,
+				mainCatLineWidth: cfg.mainCatLineWidth
 			};
 
 			this.mainCats = mainCats;
@@ -41425,7 +41453,8 @@
 				    questionsNr = this.cfg.questionsNr,
 				    centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY,
-				    pixel = this.cfg.pixel;
+				    pixel = this.cfg.pixel,
+				    mainCatLineWidth = this.cfg.mainCatLineWidth;
 
 				var mainCatAxis = this.g.selectAll(".mainAxis").data(this.mainCats).enter().append("g").attr("class", "mainAxis");
 
@@ -41433,7 +41462,7 @@
 					return centerX * (1 - Math.sin(-mainCat.firstQuestionIdx * radians / questionsNr));
 				}).attr("y2", function (mainCat, i) {
 					return centerY * (1 - Math.cos(-mainCat.firstQuestionIdx * radians / questionsNr));
-				}).attr("class", "line").style("stroke", "black").style("stroke-width", 3 * pixel + "px");
+				}).attr("class", "line").style("stroke", "black").style("stroke-width", mainCatLineWidth * pixel + "px");
 			}
 		}]);
 
@@ -41469,7 +41498,8 @@
 				questionsNr: cfg.questionsNr,
 				centerDotSize: cfg.centerDotSize,
 				turnTextThresholds: cfg.turnTextThresholds,
-				pixel: cfg.pixel
+				pixel: cfg.pixel,
+				subCatLineWidth: cfg.subCatLineWidth
 			};
 
 			this.subCats = subCats;
@@ -41648,7 +41678,8 @@
 				    centerY = this.cfg.centerY,
 				    radians = this.cfg.radians,
 				    questionsNr = this.cfg.questionsNr,
-				    pixel = this.cfg.pixel;
+				    pixel = this.cfg.pixel,
+				    subCatLineWidth = this.cfg.subCatLineWidth;
 				var subAxisEndPct = this.subAxisEndPct;
 
 				var subCatAxis = this.g.selectAll(".subAxis").data(this.subCats).enter().append("g").attr("class", "subAxis");
@@ -41657,7 +41688,7 @@
 					return centerX * (1 - subAxisEndPct * Math.sin(-subCat.firstQuestionIdx * radians / questionsNr));
 				}).attr("y2", function (subCat) {
 					return centerY * (1 - subAxisEndPct * Math.cos(-subCat.firstQuestionIdx * radians / questionsNr));
-				}).attr("class", "line").style("stroke", "black").style("stroke-width", pixel * 2 + "px");
+				}).attr("class", "line").style("stroke", "black").style("stroke-width", pixel * subCatLineWidth + "px");
 			}
 		}]);
 
@@ -41694,7 +41725,8 @@
 				radius: cfg.radius,
 				questionsNr: cfg.questionsNr,
 				turnTextThresholds: cfg.turnTextThresholds,
-				pixel: cfg.pixel
+				pixel: cfg.pixel,
+				questionLineWidth: cfg.questionLineWidth
 			};
 
 			this.questions = questions;
@@ -41926,7 +41958,8 @@
 			value: function renderLines() {
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY,
-				    pixel = this.cfg.pixel;
+				    pixel = this.cfg.pixel,
+				    questionLineWidth = this.cfg.questionLineWidth;
 				var questionsStartRadiusPct = this.questionsStartRadiusPct,
 				    questionsTitleOuterRadiusPct = this.questionsTitleOuterRadiusPct;
 
@@ -41940,7 +41973,7 @@
 					return centerX * (1 - questionsTitleOuterRadiusPct * Math.sin(question.startAngle));
 				}).attr("y2", function (question) {
 					return centerY * (1 - questionsTitleOuterRadiusPct * Math.cos(question.startAngle));
-				}).attr("class", "line").style("stroke", "black").style("stroke-width", 1 * pixel + "px");
+				}).attr("class", "line").style("stroke", "black").style("stroke-width", questionLineWidth * pixel + "px");
 			}
 		}, {
 			key: "renderAverages",
@@ -42102,7 +42135,7 @@
 				radius: cfg.radius,
 				centerX: cfg.centerX,
 				centerY: cfg.centerY,
-				centerDotPct: cfg.centerDotPct,
+				centerDotSize: cfg.centerDotSize,
 				legendDotPct: cfg.legendDotPct,
 				pixel: cfg.pixel
 			};
@@ -42113,9 +42146,9 @@
 		_createClass(Circles, [{
 			key: "prepare",
 			value: function prepare() {
-				var centerDotPct = this.cfg.centerDotPct;
+				var centerDotSize = this.cfg.centerDotSize;
 
-				this.circles[0].height += centerDotPct;
+				this.circles[0].height += centerDotSize;
 
 				var radiusPct = 0;
 				var _iteratorNormalCompletion = true;
@@ -42169,10 +42202,10 @@
 			value: function renderCenterDot() {
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY,
-				    centerDotPct = this.cfg.centerDotPct,
+				    centerDotSize = this.cfg.centerDotSize,
 				    radius = this.cfg.radius;
 
-				this.g.append("circle").attr("cx", centerX).attr("cy", centerY).attr("r", centerDotPct * radius).attr("fill", "black");
+				this.g.append("circle").attr("cx", centerX).attr("cy", centerY).attr("r", centerDotSize * radius).attr("fill", "black");
 			}
 		}, {
 			key: "renderLegend",
@@ -42401,7 +42434,10 @@
 		questionFontSize: 0.26,
 		tooltipFontSize: 7,
 		centerDotPct: 0.04,
-		legendDotPct: 0.015
+		legendDotPct: 0.015,
+		mainCatLineWidth: 3,
+		subCatLineWidth: 2,
+		questionLineWidth: 1
 	};
 
 	Radar2.circles = [{

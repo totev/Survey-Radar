@@ -1,15 +1,34 @@
 import {Radar1, Radar2} from './radarLib/index.js'
 
 export default class MainCtrl {
-    constructor() {
+    constructor($scope, $timeout) {
         this.mainCats = this.constructor.mainCats;
-        this.cfg = {w:300, h:300};
-        this.rerender();
+        this.cfgR1 = Radar1.cfg;
+
+        this.render(); // initial render
+
+        let timeoutPromise;
+        $scope.$watch(() => this.cfgR1, (newVal, oldVal) => {
+            if(oldVal !== newVal) {
+                if(oldVal.w !== newVal.w && newVal.w !== newVal.h)
+                    newVal.h = newVal.w;
+                else if(oldVal.h !== newVal.h && newVal.h !== newVal.w)
+                    newVal.w = newVal.h;
+                else {
+                    $timeout.cancel(timeoutPromise);
+                    timeoutPromise = $timeout(() => {
+                        this.render();
+                    }, 400);
+                }
+            }
+        }, true);
+        this.$scope = $scope;
     }
 
-    rerender() {
-        this.renderRadar2(this.mainCats, this.cfg);
-        this.renderRadar1(this.mainCats, this.cfg);
+    render() {
+        console.info((new Date()).toLocaleTimeString() + ": Rendering Radars")
+        this.renderRadar1(this.mainCats, this.cfgR1);
+        this.renderRadar2(this.mainCats, this.cfgR1);
     }
 
     renderRadar1(mainCats, cfg) {
@@ -20,6 +39,11 @@ export default class MainCtrl {
     renderRadar2(mainCats, cfg) {
         let r2 = new Radar2(mainCats, cfg);
         r2.render('#surveyRadar2');
+    }
+
+    reset() {
+        this.cfgR1 = Radar1.cfg;
+        this.$scope.$apply(); //TODO doesn't work yet
     }
 }
 
