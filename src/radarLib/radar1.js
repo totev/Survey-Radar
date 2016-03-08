@@ -3,12 +3,12 @@ import SubCategories from './subCategories.js'
 import Questions from './questions.js'
 import Circles from './circles.js'
 
-
 export default class Radar1 {
 
 	constructor(mainCats, config) {
 		this.circles = JSON.parse(JSON.stringify(this.constructor.circles));
 		this.mainCats = JSON.parse(JSON.stringify(mainCats));
+
 		let cfg = JSON.parse(JSON.stringify(this.constructor.cfg));
 		this.cfg = this.prepareConfig(Object.assign(cfg, config));
 	}

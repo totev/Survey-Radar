@@ -10,7 +10,9 @@ export default class Questions {
 			questionsNr: cfg.questionsNr,
 			turnTextThresholds: cfg.turnTextThresholds,
 			pixel: cfg.pixel,
-			questionLineWidth: cfg.questionLineWidth
+			questionLineWidth: cfg.questionLineWidth,
+			minMaxColor: cfg.minMaxColor,
+			avgLineColor: cfg.avgLineColor
 		};
 
 		this.questions = questions;
@@ -219,9 +221,8 @@ export default class Questions {
 	}
 
 	renderAverages() {
-		let pixel = this.cfg.pixel;
-
-		let color = "rgb(237, 52, 52)";
+		let pixel = this.cfg.pixel,
+			color = this.cfg.avgLineColor;
 
 		let renderables = this.questions.filter((q) => q.value);
 
@@ -281,7 +282,8 @@ export default class Questions {
 
 	renderMinMax(question) {
 		let centerX = this.cfg.centerX,
-			centerY = this.cfg.centerY;
+			centerY = this.cfg.centerY,
+			minMaxColor = this.cfg.minMaxColor;
 		let questionsStartRadius = this.questionsStartRadius,
 			questionsTitleInnerRadius = this.questionsTitleInnerRadius;
 
@@ -294,6 +296,6 @@ export default class Questions {
 		this.g.append("path")
 			.attr("d", fillingArc)
 			.attr("transform", `translate(${centerX}, ${centerY})`)
-			.attr("fill", "rgba(128, 128, 128, 0.33)");
+			.attr("fill", minMaxColor);
 	}
 }

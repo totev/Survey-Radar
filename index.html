@@ -5,6 +5,7 @@
   		<title>Radar chart</title>
 
 		<link href="./node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="./node_modules/angular-bootstrap-colorpicker/css/colorpicker.min.css" rel="stylesheet">
 		<style>
 			body {
 				font-family: Helvetica, sans-serif;
@@ -28,10 +29,18 @@
 			input[type="number"] {
 				width: 65px !important;
 			}
+
+			ul {
+				list-style: none;
+			}
 		</style>
   </head>
   <body>
+  	TODO: Circles (colors, widths, types, heights respecting center dot?), Extra averages and dots?, Dot colors?
     <div id="body" ng-controller="MainCtrl as m">
+		<div>
+			Load Excel sheet: <input type="file" custom-on-change="m.handleFile" />
+		</div>
 		<table class="table table-condensed">
 			<tr>
 				<td class="form-inline">
@@ -80,17 +89,66 @@
 				<td class="form-inline">
 					Question divider width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfgR1.questionLineWidth" min="0" step="0.5" /> <div class="input-group-addon">x</div></div>
 				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td class="form-inline" colspan="2">
+					Min-max color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="m.cfgR2.minMaxColor" />
+				</td>
+				<td class="form-inline" colspan="2">
+					Average line color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="m.cfgR2.avgLineColor" />
+				</td>
 				<td class="form-inline text-right">
 					<button class="btn btn-sm btn-primary" ng-click="m.render()">Rerender</button>
 					<button class="btn btn-sm btn-default" ng-click="m.reset()">Reset to default</button>
 				</td>
 			</tr>
 		</table>
+
+		<div id="surveyRadar1" class="pull-left"></div>
+		<div id="surveyRadar2"></div>
 		<div>
-			<div id="surveyRadar1" class="pull-left"></div>
-			<div id="surveyRadar2"></div>
+			<div class="pull-left">
+				<ul id="tree1">
+					<li ng-repeat="mainCat in m.mainCats">
+						<div class="form-inline">
+							<textarea ng-model="mainCat.mainCat" class="form-control input-sm"></textarea>
+							Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="mainCat.color" />
+						</div>
+						<ul>
+							<li ng-repeat="subCat in mainCat.subCats">
+								<div class="form-inline">
+									<textarea ng-model="subCat.title" class="form-control input-sm"></textarea>
+									Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="subCat.color" />
+									Value: {{subCat.value}}
+								</div>
+								<ul>
+									<li ng-repeat="question in subCat.questions">
+										<div class="form-inline">
+											<textarea ng-model="question.title" class="form-control input-sm"></textarea>
+											Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="question.color" />
+											Value: {{question.value}}
+										</div>
+										<ul>
+											<li ng-repeat="detail in question.details">
+												<div class="form-inline">
+													<input ng-model="detail.title" class="form-control input-sm" />
+													Value: {{detail.value}}
+												</div>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
 		</div>
     </div>
+	<script type="application/javascript" src="./node_modules/xlsx/dist/xlsx.core.min.js"></script>
+    <script type="text/javascript" src="./node_modules/angular/angular.min.js"></script>
+    <script type="text/javascript" src="./node_modules/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.min.js"></script>
     <script type="text/javascript" src="./dist/client.js"></script>
   </body>
 </html>

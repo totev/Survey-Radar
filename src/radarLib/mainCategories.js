@@ -70,7 +70,6 @@ export default class MainCategories {
 			.attr("d", backgroundArc)
 			.attr("transform", `translate(${centerX}, ${centerY})`)
 			.attr("fill", mainCat.color)
-			.attr("stroke", mainCat.color)
 			.style("opacity", backgroundOpacity);
 	}
 

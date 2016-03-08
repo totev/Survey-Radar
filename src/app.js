@@ -1,5 +1,7 @@
-import angular from 'angular'
-import MainCtrl from './mainCtrl.js'
+import MainCtrl from './mainCtrl'
+import OnChangeDirective from './onChangeDirective'
+import ExcelService from './excelService'
+import DataService from './dataService'
 
-angular.module('radarApp', [])
-        .controller('MainCtrl', MainCtrl);
+angular.module('radarApp', ['colorpicker.module', OnChangeDirective, ExcelService, DataService])
+       .controller('MainCtrl', MainCtrl);

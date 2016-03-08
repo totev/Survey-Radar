@@ -1,34 +1,26 @@
 import {Radar1, Radar2} from './radarLib/index.js'
 
 export default class MainCtrl {
-    constructor($scope, $timeout) {
+    constructor($scope, $timeout, excelService, dataService) {
         this.mainCats = this.constructor.mainCats;
         this.cfgR1 = Radar1.cfg;
+        this.cfgR2 = Radar2.cfg;
 
         this.render(); // initial render
 
-        let timeoutPromise;
-        $scope.$watch(() => this.cfgR1, (newVal, oldVal) => {
-            if(oldVal !== newVal) {
-                if(oldVal.w !== newVal.w && newVal.w !== newVal.h)
-                    newVal.h = newVal.w;
-                else if(oldVal.h !== newVal.h && newVal.h !== newVal.w)
-                    newVal.w = newVal.h;
-                else {
-                    $timeout.cancel(timeoutPromise);
-                    timeoutPromise = $timeout(() => {
-                        this.render();
-                    }, 400);
-                }
-            }
-        }, true);
+        $scope.$watch(() => this.cfgR1, this.configWatcher.bind(this), true);
+        $scope.$watch(() => this.mainCats, this.dataWatcher.bind(this), true);
+
         this.$scope = $scope;
+        this.$timeout = $timeout;
+        this.excelService = excelService;
+        this.dataService = dataService;
     }
 
-    render() {
+    render(mainCats = this.mainCats) {
         console.info((new Date()).toLocaleTimeString() + ": Rendering Radars")
-        this.renderRadar1(this.mainCats, this.cfgR1);
-        this.renderRadar2(this.mainCats, this.cfgR1);
+        this.renderRadar1(mainCats, this.cfgR1);
+        this.renderRadar2(mainCats, this.cfgR2);
     }
 
     renderRadar1(mainCats, cfg) {
@@ -44,6 +36,45 @@ export default class MainCtrl {
     reset() {
         this.cfgR1 = Radar1.cfg;
         this.$scope.$apply(); //TODO doesn't work yet
+    }
+
+
+    // User change/input processing
+    configWatcher(newVal, oldVal) {
+        if(oldVal !== newVal) {
+            if(oldVal.w !== newVal.w && newVal.w !== newVal.h)
+                newVal.h = newVal.w;
+            else if(oldVal.h !== newVal.h && newVal.h !== newVal.w)
+                newVal.w = newVal.h;
+            else {
+                this.$timeout.cancel(this.timeoutPromise);
+                this.timeoutPromise = this.$timeout(() => {
+                    this.render();
+                }, 400);
+            }
+        }
+    }
+
+    dataWatcher(newVal, oldVal) {
+        if(oldVal !== newVal) {
+            this.$timeout.cancel(this.timeoutPromise);
+            this.timeoutPromise = this.$timeout(() => {
+                this.render();
+            }, 400);
+        }
+    }
+
+    // File handling
+
+    handleFile(event) {
+        this.excelService.handleFile(event).then(
+            (workbook) => {
+                let parsedData = this.excelService.parseWorkbook(workbook, 'Details');
+                let data = this.dataService.prepareData(parsedData, 5);
+                this.render(data);
+            },
+            (exception) => console.error('fail', exception)
+        );
     }
 }
 

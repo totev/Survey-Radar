@@ -57,7 +57,7 @@ export default class Radar2 {
 
 		let questions = subCats.map((subCat) => subCat.questions)
 							.reduce((aggregate, next) => aggregate.concat(next));
-		let q = new Questions(g, cfg, questions, cfg.centerDotPct, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
+		let q = new Questions(g, cfg, questions, cfg.centerDotSize, questionsTitleInnerRadiusPct, questionsTitleOuterRadiusPct);
 
 		mc.renderTitles();
 		sc.renderTitles(true);		
@@ -97,11 +97,12 @@ Radar2.cfg = {
 		 	subCatFontSize: 0.35,
 		 	questionFontSize: 0.26,
 		 	tooltipFontSize: 7,
-		 	centerDotPct: 0.04,
 		 	legendDotPct: 0.015,
 			mainCatLineWidth: 3,
 			subCatLineWidth: 2,
-			questionLineWidth: 1
+			questionLineWidth: 1,
+			minMaxColor: "rgba(128, 128, 128, 0.33)",
+			avgLineColor: "rgba(179,10,10,1)"
 		};
 
 Radar2.circles = [{
