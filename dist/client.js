@@ -95,11 +95,9 @@
 
 	        _classCallCheck(this, MainCtrl);
 
-	        this.mainCats = this.constructor.mainCats;
+	        //this.mainCats = this.constructor.mainCats;
 	        this.cfgR1 = _index.Radar1.cfg;
 	        this.cfgR2 = _index.Radar2.cfg;
-
-	        this.render(); // initial render
 
 	        $scope.$watch(function () {
 	            return _this.cfgR1;
@@ -180,8 +178,7 @@
 
 	            this.excelService.handleFile(event).then(function (workbook) {
 	                var parsedData = _this4.excelService.parseWorkbook(workbook, 'Details');
-	                var data = _this4.dataService.prepareData(parsedData, 5);
-	                _this4.render(data);
+	                _this4.mainCats = _this4.dataService.prepareData(parsedData, 5); // rerender triggered automatically by watcher
 	            }, function (exception) {
 	                return console.error('fail', exception);
 	            });
@@ -11449,9 +11446,11 @@
 				var questionsStartRadius = this.questionsStartRadius,
 				    questionsTitleInnerRadius = this.questionsTitleInnerRadius;
 
-				var fillingArc = d3.svg.arc().innerRadius(questionsStartRadius).outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.value).startAngle(question.startAngle).endAngle(question.endAngle);
+				if (!isNaN(question.value)) {
+					var fillingArc = d3.svg.arc().innerRadius(questionsStartRadius).outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.value).startAngle(question.startAngle).endAngle(question.endAngle);
 
-				this.g.append("path").attr("d", fillingArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", question.color);
+					this.g.append("path").attr("d", fillingArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", question.color);
+				}
 			}
 		}, {
 			key: "renderTitles",
@@ -11538,7 +11537,7 @@
 							for (var _iterator3 = question.details[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 								var detail = _step3.value;
 
-								divHtml += "<br />" + detail.title + ": " + detail.value;
+								divHtml += "<br />" + detail.title + ": " + detail.value + "/1";
 							}
 						} catch (err) {
 							_didIteratorError3 = true;
@@ -11555,7 +11554,7 @@
 							}
 						}
 
-						var div = d3.select("body").append("div").html(divHtml).attr("class", "tooltip").style("font-size", fontSize * 1.5 + "px").style("opacity", 0).style("border-color", question.color);
+						var div = d3.select("#tooltipBin").append("div").html(divHtml).attr("class", "tooltip").style("font-size", fontSize * 1.5 + "px").style("opacity", 0).style("border-color", question.color);
 
 						foreground.on("mouseover", function () {
 							div.transition().duration(200).style("opacity", .9);
@@ -11669,7 +11668,11 @@
 			value: function renderQuestionDetails(question) {
 				var pixel = this.cfg.pixel;
 
-				this.g.selectAll(".detailNodes").data(question.details).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (detail) {
+				var details = question.details.filter(function (detail) {
+					return !isNaN(detail.posX) && !isNaN(detail.posY);
+				});
+
+				this.g.selectAll(".detailNodes").data(details).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (detail) {
 					return detail.posX;
 				}).attr("cy", function (detail) {
 					return detail.posY;
@@ -12148,7 +12151,7 @@
 /* 12 */
 /***/ function(module, exports) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -12166,7 +12169,7 @@
 	    }
 
 	    _createClass(ExcelService, [{
-	        key: 'handleFile',
+	        key: "handleFile",
 	        value: function handleFile(e) {
 	            var deferred = this.$q.defer();
 
@@ -12193,98 +12196,112 @@
 	            return deferred.promise;
 	        }
 	    }, {
-	        key: 'parseWorkbook',
+	        key: "parseWorkbook",
 	        value: function parseWorkbook(workbook, sheetName) {
-	            var cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName]);
+	            var cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 0, 1);
 	            var mainCats = this.detailParsing(cellStructure, 1, 2, 3, 4);
 	            return mainCats;
 	        }
 	    }, {
-	        key: 'detailParsing',
-	        value: function detailParsing(cellStructure, mainCatColNr, subCatColNr, questionColNr, detailColNr) {
-	            var mainCatCol = cellStructure[mainCatColNr],
-	                mainCatValueCol = cellStructure[mainCatCol - 1],
-	                subCatCol = cellStructure[subCatColNr],
-	                subCatValueCol = cellStructure[subCatColNr - 1],
-	                questionCol = cellStructure[questionColNr],
-	                questionValueCol = cellStructure[questionColNr - 1],
-	                detailCol = cellStructure[detailColNr],
-	                detailValueCol = cellStructure[detailColNr - 1];
+	        key: "detailParsing",
+	        value: function detailParsing(data, mainCatColNr, subCatColNr, questionColNr, detailColNr) {
+	            var maxRowNr = data.maxRowNr;
+	            var cols = data.cols;
 
-	            var mainCats = [];
+	            var mainCatCol = cols[mainCatColNr],
+	                mainCatValueCol = cols[mainCatColNr - 1],
+	                subCatCol = cols[subCatColNr],
+	                subCatValueCol = cols[subCatColNr - 1],
+	                questionCol = cols[questionColNr],
+	                questionValueCol = cols[questionColNr - 1],
+	                detailCol = cols[detailColNr],
+	                detailValueCol = cols[detailColNr - 1];
 
-	            var filteredMainCatColKeys = Object.keys(mainCatCol).filter(function (key) {
-	                return isNaN(mainCatCol[key].v);
-	            }),
-	                filteredSubCatColKeys = Object.keys(subCatCol).filter(function (key) {
-	                return isNaN(subCatCol[key].v);
-	            }),
-	                filteredQuestionColKeys = Object.keys(questionCol).filter(function (key) {
-	                return isNaN(questionCol[key].v) && questionCol[key].v !== '?';
-	            }),
-	                detailColKeys = Object.keys(detailCol);
+	            var mainCats = [],
+	                mainCat = undefined,
+	                subCat = undefined,
+	                question = undefined;
 
-	            for (var i = 0; i < filteredMainCatColKeys.length; i++) {
-	                var mainCatRowNr = parseInt(filteredMainCatColKeys[i]);
+	            for (var i = 0; i <= maxRowNr; i++) {
+	                var mainCatCell = mainCatCol[i],
+	                    mainCatValueCell = mainCatValueCol[i],
+	                    subCatCell = subCatCol[i],
+	                    subCatValueCell = subCatValueCol[i],
+	                    questionCell = questionCol[i],
+	                    questionValueCell = questionValueCol[i],
+	                    detailCell = detailCol[i],
+	                    detailValueCell = detailValueCol[i];
 
-	                var nextMainCatRowNr = i === filteredMainCatColKeys.length - 1 ? Infinity : parseInt(filteredMainCatColKeys[i + 1]);
-	                var mainCat = {
-	                    mainCat: mainCatCol[mainCatRowNr].v,
-	                    value: mainCatValueCol && mainCatValueCol[mainCatRowNr] ? parseFloat(mainCatValueCol[mainCatRowNr].v) : undefined,
-	                    subCats: []
-	                };
-	                mainCats.push(mainCat);
+	                if (this.isValidCell(mainCatCell) || this.isValueCell(mainCatValueCell)) {
+	                    mainCat = { mainCat: this.parseTitle(mainCatCell), value: this.parseValue(mainCatValueCell), subCats: [] };
+	                    mainCats.push(mainCat);
 
-	                for (var j = 0; j < filteredSubCatColKeys.length; j++) {
-	                    var subCatRowNr = parseInt(filteredSubCatColKeys[j]);
+	                    subCat = undefined;
+	                    question = undefined;
+	                }
+	                if (this.isValidCell(subCatCell) || this.isValueCell(subCatValueCell)) {
+	                    subCat = { title: this.parseTitle(subCatCell), value: this.parseValue(subCatValueCell), questions: [] };
 
-	                    if (subCatRowNr > mainCatRowNr && subCatRowNr < nextMainCatRowNr) {
-	                        var nextSubCatRowNr = j === filteredSubCatColKeys.length - 1 ? nextMainCatRowNr : parseInt(filteredSubCatColKeys[j + 1]);
-
-	                        var subCat = {
-	                            title: subCatCol[subCatRowNr].v,
-	                            value: subCatValueCol[subCatRowNr] ? parseFloat(mainCatCol[subCatRowNr].v) : undefined,
-	                            questions: []
-	                        };
-	                        mainCat.subCats.push(subCat);
-
-	                        for (var k = 0; k < filteredQuestionColKeys.length; k++) {
-	                            var questionRowNr = parseInt(filteredQuestionColKeys[k]);
-
-	                            if (questionRowNr > subCatRowNr && questionRowNr < nextSubCatRowNr) {
-	                                var nextQuestionRowNr = k === filteredQuestionColKeys - 1 ? nextSubCatRowNr : parseInt(filteredQuestionColKeys[k + 1]);
-
-	                                var question = {
-	                                    title: questionCol[questionRowNr].v,
-	                                    value: questionValueCol[questionRowNr] ? parseFloat(subCatCol[questionRowNr].v) : undefined,
-	                                    details: []
-	                                };
-	                                subCat.questions.push(question);
-
-	                                for (var l = 0; l < detailColKeys.length; l++) {
-	                                    var detailRowNr = parseInt(detailColKeys[l]);
-
-	                                    if (detailRowNr > questionRowNr && detailRowNr < nextQuestionRowNr) {
-	                                        var detail = {
-	                                            title: detailCol[detailRowNr].v,
-	                                            value: detailValueCol[detailRowNr] ? parseFloat(questionCol[detailRowNr].v) : undefined
-	                                        };
-	                                        question.details.push(detail);
-	                                    }
-	                                }
-	                            }
-	                        }
+	                    if (mainCat === undefined) {
+	                        mainCat = { mainCat: "", subCats: [] };
+	                        mainCats.push(mainCat);
 	                    }
+
+	                    mainCat.subCats.push(subCat);
+
+	                    question = undefined;
+	                }
+	                if (this.isValidCell(questionCell) || this.isValueCell(questionValueCell)) {
+	                    question = { title: this.parseTitle(questionCell), value: this.parseValue(questionValueCell), details: [] };
+	                    if (subCat === undefined) {
+	                        subCat = { title: "", questions: [] };
+	                        mainCat.subCats.push(subCat);
+	                    }
+	                    subCat.questions.push(question);
+	                }
+	                if (this.isValidCell(detailCell) || this.isValueCell(detailValueCell)) {
+	                    var detail = { title: this.parseTitle(detailCell), value: this.parseValue(detailValueCell), questions: [] };
+
+	                    if (subCat === undefined) {
+	                        subCat = { title: "", questions: [] };
+	                        mainCat.subCats.push(subCat);
+	                    }
+	                    if (question === undefined) {
+	                        question = { title: "", details: [] };
+	                        subCat.questions.push(question);
+	                    }
+	                    question.details.push(detail);
 	                }
 	            }
 	            return mainCats;
 	        }
 	    }, {
-	        key: 'restructureWorksheet',
+	        key: "isValidCell",
+	        value: function isValidCell(cell) {
+	            return cell !== undefined && cell.v !== undefined && isNaN(cell.v) && cell.v !== '?';
+	        }
+	    }, {
+	        key: "isValueCell",
+	        value: function isValueCell(cell) {
+	            return cell !== undefined && !isNaN(cell.v);
+	        }
+	    }, {
+	        key: "parseValue",
+	        value: function parseValue(cell) {
+	            return cell !== undefined && !isNaN(cell.v) ? parseFloat(cell.v) : undefined;
+	        }
+	    }, {
+	        key: "parseTitle",
+	        value: function parseTitle(cell) {
+	            return cell !== undefined && cell.v !== undefined ? cell.v : "";
+	        }
+	    }, {
+	        key: "restructureWorksheet",
 	        value: function restructureWorksheet(worksheet) {
 	            var colOffset = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
 	            var rowOffset = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
 
+	            var maxRowNr = 0;
 	            var cols = {};
 	            Object.keys(worksheet).forEach(function (key) {
 	                var columnNrs = [];
@@ -12295,6 +12312,7 @@
 	                        columnNrs.push(charCode - 65);
 	                    } else if (charCode > 48 && charCode < 58) {
 	                        rowNr = parseInt(key.substr(i)) - 1;
+	                        if (rowNr > maxRowNr) maxRowNr = rowNr;
 	                        break;
 	                    }
 	                }
@@ -12312,7 +12330,7 @@
 	                    cols[colNr][rowNr] = worksheet[key];
 	                }
 	            });
-	            return cols;
+	            return { maxRowNr: maxRowNr, cols: cols };
 	        }
 	    }]);
 
@@ -12358,8 +12376,7 @@
 	                for (var _iterator = mainCats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	                    var mainCat = _step.value;
 
-	                    if (!isNaN(mainCat.value)) mainCat.value = mainCat.value / maxScaleValue;
-
+	                    var subCatValues = [];
 	                    var _iteratorNormalCompletion2 = true;
 	                    var _didIteratorError2 = false;
 	                    var _iteratorError2 = undefined;
@@ -12368,8 +12385,7 @@
 	                        for (var _iterator2 = mainCat.subCats[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 	                            var subCat = _step2.value;
 
-	                            if (!isNaN(subCat.value)) subCat.value = subCat.value / maxScaleValue;
-
+	                            var questionValues = [];
 	                            var _iteratorNormalCompletion3 = true;
 	                            var _didIteratorError3 = false;
 	                            var _iteratorError3 = undefined;
@@ -12378,8 +12394,7 @@
 	                                for (var _iterator3 = subCat.questions[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 	                                    var question = _step3.value;
 
-	                                    if (!isNaN(question.value)) question.value = question.value / maxScaleValue;
-
+	                                    var detailValues = [];
 	                                    var _iteratorNormalCompletion4 = true;
 	                                    var _didIteratorError4 = false;
 	                                    var _iteratorError4 = undefined;
@@ -12388,7 +12403,10 @@
 	                                        for (var _iterator4 = question.details[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
 	                                            var detail = _step4.value;
 
-	                                            if (!isNaN(detail.value)) detail.value = detail.value / maxScaleValue;
+	                                            if (!isNaN(detail.value)) {
+	                                                detail.value = detail.value / maxScaleValue;
+	                                                detailValues.push(detail.value);
+	                                            }
 	                                        }
 	                                    } catch (err) {
 	                                        _didIteratorError4 = true;
@@ -12403,6 +12421,16 @@
 	                                                throw _iteratorError4;
 	                                            }
 	                                        }
+	                                    }
+
+	                                    if (!isNaN(question.value)) {
+	                                        question.value = question.value / maxScaleValue;
+	                                        questionValues.push(question.value);
+	                                    } else if (detailValues.length > 0) {
+	                                        question.value = detailValues.reduce(function (sum, next) {
+	                                            return sum += next;
+	                                        }) / detailValues.length;
+	                                        questionValues.push(question.value);
 	                                    }
 	                                }
 	                            } catch (err) {
@@ -12419,6 +12447,16 @@
 	                                    }
 	                                }
 	                            }
+
+	                            if (!isNaN(subCat.value)) {
+	                                subCat.value = subCat.value / maxScaleValue;
+	                                subCatValues.push(subCat.value);
+	                            } else if (questionValues.length > 0) {
+	                                subCat.value = questionValues.reduce(function (sum, next) {
+	                                    return sum += next;
+	                                }) / questionValues.length;
+	                                subCatValues.push(subCat.value);
+	                            }
 	                        }
 	                    } catch (err) {
 	                        _didIteratorError2 = true;
@@ -12434,6 +12472,10 @@
 	                            }
 	                        }
 	                    }
+
+	                    if (!isNaN(mainCat.value)) mainCat.value = mainCat.value / maxScaleValue;else if (subCatValues.length > 0) mainCat.value = subCatValues.reduce(function (sum, next) {
+	                        return sum += next;
+	                    }) / subCatValues.length;
 	                }
 	            } catch (err) {
 	                _didIteratorError = true;
@@ -12455,8 +12497,9 @@
 	    }, {
 	        key: 'assignColors',
 	        value: function assignColors(mainCats) {
-	            var colorScale = [{ r: 1, g: 1, b: 1, a: 1.0 }],
-	                colorIdx = 0;
+	            var colorScale = [{ r: 59, g: 128, b: 62, a: 1.0 }, { r: 90, g: 80, b: 140, a: 1.0 }, { r: 181, g: 48, b: 60, a: 1.0 }, { r: 27, g: 86, b: 166, a: 1.0 }, { r: 208, g: 89, b: 61, a: 1.0 }],
+	                colorIdx = 0,
+	                sign = -1;
 
 	            var _iteratorNormalCompletion5 = true;
 	            var _didIteratorError5 = false;
@@ -12477,7 +12520,8 @@
 	                        for (var _iterator6 = mainCat.subCats[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
 	                            var subCat = _step6.value;
 
-	                            var opacity = 0.65 + Math.random() * 0.4 - 0.2;
+	                            var opacity = 0.65 + sign * (Math.random() * 0.25);
+	                            sign = sign * -1;
 	                            subCat.color = 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + opacity + ')';
 
 	                            var _iteratorNormalCompletion7 = true;

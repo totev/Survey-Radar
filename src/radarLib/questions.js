@@ -81,16 +81,18 @@ export default class Questions {
 		let questionsStartRadius = this.questionsStartRadius,
 			questionsTitleInnerRadius = this.questionsTitleInnerRadius;
 
-		let fillingArc = d3.svg.arc()
-						.innerRadius(questionsStartRadius)
-						.outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.value)
-						.startAngle(question.startAngle)
-						.endAngle(question.endAngle);
+		if(!isNaN(question.value)) {
+			let fillingArc = d3.svg.arc()
+				.innerRadius(questionsStartRadius)
+				.outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.value)
+				.startAngle(question.startAngle)
+				.endAngle(question.endAngle);
 
-		this.g.append("path")
-			.attr("d", fillingArc)
-			.attr("transform", `translate(${centerX}, ${centerY})`)
-			.attr("fill", question.color);
+			this.g.append("path")
+				.attr("d", fillingArc)
+				.attr("transform", `translate(${centerX}, ${centerY})`)
+				.attr("fill", question.color);
+		}
 	}
 
 
@@ -167,9 +169,9 @@ export default class Questions {
 		if(question.details.length > 0) {
 			let divHtml = "<strong>Details:</strong>";
 			for(let detail of question.details) {
-				divHtml += `<br />${detail.title}: ${detail.value}`;
+				divHtml += `<br />${detail.title}: ${detail.value}/1`;
 			}
-			let div = d3.select("body").append("div")
+			let div = d3.select("#tooltipBin").append("div")
 						.html(divHtml)
 					    .attr("class", "tooltip")
 					    .style("font-size", fontSize * 1.5 + "px")				
@@ -261,8 +263,10 @@ export default class Questions {
 	renderQuestionDetails(question) {
 		let pixel = this.cfg.pixel;
 
+		let details = question.details.filter((detail) => !isNaN(detail.posX) && !isNaN(detail.posY));
+
 		this.g.selectAll(".detailNodes")
-			.data(question.details).enter()
+			.data(details).enter()
 			.append("svg:circle")
 			.attr("class", "radar-chart-series")
 			.attr('r', (pixel * 2) + "px")

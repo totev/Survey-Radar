@@ -2,11 +2,9 @@ import {Radar1, Radar2} from './radarLib/index.js'
 
 export default class MainCtrl {
     constructor($scope, $timeout, excelService, dataService) {
-        this.mainCats = this.constructor.mainCats;
+        //this.mainCats = this.constructor.mainCats;
         this.cfgR1 = Radar1.cfg;
         this.cfgR2 = Radar2.cfg;
-
-        this.render(); // initial render
 
         $scope.$watch(() => this.cfgR1, this.configWatcher.bind(this), true);
         $scope.$watch(() => this.mainCats, this.dataWatcher.bind(this), true);
@@ -70,8 +68,7 @@ export default class MainCtrl {
         this.excelService.handleFile(event).then(
             (workbook) => {
                 let parsedData = this.excelService.parseWorkbook(workbook, 'Details');
-                let data = this.dataService.prepareData(parsedData, 5);
-                this.render(data);
+                this.mainCats = this.dataService.prepareData(parsedData, 5); // rerender triggered automatically by watcher
             },
             (exception) => console.error('fail', exception)
         );

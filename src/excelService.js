@@ -30,86 +30,99 @@ class ExcelService {
     }
 
     parseWorkbook(workbook, sheetName) {
-        let cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName]);
+        let cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 0, 1);
         let mainCats = this.detailParsing(cellStructure, 1, 2, 3, 4);
         return mainCats;
     }
 
-    detailParsing(cellStructure, mainCatColNr, subCatColNr, questionColNr, detailColNr) {
-        let mainCatCol = cellStructure[mainCatColNr],
-            mainCatValueCol = cellStructure[mainCatCol - 1],
-            subCatCol = cellStructure[subCatColNr],
-            subCatValueCol = cellStructure[subCatColNr - 1],
-            questionCol = cellStructure[questionColNr],
-            questionValueCol = cellStructure[questionColNr - 1],
-            detailCol = cellStructure[detailColNr],
-            detailValueCol = cellStructure[detailColNr - 1];
+    detailParsing(data, mainCatColNr, subCatColNr, questionColNr, detailColNr) {
+        let {maxRowNr, cols} = data;
+        let mainCatCol = cols[mainCatColNr],
+            mainCatValueCol = cols[mainCatColNr - 1],
+            subCatCol = cols[subCatColNr],
+            subCatValueCol = cols[subCatColNr - 1],
+            questionCol = cols[questionColNr],
+            questionValueCol = cols[questionColNr - 1],
+            detailCol = cols[detailColNr],
+            detailValueCol = cols[detailColNr - 1];
 
-        let mainCats = [];
+        let mainCats = [],
+            mainCat,
+            subCat,
+            question;
 
-        let filteredMainCatColKeys = Object.keys(mainCatCol).filter((key) => isNaN(mainCatCol[key].v)),
-            filteredSubCatColKeys = Object.keys(subCatCol).filter((key) => isNaN(subCatCol[key].v)),
-            filteredQuestionColKeys = Object.keys(questionCol).filter((key) => isNaN(questionCol[key].v) && questionCol[key].v !== '?'),
-            detailColKeys = Object.keys(detailCol);
+        for(let i = 0; i <= maxRowNr; i++) {
+            let mainCatCell = mainCatCol[i],
+                mainCatValueCell = mainCatValueCol[i],
+                subCatCell = subCatCol[i],
+                subCatValueCell = subCatValueCol[i],
+                questionCell = questionCol[i],
+                questionValueCell = questionValueCol[i],
+                detailCell = detailCol[i],
+                detailValueCell = detailValueCol[i];
 
-        for(let i = 0; i < filteredMainCatColKeys.length; i++) {
-            let mainCatRowNr = parseInt(filteredMainCatColKeys[i]);
+            if(this.isValidCell(mainCatCell) || this.isValueCell(mainCatValueCell)) {
+                mainCat = {mainCat: this.parseTitle(mainCatCell), value: this.parseValue(mainCatValueCell), subCats: []};
+                mainCats.push(mainCat);
 
-            let nextMainCatRowNr = i === filteredMainCatColKeys.length - 1 ? Infinity : parseInt(filteredMainCatColKeys[i+1]);
-            let mainCat = {
-                mainCat: mainCatCol[mainCatRowNr].v,
-                value: mainCatValueCol && mainCatValueCol[mainCatRowNr] ? parseFloat(mainCatValueCol[mainCatRowNr].v) : undefined,
-                subCats: []
-            };
-            mainCats.push(mainCat);
-
-            for (let j = 0; j < filteredSubCatColKeys.length; j++) {
-                let subCatRowNr = parseInt(filteredSubCatColKeys[j]);
-
-                if (subCatRowNr > mainCatRowNr && subCatRowNr < nextMainCatRowNr) {
-                    let nextSubCatRowNr = j === filteredSubCatColKeys.length - 1 ? nextMainCatRowNr : parseInt(filteredSubCatColKeys[j+1]);
-
-                    let subCat = {
-                        title: subCatCol[subCatRowNr].v,
-                        value: subCatValueCol[subCatRowNr] ? parseFloat(mainCatCol[subCatRowNr].v) : undefined,
-                        questions: []
-                    };
-                    mainCat.subCats.push(subCat);
-
-                    for (let k = 0; k < filteredQuestionColKeys.length; k++) {
-                        let questionRowNr = parseInt(filteredQuestionColKeys[k]);
-
-                        if(questionRowNr > subCatRowNr && questionRowNr < nextSubCatRowNr) {
-                            let nextQuestionRowNr = k === filteredQuestionColKeys - 1 ? nextSubCatRowNr : parseInt(filteredQuestionColKeys[k+1]);
-
-                            let question = {
-                                title: questionCol[questionRowNr].v,
-                                value: questionValueCol[questionRowNr] ? parseFloat(subCatCol[questionRowNr].v) : undefined,
-                                details: []
-                            };
-                            subCat.questions.push(question);
-
-                            for (let l = 0; l < detailColKeys.length; l++) {
-                                let detailRowNr = parseInt(detailColKeys[l]);
-
-                                if(detailRowNr > questionRowNr && detailRowNr < nextQuestionRowNr) {
-                                    let detail = {
-                                        title: detailCol[detailRowNr].v,
-                                        value: detailValueCol[detailRowNr] ? parseFloat(questionCol[detailRowNr].v) : undefined
-                                    };
-                                    question.details.push(detail);
-                                }
-                            }
-                        }
-                    }
-                }
+                subCat = undefined;
+                question = undefined;
             }
+            if(this.isValidCell(subCatCell) || this.isValueCell(subCatValueCell)) {
+                subCat = {title: this.parseTitle(subCatCell), value: this.parseValue(subCatValueCell), questions: []};
 
+                if(mainCat === undefined) {
+                    mainCat = {mainCat: "", subCats: []};
+                    mainCats.push(mainCat);
+                }
+
+                mainCat.subCats.push(subCat);
+
+                question = undefined;
+            }
+            if(this.isValidCell(questionCell) || this.isValueCell(questionValueCell)) {
+                question = {title: this.parseTitle(questionCell), value: this.parseValue(questionValueCell), details: []};
+                if(subCat === undefined) {
+                    subCat = {title: "", questions: []};
+                    mainCat.subCats.push(subCat);
+                }
+                subCat.questions.push(question);
+            }
+            if(this.isValidCell(detailCell) || this.isValueCell(detailValueCell)) {
+                let detail = {title: this.parseTitle(detailCell), value: this.parseValue(detailValueCell), questions: []};
+
+                if(subCat === undefined) {
+                    subCat = {title: "", questions: []};
+                    mainCat.subCats.push(subCat);
+                }
+                if(question === undefined) {
+                    question = {title: "", details: []};
+                    subCat.questions.push(question);
+                }
+                question.details.push(detail);
+            }
         }
         return mainCats;
     }
 
+    isValidCell(cell) {
+        return (cell !== undefined && cell.v !== undefined && isNaN(cell.v) && cell.v !== '?');
+    }
+
+    isValueCell(cell) {
+        return (cell !== undefined && !isNaN(cell.v));
+    }
+
+    parseValue(cell) {
+        return cell !== undefined && !isNaN(cell.v) ? parseFloat(cell.v) : undefined;
+    }
+
+    parseTitle(cell) {
+        return cell !== undefined && cell.v !== undefined ? cell.v : "";
+    }
+
     restructureWorksheet(worksheet, colOffset = 0, rowOffset = 0) {
+        let maxRowNr = 0;
         let cols = {};
         Object.keys(worksheet).forEach((key) => {
             let columnNrs = [];
@@ -120,6 +133,7 @@ class ExcelService {
                     columnNrs.push(charCode - 65);
                 } else if(charCode > 48 && charCode < 58) {
                     rowNr = parseInt(key.substr(i)) - 1;
+                    if(rowNr > maxRowNr) maxRowNr = rowNr;
                     break;
                 }
             }
@@ -137,7 +151,7 @@ class ExcelService {
                 cols[colNr][rowNr] = worksheet[key];
             }
         });
-        return cols;
+        return {maxRowNr, cols};
     }
 }
 

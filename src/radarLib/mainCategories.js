@@ -108,7 +108,7 @@ export default class MainCategories {
 		this.g.append("path")
 			.attr("d", textArc)
 			.attr("transform", `translate(${centerX}, ${centerY})`)
-			.attr("id", "mainCat_" + id);			
+			.attr("id", "mainCat_" + id);
 
 		let textMiddle = (mainCat.firstQuestionIdx + mainCat.questionsNr / 2) / questionsNr;
 		let offset = textMiddle > turnTextThresholds[0] && textMiddle < turnTextThresholds[1] ? 1 : 0;
