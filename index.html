@@ -45,6 +45,7 @@
 
 			#config-container {
 				height:100%;
+				padding: 5px;
 				overflow: scroll;
 				border-right: 2px dashed lightgray;
 			}
@@ -54,7 +55,7 @@
     <div id="body" ng-controller="MainCtrl as m">
 		<div class="pull-left" id="config-container">
 			<div>
-				TODO: Circles (colors, widths, types, heights respecting center dot?), Extra averages and dots?, Dot colors?<br/>
+				TODO: Circles (colors, widths, types, heights respecting center dot?), <br />Extra averages and dots?, Dot colors?<br/>
 				Load Excel sheet: <input type="file" custom-on-change="m.handleFile" />
 			</div>
 			<table id="config-table" class="table table-condensed text-right">
@@ -131,29 +132,33 @@
 			</table>
 
 			<ul id="tree1">
-				<li ng-repeat="mainCat in m.mainCats">
+				<li ng-repeat="mainCat in m.mainCats" ng-init="mcIdx = $index + 1">
 					<div class="form-inline">
-						<textarea ng-model="mainCat.mainCat" class="form-control input-sm"></textarea>
+						<em>{{mcIdx}}.</em>
+						<input type="text" ng-model="mainCat.mainCat" class="form-control input-sm" />
 						Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="mainCat.color" />
 						Value: {{mainCat.value | limitTo: 6}}
 					</div>
 					<ul>
-						<li ng-repeat="subCat in mainCat.subCats">
+						<li ng-repeat="subCat in mainCat.subCats" ng-init="scIdx = $index + 1">
 							<div class="form-inline">
+								<em>{{mcIdx}}.{{scIdx}}</em>
 								<textarea ng-model="subCat.title" class="form-control input-sm"></textarea>
 								Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="subCat.color" />
 								Value: {{subCat.value | limitTo: 6}}
 							</div>
 							<ul>
-								<li ng-repeat="question in subCat.questions">
+								<li ng-repeat="question in subCat.questions" ng-init="qIdx = $index + 1">
 									<div class="form-inline">
+										<em>{{mcIdx}}.{{scIdx}}.{{qIdx}}</em>
 										<textarea ng-model="question.title" class="form-control input-sm"></textarea>
 										Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="question.color" />
 										Value: {{question.value | limitTo: 6}}
 									</div>
 									<ul>
-										<li ng-repeat="detail in question.details">
+										<li ng-repeat="detail in question.details" ng-init="dIdx = $index + 1">
 											<div class="form-inline">
+												<em>{{mcIdx}}.{{scIdx}}.{{qIdx}}.{{dIdx}}</em>
 												<input ng-model="detail.title" class="form-control input-sm" />
 												Value: {{detail.value | limitTo: 6}}
 											</div>
@@ -167,6 +172,7 @@
 			</ul>
 		</div>
 		<div style="height:100%;overflow:scroll;">
+			<button id="download-svg" ng-click="m.downloadSVG('#surveyRadar1')" ng-show="m.mainCats !== undefined" class="btn btn-default">Download as SVG</button>
 			<div id="surveyRadar1" class="pull-left"></div>
 			<div id="surveyRadar2"></div>
 			<div id="tooltipBin" style="height:0px;"></div>

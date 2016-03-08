@@ -1,8 +1,7 @@
 import {Radar1, Radar2} from './radarLib/index.js'
 
 export default class MainCtrl {
-    constructor($scope, $timeout, excelService, dataService) {
-        //this.mainCats = this.constructor.mainCats;
+    constructor($scope, $timeout, excelService, dataService, downloadService) {
         this.cfgR1 = Radar1.cfg;
         this.cfgR2 = Radar2.cfg;
 
@@ -13,6 +12,7 @@ export default class MainCtrl {
         this.$timeout = $timeout;
         this.excelService = excelService;
         this.dataService = dataService;
+        this.downloadService = downloadService;
     }
 
     render(mainCats = this.mainCats) {
@@ -72,6 +72,10 @@ export default class MainCtrl {
             },
             (exception) => console.error('fail', exception)
         );
+    }
+
+    downloadSVG(svgContainerId) {
+        this.downloadService.downloadSVG(svgContainerId);
     }
 }
 
