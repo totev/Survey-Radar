@@ -67,8 +67,8 @@ export default class MainCtrl {
     handleFile(event) {
         this.excelService.handleFile(event).then(
             (workbook) => {
-                let parsedData = this.excelService.parseWorkbook(workbook, 'Details');
-                this.mainCats = this.dataService.prepareData(parsedData, 5); // rerender triggered automatically by watcher
+                let parsedData = this.excelService.parseWorkbook(workbook, 'Sysiphus');
+                this.mainCats = this.dataService.prepareData(parsedData, 100); // rerender triggered automatically by watcher
             },
             (exception) => console.error('fail', exception)
         );

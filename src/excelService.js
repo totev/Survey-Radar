@@ -30,48 +30,44 @@ class ExcelService {
     }
 
     parseWorkbook(workbook, sheetName) {
-        let cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 0, 1);
-        let mainCats = this.detailParsing(cellStructure, 1, 2, 3, 4);
+        let cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 1, 3);
+        let mainCats = this.detailParsing(cellStructure, 1, 2, 5, -1, [6, 8]);
         return mainCats;
     }
 
-    detailParsing(data, mainCatColNr, subCatColNr, questionColNr, detailColNr) {
+    detailParsing(data, mainCatColNr = -1, subCatColNr = -1, questionColNr = -1, detailColNr = -1, valueColNrs = []) {
         let {maxRowNr, cols} = data;
         let mainCatCol = cols[mainCatColNr],
-            mainCatValueCol = cols[mainCatColNr - 1],
             subCatCol = cols[subCatColNr],
-            subCatValueCol = cols[subCatColNr - 1],
             questionCol = cols[questionColNr],
-            questionValueCol = cols[questionColNr - 1],
             detailCol = cols[detailColNr],
-            detailValueCol = cols[detailColNr - 1];
+            valueCols = valueColNrs.map((nr) => cols[nr]).filter((col) => col !== undefined);
 
         let mainCats = [],
             mainCat,
             subCat,
-            question;
+            question,
+            detail;
 
         for(let i = 0; i <= maxRowNr; i++) {
-            let mainCatCell = mainCatCol[i],
-                mainCatValueCell = mainCatValueCol[i],
-                subCatCell = subCatCol[i],
-                subCatValueCell = subCatValueCol[i],
-                questionCell = questionCol[i],
-                questionValueCell = questionValueCol[i],
-                detailCell = detailCol[i],
-                detailValueCell = detailValueCol[i];
+            let mainCatCell = mainCatCol === undefined ? undefined : mainCatCol[i],
+                subCatCell = subCatCol === undefined ? undefined : subCatCol[i],
+                questionCell = questionCol === undefined ? undefined : questionCol[i],
+                detailCell = detailCol === undefined ? undefined : detailCol[i],
+                valueCells = valueCols.map((col) => col[i]);
 
-            if(this.isValidCell(mainCatCell) || this.isValueCell(mainCatValueCell)) {
-                mainCat = {mainCat: this.parseTitle(mainCatCell), value: this.parseValue(mainCatValueCell), subCats: []};
+            if (this.isValidCell(mainCatCell)) {
+                mainCat = {mainCat: this.parseTitle(mainCatCell), subCats: []};
                 mainCats.push(mainCat);
 
                 subCat = undefined;
                 question = undefined;
+                detail = undefined;
             }
-            if(this.isValidCell(subCatCell) || this.isValueCell(subCatValueCell)) {
-                subCat = {title: this.parseTitle(subCatCell), value: this.parseValue(subCatValueCell), questions: []};
+            if (this.isValidCell(subCatCell)) {
+                subCat = {title: this.parseTitle(subCatCell), questions: []};
 
-                if(mainCat === undefined) {
+                if (mainCat === undefined) {
                     mainCat = {mainCat: "", subCats: []};
                     mainCats.push(mainCat);
                 }
@@ -79,27 +75,35 @@ class ExcelService {
                 mainCat.subCats.push(subCat);
 
                 question = undefined;
+                detail = undefined;
             }
-            if(this.isValidCell(questionCell) || this.isValueCell(questionValueCell)) {
-                question = {title: this.parseTitle(questionCell), value: this.parseValue(questionValueCell), details: []};
-                if(subCat === undefined) {
+            if (this.isValidCell(questionCell)) {
+                question = {title: this.parseTitle(questionCell), details: []};
+                if (subCat === undefined) {
                     subCat = {title: "", questions: []};
                     mainCat.subCats.push(subCat);
                 }
                 subCat.questions.push(question);
-            }
-            if(this.isValidCell(detailCell) || this.isValueCell(detailValueCell)) {
-                let detail = {title: this.parseTitle(detailCell), value: this.parseValue(detailValueCell), questions: []};
 
-                if(subCat === undefined) {
+                detail = undefined;
+            }
+            if (this.isValidCell(detailCell)) {
+                detail = {title: this.parseTitle(detailCell), questions: []};
+
+                if (subCat === undefined) {
                     subCat = {title: "", questions: []};
                     mainCat.subCats.push(subCat);
                 }
-                if(question === undefined) {
+                if (question === undefined) {
                     question = {title: "", details: []};
                     subCat.questions.push(question);
                 }
                 question.details.push(detail);
+            }
+
+            let element = detail !== undefined ? detail : question !== undefined ? question : subCat !== undefined ? subCat : undefined;
+            if (element !== undefined) {
+                element.value = valueCells.map((cell) => this.parseValue(cell));
             }
         }
         return mainCats;
@@ -122,6 +126,7 @@ class ExcelService {
     }
 
     restructureWorksheet(worksheet, colOffset = 0, rowOffset = 0) {
+        if(worksheet === undefined) throw new Error('')
         let maxRowNr = 0;
         let cols = {};
         Object.keys(worksheet).forEach((key) => {
@@ -139,7 +144,7 @@ class ExcelService {
             }
             if(columnNrs.length > 0 && rowNr >= rowOffset) {
                 let colNr = columnNrs.reduce((colNr, next, idx) => {
-                    if (next === 'undefined') {
+                    if (next === undefined) {
                         return colNr;
                     } else {
                         return (colNr + 1) * 24 + next;

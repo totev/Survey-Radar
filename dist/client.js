@@ -181,8 +181,8 @@
 	            var _this4 = this;
 
 	            this.excelService.handleFile(event).then(function (workbook) {
-	                var parsedData = _this4.excelService.parseWorkbook(workbook, 'Details');
-	                _this4.mainCats = _this4.dataService.prepareData(parsedData, 5); // rerender triggered automatically by watcher
+	                var parsedData = _this4.excelService.parseWorkbook(workbook, 'Sysiphus');
+	                _this4.mainCats = _this4.dataService.prepareData(parsedData, 100); // rerender triggered automatically by watcher
 	            }, function (exception) {
 	                return console.error('fail', exception);
 	            });
@@ -12207,49 +12207,59 @@
 	    }, {
 	        key: "parseWorkbook",
 	        value: function parseWorkbook(workbook, sheetName) {
-	            var cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 0, 1);
-	            var mainCats = this.detailParsing(cellStructure, 1, 2, 3, 4);
+	            var cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 1, 3);
+	            var mainCats = this.detailParsing(cellStructure, 1, 2, 5, -1, [6, 8]);
 	            return mainCats;
 	        }
 	    }, {
 	        key: "detailParsing",
-	        value: function detailParsing(data, mainCatColNr, subCatColNr, questionColNr, detailColNr) {
+	        value: function detailParsing(data) {
+	            var mainCatColNr = arguments.length <= 1 || arguments[1] === undefined ? -1 : arguments[1];
+	            var subCatColNr = arguments.length <= 2 || arguments[2] === undefined ? -1 : arguments[2];
+	            var questionColNr = arguments.length <= 3 || arguments[3] === undefined ? -1 : arguments[3];
+
+	            var _this = this;
+
+	            var detailColNr = arguments.length <= 4 || arguments[4] === undefined ? -1 : arguments[4];
+	            var valueColNrs = arguments.length <= 5 || arguments[5] === undefined ? [] : arguments[5];
 	            var maxRowNr = data.maxRowNr;
 	            var cols = data.cols;
 
 	            var mainCatCol = cols[mainCatColNr],
-	                mainCatValueCol = cols[mainCatColNr - 1],
 	                subCatCol = cols[subCatColNr],
-	                subCatValueCol = cols[subCatColNr - 1],
 	                questionCol = cols[questionColNr],
-	                questionValueCol = cols[questionColNr - 1],
 	                detailCol = cols[detailColNr],
-	                detailValueCol = cols[detailColNr - 1];
+	                valueCols = valueColNrs.map(function (nr) {
+	                return cols[nr];
+	            }).filter(function (col) {
+	                return col !== undefined;
+	            });
 
 	            var mainCats = [],
 	                mainCat = undefined,
 	                subCat = undefined,
-	                question = undefined;
+	                question = undefined,
+	                detail = undefined;
 
-	            for (var i = 0; i <= maxRowNr; i++) {
-	                var mainCatCell = mainCatCol[i],
-	                    mainCatValueCell = mainCatValueCol[i],
-	                    subCatCell = subCatCol[i],
-	                    subCatValueCell = subCatValueCol[i],
-	                    questionCell = questionCol[i],
-	                    questionValueCell = questionValueCol[i],
-	                    detailCell = detailCol[i],
-	                    detailValueCell = detailValueCol[i];
+	            var _loop = function _loop(i) {
+	                var mainCatCell = mainCatCol === undefined ? undefined : mainCatCol[i],
+	                    subCatCell = subCatCol === undefined ? undefined : subCatCol[i],
+	                    questionCell = questionCol === undefined ? undefined : questionCol[i],
+	                    detailCell = detailCol === undefined ? undefined : detailCol[i],
+	                    valueCells = valueCols.map(function (col) {
+	                    return col[i];
+	                });
 
-	                if (this.isValidCell(mainCatCell) || this.isValueCell(mainCatValueCell)) {
-	                    mainCat = { mainCat: this.parseTitle(mainCatCell), value: this.parseValue(mainCatValueCell), subCats: [] };
+	                if (_this.isValidCell(mainCatCell)) {
+	                    mainCat = { mainCat: _this.parseTitle(mainCatCell), subCats: [] };
 	                    mainCats.push(mainCat);
 
 	                    subCat = undefined;
 	                    question = undefined;
+	                    detail = undefined;
 	                }
-	                if (this.isValidCell(subCatCell) || this.isValueCell(subCatValueCell)) {
-	                    subCat = { title: this.parseTitle(subCatCell), value: this.parseValue(subCatValueCell), questions: [] };
+	                if (_this.isValidCell(subCatCell)) {
+	                    subCat = { title: _this.parseTitle(subCatCell), questions: [] };
 
 	                    if (mainCat === undefined) {
 	                        mainCat = { mainCat: "", subCats: [] };
@@ -12259,17 +12269,20 @@
 	                    mainCat.subCats.push(subCat);
 
 	                    question = undefined;
+	                    detail = undefined;
 	                }
-	                if (this.isValidCell(questionCell) || this.isValueCell(questionValueCell)) {
-	                    question = { title: this.parseTitle(questionCell), value: this.parseValue(questionValueCell), details: [] };
+	                if (_this.isValidCell(questionCell)) {
+	                    question = { title: _this.parseTitle(questionCell), details: [] };
 	                    if (subCat === undefined) {
 	                        subCat = { title: "", questions: [] };
 	                        mainCat.subCats.push(subCat);
 	                    }
 	                    subCat.questions.push(question);
+
+	                    detail = undefined;
 	                }
-	                if (this.isValidCell(detailCell) || this.isValueCell(detailValueCell)) {
-	                    var detail = { title: this.parseTitle(detailCell), value: this.parseValue(detailValueCell), questions: [] };
+	                if (_this.isValidCell(detailCell)) {
+	                    detail = { title: _this.parseTitle(detailCell), questions: [] };
 
 	                    if (subCat === undefined) {
 	                        subCat = { title: "", questions: [] };
@@ -12281,6 +12294,17 @@
 	                    }
 	                    question.details.push(detail);
 	                }
+
+	                var element = detail !== undefined ? detail : question !== undefined ? question : subCat !== undefined ? subCat : undefined;
+	                if (element !== undefined) {
+	                    element.value = valueCells.map(function (cell) {
+	                        return _this.parseValue(cell);
+	                    });
+	                }
+	            };
+
+	            for (var i = 0; i <= maxRowNr; i++) {
+	                _loop(i);
 	            }
 	            return mainCats;
 	        }
@@ -12310,6 +12334,7 @@
 	            var colOffset = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
 	            var rowOffset = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
 
+	            if (worksheet === undefined) throw new Error('');
 	            var maxRowNr = 0;
 	            var cols = {};
 	            Object.keys(worksheet).forEach(function (key) {
@@ -12327,7 +12352,7 @@
 	                }
 	                if (columnNrs.length > 0 && rowNr >= rowOffset) {
 	                    var colNr = columnNrs.reduce(function (colNr, next, idx) {
-	                        if (next === 'undefined') {
+	                        if (next === undefined) {
 	                            return colNr;
 	                        } else {
 	                            return (colNr + 1) * 24 + next;
@@ -12377,6 +12402,8 @@
 	    }, {
 	        key: 'scaleValues',
 	        value: function scaleValues(mainCats, maxScaleValue) {
+	            if (maxScaleValue === undefined) throw new Error("Please provide the value scale's maximum (e.g. 100).");
+
 	            var _iteratorNormalCompletion = true;
 	            var _didIteratorError = false;
 	            var _iteratorError = undefined;
@@ -12481,10 +12508,6 @@
 	                            }
 	                        }
 	                    }
-
-	                    if (!isNaN(mainCat.value)) mainCat.value = mainCat.value / maxScaleValue;else if (subCatValues.length > 0) mainCat.value = subCatValues.reduce(function (sum, next) {
-	                        return sum += next;
-	                    }) / subCatValues.length;
 	                }
 	            } catch (err) {
 	                _didIteratorError = true;

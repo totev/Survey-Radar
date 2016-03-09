@@ -9,6 +9,8 @@ class DataService {
     }
 
     scaleValues(mainCats, maxScaleValue) {
+        if(maxScaleValue === undefined) throw new Error("Please provide the value scale's maximum (e.g. 100).");
+
         for(let mainCat of mainCats) {
             let subCatValues = [];
             for(let subCat of mainCat.subCats) {
@@ -37,10 +39,6 @@ class DataService {
                     subCatValues.push(subCat.value);
                 }
             }
-            if(!isNaN(mainCat.value))
-                mainCat.value = mainCat.value / maxScaleValue;
-            else if(subCatValues.length > 0)
-                mainCat.value = subCatValues.reduce((sum, next) => sum += next) / subCatValues.length;
         }
         return mainCats;
     }
