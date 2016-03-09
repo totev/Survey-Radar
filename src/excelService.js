@@ -29,11 +29,15 @@ class ExcelService {
         return deferred.promise;
     }
 
-    parseWorkbook(workbook, sheetName) {
-        let cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 1, 3);
-        let mainCats = this.detailParsing(cellStructure, 1, 2, 5, 6, [7, 9, 15]);
-        return mainCats;
+    getMaxDimensionsWorksheet(worksheet) {
+        let refs = worksheet["!ref"].split(":");
+
+        return {
+            min: this.translateCellName(refs[0]),
+            max: this.translateCellName(refs[1])
+        };
     }
+
 
     detailParsing(data, mainCatColNr = -1, subCatColNr = -1, questionColNr = -1, detailColNr = -1, valueColNrs = []) {
         let {maxRowNr, cols} = data;
@@ -127,36 +131,40 @@ class ExcelService {
 
     restructureWorksheet(worksheet, colOffset = 0, rowOffset = 0) {
         if(worksheet === undefined) throw new Error('')
-        let maxRowNr = 0;
+        let {max: maxCell} = this.getMaxDimensionsWorksheet(worksheet);
         let cols = {};
         Object.keys(worksheet).forEach((key) => {
-            let columnNrs = [];
-            let rowNr;
-            for(let i = 0; i < key.length; i++) {
-                let charCode = key.charCodeAt(i);
-                if(charCode > 64 + colOffset && charCode < 91) {
-                    columnNrs.push(charCode - 65);
-                } else if(charCode > 48 && charCode < 58) {
-                    rowNr = parseInt(key.substr(i)) - 1;
-                    if(rowNr > maxRowNr) maxRowNr = rowNr;
-                    break;
-                }
-            }
-            if(columnNrs.length > 0 && rowNr >= rowOffset) {
-                let colNr = columnNrs.reduce((colNr, next, idx) => {
-                    if (next === undefined) {
-                        return colNr;
-                    } else {
-                        return (colNr + 1) * 24 + next;
-                    }
-                });
-                if(cols[colNr] === undefined) {
-                    cols[colNr] = {}
-                }
+            let {colNr, rowNr} = this.translateCellName(key);
+            if(colNr >= colOffset && rowNr >= rowOffset) {
+                if(cols[colNr] === undefined) cols[colNr] = {};
                 cols[colNr][rowNr] = worksheet[key];
             }
         });
-        return {maxRowNr, cols};
+        return {maxRowNr: maxCell.rowNr, cols};
+    }
+
+    translateCellName(cellName) {
+        let columnNrs = [];
+        let colNr, rowNr;
+        for(let i = 0; i < cellName.length; i++) {
+            let charCode = cellName.charCodeAt(i);
+            if(charCode > 64 && charCode < 91) {
+                columnNrs.push(charCode - 65);
+            } else if(charCode > 48 && charCode < 58) {
+                rowNr = parseInt(cellName.substr(i)) - 1;
+                break;
+            }
+        }
+        if(columnNrs.length > 0) {
+            colNr = columnNrs.reduce((colNr, next, idx) => {
+                if (next === undefined) {
+                    return colNr;
+                } else {
+                    return (colNr + 1) * 24 + next;
+                }
+            });
+        }
+        return {colNr, rowNr};
     }
 }
 

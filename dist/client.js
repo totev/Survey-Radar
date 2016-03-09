@@ -181,11 +181,22 @@
 	            var _this4 = this;
 
 	            this.excelService.handleFile(event).then(function (workbook) {
-	                var parsedData = _this4.excelService.parseWorkbook(workbook, 'Sysiphus');
-	                _this4.mainCats = _this4.dataService.prepareData(parsedData, 100); // rerender triggered automatically by watcher
+	                _this4.workbook = workbook;
 	            }, function (exception) {
 	                return console.error('fail', exception);
 	            });
+	        }
+	    }, {
+	        key: 'parseFile',
+	        value: function parseFile(sheetName, offsetCol, offsetRow) {
+	            var worksheet = this.workbook.Sheets[sheetName];
+	            this.parsedWorkbook = this.excelService.restructureWorksheet(worksheet, offsetCol, offsetRow);
+	        }
+	    }, {
+	        key: 'parseMainCats',
+	        value: function parseMainCats(parseCfg) {
+	            var pw = this.excelService.detailParsing(this.parsedWorkbook, parseCfg.mainCatCol, parseCfg.subCatCol, parseCfg.questionCol, parseCfg.detailCol, parseCfg.valueCols);
+	            this.mainCats = this.dataService.prepareData(pw, parseCfg.maxScaleValue); // rerender triggered automatically by watcher
 	        }
 	    }, {
 	        key: 'downloadSVG',
@@ -1865,8 +1876,8 @@
 						detail.posXs = _calculateXYs4[0];
 						detail.posYs = _calculateXYs4[1];
 
-						if (detail.value > question.maxDetail) question.maxDetail = detail.value;
-						if (detail.value < question.minDetail) question.minDetail = detail.value;
+						if (detail.values[0] !== null && detail.values[0] > question.maxDetail) question.maxDetail = detail.values[0]; //TODO
+						if (detail.values[0] !== null && detail.values[0] < question.minDetail) question.minDetail = detail.values[0];
 					});
 				});
 			}
@@ -2024,7 +2035,9 @@
 							for (var _iterator3 = question.details[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 								var detail = _step3.value;
 
-								divHtml += "<br />" + detail.title + ": " + detail.value + "/1";
+								var values = detail.values.join(", ");
+								if (detail.values.length > 1) values = "[" + values + "]";
+								divHtml += "<br />" + detail.title + ": " + values + "/1";
 							}
 						} catch (err) {
 							_didIteratorError3 = true;
@@ -2702,11 +2715,14 @@
 	            return deferred.promise;
 	        }
 	    }, {
-	        key: "parseWorkbook",
-	        value: function parseWorkbook(workbook, sheetName) {
-	            var cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 1, 3);
-	            var mainCats = this.detailParsing(cellStructure, 1, 2, 5, 6, [7, 9, 15]);
-	            return mainCats;
+	        key: "getMaxDimensionsWorksheet",
+	        value: function getMaxDimensionsWorksheet(worksheet) {
+	            var refs = worksheet["!ref"].split(":");
+
+	            return {
+	                min: this.translateCellName(refs[0]),
+	                max: this.translateCellName(refs[1])
+	            };
 	        }
 	    }, {
 	        key: "detailParsing",
@@ -2828,40 +2844,56 @@
 	    }, {
 	        key: "restructureWorksheet",
 	        value: function restructureWorksheet(worksheet) {
+	            var _this2 = this;
+
 	            var colOffset = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
 	            var rowOffset = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
 
 	            if (worksheet === undefined) throw new Error('');
-	            var maxRowNr = 0;
+
+	            var _getMaxDimensionsWork = this.getMaxDimensionsWorksheet(worksheet);
+
+	            var maxCell = _getMaxDimensionsWork.max;
+
 	            var cols = {};
 	            Object.keys(worksheet).forEach(function (key) {
-	                var columnNrs = [];
-	                var rowNr = undefined;
-	                for (var i = 0; i < key.length; i++) {
-	                    var charCode = key.charCodeAt(i);
-	                    if (charCode > 64 + colOffset && charCode < 91) {
-	                        columnNrs.push(charCode - 65);
-	                    } else if (charCode > 48 && charCode < 58) {
-	                        rowNr = parseInt(key.substr(i)) - 1;
-	                        if (rowNr > maxRowNr) maxRowNr = rowNr;
-	                        break;
-	                    }
-	                }
-	                if (columnNrs.length > 0 && rowNr >= rowOffset) {
-	                    var colNr = columnNrs.reduce(function (colNr, next, idx) {
-	                        if (next === undefined) {
-	                            return colNr;
-	                        } else {
-	                            return (colNr + 1) * 24 + next;
-	                        }
-	                    });
-	                    if (cols[colNr] === undefined) {
-	                        cols[colNr] = {};
-	                    }
+	                var _translateCellName = _this2.translateCellName(key);
+
+	                var colNr = _translateCellName.colNr;
+	                var rowNr = _translateCellName.rowNr;
+
+	                if (colNr >= colOffset && rowNr >= rowOffset) {
+	                    if (cols[colNr] === undefined) cols[colNr] = {};
 	                    cols[colNr][rowNr] = worksheet[key];
 	                }
 	            });
-	            return { maxRowNr: maxRowNr, cols: cols };
+	            return { maxRowNr: maxCell.rowNr, cols: cols };
+	        }
+	    }, {
+	        key: "translateCellName",
+	        value: function translateCellName(cellName) {
+	            var columnNrs = [];
+	            var colNr = undefined,
+	                rowNr = undefined;
+	            for (var i = 0; i < cellName.length; i++) {
+	                var charCode = cellName.charCodeAt(i);
+	                if (charCode > 64 && charCode < 91) {
+	                    columnNrs.push(charCode - 65);
+	                } else if (charCode > 48 && charCode < 58) {
+	                    rowNr = parseInt(cellName.substr(i)) - 1;
+	                    break;
+	                }
+	            }
+	            if (columnNrs.length > 0) {
+	                colNr = columnNrs.reduce(function (colNr, next, idx) {
+	                    if (next === undefined) {
+	                        return colNr;
+	                    } else {
+	                        return (colNr + 1) * 24 + next;
+	                    }
+	                });
+	            }
+	            return { colNr: colNr, rowNr: rowNr };
 	        }
 	    }]);
 

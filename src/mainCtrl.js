@@ -67,11 +67,20 @@ export default class MainCtrl {
     handleFile(event) {
         this.excelService.handleFile(event).then(
             (workbook) => {
-                let parsedData = this.excelService.parseWorkbook(workbook, 'Sysiphus');
-                this.mainCats = this.dataService.prepareData(parsedData, 100); // rerender triggered automatically by watcher
+                this.workbook = workbook;
             },
             (exception) => console.error('fail', exception)
         );
+    }
+
+    parseFile(sheetName, offsetCol, offsetRow) {
+        let worksheet = this.workbook.Sheets[sheetName];
+        this.parsedWorkbook = this.excelService.restructureWorksheet(worksheet, offsetCol, offsetRow);
+    }
+
+    parseMainCats(parseCfg) {
+        let pw = this.excelService.detailParsing(this.parsedWorkbook, parseCfg.mainCatCol, parseCfg.subCatCol, parseCfg.questionCol, parseCfg.detailCol, parseCfg.valueCols);
+        this.mainCats = this.dataService.prepareData(pw, parseCfg.maxScaleValue); // rerender triggered automatically by watcher
     }
 
     downloadSVG(svgContainerId) {

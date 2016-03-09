@@ -55,8 +55,8 @@ export default class Questions {
 			let offset = (1 - (2*border)) / (question.details.length - 1);
 			question.details.forEach((detail, j) => {
 				[detail.posXs, detail.posYs] = this.calculateXYs(avgRad, i, detail.values, j * offset + border)
-				if(detail.value > question.maxDetail) question.maxDetail = detail.value;
-				if(detail.value < question.minDetail) question.minDetail = detail.value;
+				if(detail.values[0] !== null && detail.values[0] > question.maxDetail) question.maxDetail = detail.values[0]; //TODO
+				if(detail.values[0] !== null && detail.values[0] < question.minDetail) question.minDetail = detail.values[0];
 			});
 		});
 	}
@@ -186,7 +186,9 @@ export default class Questions {
 		if(question.details.length > 0) {
 			let divHtml = "<strong>Details:</strong>";
 			for(let detail of question.details) {
-				divHtml += `<br />${detail.title}: ${detail.value}/1`;
+				let values = detail.values.join(", ");
+				if(detail.values.length > 1) values = `[${values}]`;
+				divHtml += `<br />${detail.title}: ${values}/1`;
 			}
 			let div = d3.select("#tooltipBin").append("div")
 						.html(divHtml)

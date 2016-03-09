@@ -55,8 +55,30 @@
     <div id="body" ng-controller="MainCtrl as m">
 		<div class="pull-left" id="config-container">
 			<div>
-				TODO: Circles (colors, widths, types, heights respecting center dot?), <br />Extra averages and dots?, Dot colors?, Popups an den Dots?<br/>
+				TODO: Circles (colors, widths, types, heights respecting center dot?), <br />Extra averages and dots?, Dot colors?, Popups an den Dots? Legende!<br/>
 				Load Excel sheet: <input type="file" custom-on-change="m.handleFile" />
+
+				<div ng-hide="m.workbook === undefined" class="form-inline">
+					<select ng-options="s as s for s in m.workbook.SheetNames" ng-model="sheetname" class="form-control input-sm"></select>
+					<input type="number" ng-model="offset.col" class="form-control input-sm" />
+					<input type="number" ng-model="offset.row" class="form-control input-sm" />
+					<button ng-click="m.parseFile(sheetname, offset.col, offset.row)" class="btn btn-sm btn-default">Parse</button>
+				</div>
+				<div ng-hide="m.parsedWorkbook === undefined" class="form-inline">
+					<input type="number" ng-model="parseCfg.maxScaleValue" class="form-control input-sm" />
+					<input type="number" ng-model="parseCfg.mainCatCol" class="form-control input-sm" />
+					<input type="number" ng-model="parseCfg.subCatCol" class="form-control input-sm" />
+					<input type="number" ng-model="parseCfg.questionCol" class="form-control input-sm" />
+					<input type="number" ng-model="parseCfg.detailCol" class="form-control input-sm" />
+					<select multiple ng-model="parseCfg.valueCols" class="form-control input-sm">
+						<option value="7">7</option>
+						<option value="9">9</option>
+						<option value="11">11</option>
+						<option value="13">13</option>
+						<option value="15">15</option>
+					</select>
+					<button ng-click="m.parseMainCats(parseCfg)" class="btn btn-sm btn-default">Render</button>
+				</div>
 			</div>
 			<table id="config-table" class="table table-condensed text-right">
 				<tr>
@@ -137,7 +159,7 @@
 						<em>{{mcIdx}}.</em>
 						<input type="text" ng-model="mainCat.mainCat" class="form-control input-sm" />
 						Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="mainCat.color" />
-						Value: {{mainCat.value | limitTo: 6}}
+						Value(s): {{mainCat.value | limitTo: 6}}
 					</div>
 					<ul>
 						<li ng-repeat="subCat in mainCat.subCats" ng-init="scIdx = $index + 1">
@@ -145,7 +167,7 @@
 								<em>{{mcIdx}}.{{scIdx}}</em>
 								<textarea ng-model="subCat.title" class="form-control input-sm"></textarea>
 								Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="subCat.color" />
-								Value: {{subCat.value | limitTo: 6}}
+								Value(s): {{subCat.values}}
 							</div>
 							<ul>
 								<li ng-repeat="question in subCat.questions" ng-init="qIdx = $index + 1">
@@ -153,14 +175,14 @@
 										<em>{{mcIdx}}.{{scIdx}}.{{qIdx}}</em>
 										<textarea ng-model="question.title" class="form-control input-sm"></textarea>
 										Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="question.color" />
-										Value: {{question.value | limitTo: 6}}
+										Value(s): {{question.values}}
 									</div>
 									<ul>
 										<li ng-repeat="detail in question.details" ng-init="dIdx = $index + 1">
 											<div class="form-inline">
 												<em>{{mcIdx}}.{{scIdx}}.{{qIdx}}.{{dIdx}}</em>
 												<input ng-model="detail.title" class="form-control input-sm" />
-												Value: {{detail.value | limitTo: 6}}
+												Value(s): {{detail.values}}
 											</div>
 										</li>
 									</ul>
