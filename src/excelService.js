@@ -65,7 +65,7 @@ class ExcelService {
                 detail = undefined;
             }
             if (this.isValidCell(subCatCell)) {
-                subCat = {title: this.parseTitle(subCatCell), questions: []};
+                subCat = {title: this.parseTitle(subCatCell), values: [], questions: []};
 
                 if (mainCat === undefined) {
                     mainCat = {mainCat: "", subCats: []};
@@ -78,7 +78,7 @@ class ExcelService {
                 detail = undefined;
             }
             if (this.isValidCell(questionCell)) {
-                question = {title: this.parseTitle(questionCell), details: []};
+                question = {title: this.parseTitle(questionCell), values: [], details: []};
                 if (subCat === undefined) {
                     subCat = {title: "", questions: []};
                     mainCat.subCats.push(subCat);
@@ -88,14 +88,14 @@ class ExcelService {
                 detail = undefined;
             }
             if (this.isValidCell(detailCell)) {
-                detail = {title: this.parseTitle(detailCell), questions: []};
+                detail = {title: this.parseTitle(detailCell), values: [], questions: []};
 
                 if (subCat === undefined) {
-                    subCat = {title: "", questions: []};
+                    subCat = {title: "", values: [], questions: []};
                     mainCat.subCats.push(subCat);
                 }
                 if (question === undefined) {
-                    question = {title: "", details: []};
+                    question = {title: "", values: [], details: []};
                     subCat.questions.push(question);
                 }
                 question.details.push(detail);
@@ -103,7 +103,7 @@ class ExcelService {
 
             let element = detail !== undefined ? detail : question !== undefined ? question : subCat !== undefined ? subCat : undefined;
             if (element !== undefined) {
-                element.value = valueCells.map((cell) => this.parseValue(cell));
+                element.values = valueCells.map((cell) => this.parseValue(cell));
             }
         }
         return mainCats;

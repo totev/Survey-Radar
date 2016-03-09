@@ -3,44 +3,53 @@ class DataService {
     }
 
     prepareData(parsedData, maxScaleValue) {
-        let data = this.scaleValues(parsedData, maxScaleValue);
+        let data = this.aggregateValues(parsedData, maxScaleValue);
         data = this.assignColors(data);
         return data;
     }
 
-    scaleValues(mainCats, maxScaleValue) {
+    aggregateValues(mainCats, maxScaleValue) {
         if(maxScaleValue === undefined) throw new Error("Please provide the value scale's maximum (e.g. 100).");
 
         for(let mainCat of mainCats) {
-            let subCatValues = [];
             for(let subCat of mainCat.subCats) {
-                let questionValues = [];
+                let questionValueLists = [];
                 for(let question of subCat.questions) {
-                    let detailValues = [];
+                    let detailValueLists = [];
                     for(let detail of question.details) {
-                        if(!isNaN(detail.value)) {
-                            detail.value = detail.value / maxScaleValue;
-                            detailValues.push(detail.value);
-                        }
+                        this.scaleValues(detail, maxScaleValue, detailValueLists);
                     }
-                    if(!isNaN(question.value)) {
-                        question.value = question.value / maxScaleValue;
-                        questionValues.push(question.value);
-                    } else if(detailValues.length > 0) {
-                        question.value = detailValues.reduce((sum, next) => sum += next) / detailValues.length;
-                        questionValues.push(question.value);
+
+                    if(question.values.length > 0) {
+                        this.scaleValues(question, maxScaleValue, questionValueLists);
+                    } else if(detailValueLists.length > 0) {
+                        question.values = detailValueLists.map((detailValues) =>
+                            detailValues.reduce((sum, next) => sum += next) / detailValues.length
+                        );
                     }
                 }
-                if(!isNaN(subCat.value)) {
-                    subCat.value = subCat.value / maxScaleValue;
-                    subCatValues.push(subCat.value);
-                } else if(questionValues.length > 0) {
-                    subCat.value = questionValues.reduce((sum, next) => sum += next) / questionValues.length;
-                    subCatValues.push(subCat.value);
+
+                if(subCat.values.length > 0) {
+                    this.scaleValues(subCat, maxScaleValue);
+                } else if(questionValueLists.length > 0) {
+                    subCat.values = questionValueLists.map((questionValues) =>
+                        questionValues.reduce((sum, next) => sum += next) / questionValues.length
+                    );
                 }
             }
         }
         return mainCats;
+    }
+
+    scaleValues(element, maxScaleValue, elementValueLists = []) {
+        for(let i = 0; i < element.values.length; i++) {
+            let value = element.values[i];
+            if(value !== undefined) {
+                let scaledValue = value / maxScaleValue;
+                element.values[i] = scaledValue
+                elementValueLists[i] = elementValueLists[i] === undefined ? [scaledValue] : elementValueLists[i].concat(scaledValue);
+            }
+        }
     }
 
     assignColors(mainCats) {

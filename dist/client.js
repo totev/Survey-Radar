@@ -12259,7 +12259,7 @@
 	                    detail = undefined;
 	                }
 	                if (_this.isValidCell(subCatCell)) {
-	                    subCat = { title: _this.parseTitle(subCatCell), questions: [] };
+	                    subCat = { title: _this.parseTitle(subCatCell), values: [], questions: [] };
 
 	                    if (mainCat === undefined) {
 	                        mainCat = { mainCat: "", subCats: [] };
@@ -12272,7 +12272,7 @@
 	                    detail = undefined;
 	                }
 	                if (_this.isValidCell(questionCell)) {
-	                    question = { title: _this.parseTitle(questionCell), details: [] };
+	                    question = { title: _this.parseTitle(questionCell), values: [], details: [] };
 	                    if (subCat === undefined) {
 	                        subCat = { title: "", questions: [] };
 	                        mainCat.subCats.push(subCat);
@@ -12282,14 +12282,14 @@
 	                    detail = undefined;
 	                }
 	                if (_this.isValidCell(detailCell)) {
-	                    detail = { title: _this.parseTitle(detailCell), questions: [] };
+	                    detail = { title: _this.parseTitle(detailCell), values: [], questions: [] };
 
 	                    if (subCat === undefined) {
-	                        subCat = { title: "", questions: [] };
+	                        subCat = { title: "", values: [], questions: [] };
 	                        mainCat.subCats.push(subCat);
 	                    }
 	                    if (question === undefined) {
-	                        question = { title: "", details: [] };
+	                        question = { title: "", values: [], details: [] };
 	                        subCat.questions.push(question);
 	                    }
 	                    question.details.push(detail);
@@ -12297,7 +12297,7 @@
 
 	                var element = detail !== undefined ? detail : question !== undefined ? question : subCat !== undefined ? subCat : undefined;
 	                if (element !== undefined) {
-	                    element.value = valueCells.map(function (cell) {
+	                    element.values = valueCells.map(function (cell) {
 	                        return _this.parseValue(cell);
 	                    });
 	                }
@@ -12395,13 +12395,13 @@
 	    _createClass(DataService, [{
 	        key: 'prepareData',
 	        value: function prepareData(parsedData, maxScaleValue) {
-	            var data = this.scaleValues(parsedData, maxScaleValue);
+	            var data = this.aggregateValues(parsedData, maxScaleValue);
 	            data = this.assignColors(data);
 	            return data;
 	        }
 	    }, {
-	        key: 'scaleValues',
-	        value: function scaleValues(mainCats, maxScaleValue) {
+	        key: 'aggregateValues',
+	        value: function aggregateValues(mainCats, maxScaleValue) {
 	            if (maxScaleValue === undefined) throw new Error("Please provide the value scale's maximum (e.g. 100).");
 
 	            var _iteratorNormalCompletion = true;
@@ -12411,8 +12411,6 @@
 	            try {
 	                for (var _iterator = mainCats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	                    var mainCat = _step.value;
-
-	                    var subCatValues = [];
 	                    var _iteratorNormalCompletion2 = true;
 	                    var _didIteratorError2 = false;
 	                    var _iteratorError2 = undefined;
@@ -12421,7 +12419,7 @@
 	                        for (var _iterator2 = mainCat.subCats[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 	                            var subCat = _step2.value;
 
-	                            var questionValues = [];
+	                            var questionValueLists = [];
 	                            var _iteratorNormalCompletion3 = true;
 	                            var _didIteratorError3 = false;
 	                            var _iteratorError3 = undefined;
@@ -12430,7 +12428,7 @@
 	                                for (var _iterator3 = subCat.questions[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 	                                    var question = _step3.value;
 
-	                                    var detailValues = [];
+	                                    var detailValueLists = [];
 	                                    var _iteratorNormalCompletion4 = true;
 	                                    var _didIteratorError4 = false;
 	                                    var _iteratorError4 = undefined;
@@ -12439,10 +12437,7 @@
 	                                        for (var _iterator4 = question.details[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
 	                                            var detail = _step4.value;
 
-	                                            if (!isNaN(detail.value)) {
-	                                                detail.value = detail.value / maxScaleValue;
-	                                                detailValues.push(detail.value);
-	                                            }
+	                                            this.scaleValues(detail, maxScaleValue, detailValueLists);
 	                                        }
 	                                    } catch (err) {
 	                                        _didIteratorError4 = true;
@@ -12459,14 +12454,14 @@
 	                                        }
 	                                    }
 
-	                                    if (!isNaN(question.value)) {
-	                                        question.value = question.value / maxScaleValue;
-	                                        questionValues.push(question.value);
-	                                    } else if (detailValues.length > 0) {
-	                                        question.value = detailValues.reduce(function (sum, next) {
-	                                            return sum += next;
-	                                        }) / detailValues.length;
-	                                        questionValues.push(question.value);
+	                                    if (question.values.length > 0) {
+	                                        this.scaleValues(question, maxScaleValue, questionValueLists);
+	                                    } else if (detailValueLists.length > 0) {
+	                                        question.values = detailValueLists.map(function (detailValues) {
+	                                            return detailValues.reduce(function (sum, next) {
+	                                                return sum += next;
+	                                            }) / detailValues.length;
+	                                        });
 	                                    }
 	                                }
 	                            } catch (err) {
@@ -12484,14 +12479,14 @@
 	                                }
 	                            }
 
-	                            if (!isNaN(subCat.value)) {
-	                                subCat.value = subCat.value / maxScaleValue;
-	                                subCatValues.push(subCat.value);
-	                            } else if (questionValues.length > 0) {
-	                                subCat.value = questionValues.reduce(function (sum, next) {
-	                                    return sum += next;
-	                                }) / questionValues.length;
-	                                subCatValues.push(subCat.value);
+	                            if (subCat.values.length > 0) {
+	                                this.scaleValues(subCat, maxScaleValue);
+	                            } else if (questionValueLists.length > 0) {
+	                                subCat.values = questionValueLists.map(function (questionValues) {
+	                                    return questionValues.reduce(function (sum, next) {
+	                                        return sum += next;
+	                                    }) / questionValues.length;
+	                                });
 	                            }
 	                        }
 	                    } catch (err) {
@@ -12525,6 +12520,20 @@
 	            }
 
 	            return mainCats;
+	        }
+	    }, {
+	        key: 'scaleValues',
+	        value: function scaleValues(element, maxScaleValue) {
+	            var elementValueLists = arguments.length <= 2 || arguments[2] === undefined ? [] : arguments[2];
+
+	            for (var i = 0; i < element.values.length; i++) {
+	                var value = element.values[i];
+	                if (value !== undefined) {
+	                    var scaledValue = value / maxScaleValue;
+	                    element.values[i] = scaledValue;
+	                    elementValueLists[i] = elementValueLists[i] === undefined ? [scaledValue] : elementValueLists[i].concat(scaledValue);
+	                }
+	            }
 	        }
 	    }, {
 	        key: 'assignColors',
