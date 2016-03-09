@@ -12,7 +12,7 @@ export default class Questions {
 			pixel: cfg.pixel,
 			questionLineWidth: cfg.questionLineWidth,
 			minMaxColor: cfg.minMaxColor,
-			avgLineColor: cfg.avgLineColor
+			avgLineColors: cfg.avgLineColors
 		};
 
 		this.questions = questions;
@@ -28,6 +28,8 @@ export default class Questions {
 		this.fontSize = (this.questionsTitleOuterRadius - this.questionsTitleInnerRadius) * cfg.questionFontSize;
 		this.tooltipFontSize = cfg.pixel * cfg.tooltipFontSize;
 
+		this.valuesNr = 0; // the # of values provided per question, to be set in calculateXYs()
+
 		this.prepare();
 	}
 
@@ -41,7 +43,10 @@ export default class Questions {
 			question.idx = i;
 			question.startAngle = avgRad * i;
 			question.endAngle = avgRad * (i + 1);
-			[question.avgX, question.avgY] = this.calculateXY(avgRad, i, question.value, 0.5);
+			let questionValuesNr = question.values.length;
+			question.valueStartAngles = question.values.map((value, idx) => question.startAngle + avgRad * idx / questionValuesNr);
+			question.valueEndAngles = question.values.map((value, idx) => question.startAngle + avgRad * (idx + 1) / questionValuesNr);
+			[question.avgXs, question.avgYs] = this.calculateXYs(avgRad, i, question.values, 0.5);
 
 			question.minDetail = 1;
 			question.maxDetail = 0;
@@ -49,24 +54,35 @@ export default class Questions {
 			let border = 0.15;
 			let offset = (1 - (2*border)) / (question.details.length - 1);
 			question.details.forEach((detail, j) => {
-				[detail.posX, detail.posY] = this.calculateXY(avgRad, i, detail.value, j * offset + border)
+				[detail.posXs, detail.posYs] = this.calculateXYs(avgRad, i, detail.values, j * offset + border)
 				if(detail.value > question.maxDetail) question.maxDetail = detail.value;
 				if(detail.value < question.minDetail) question.minDetail = detail.value;
 			});
 		});
 	}
 
-	calculateXY(avgRad, i, value, offset) {
+	calculateXYs(avgRad, i, values, offset) {
 		let centerX = this.cfg.centerX,
 			centerY = this.cfg.centerY;
 		let questionsTitleInnerRadiusPct = this.questionsTitleInnerRadiusPct,
 			questionsStartRadiusPct = this.questionsStartRadiusPct;
 
-		let x = centerX * (1 - (value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.sin(-(i+offset) * avgRad)) 
-						 	 - (questionsStartRadiusPct * Math.sin(-(i+offset) * avgRad))),
-			y = centerY * (1 - (value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.cos(-(i+offset) * avgRad)) 
-						 	 - (questionsStartRadiusPct * Math.cos(-(i+offset) * avgRad)));
-		return [x, y];
+		let xs = [],
+			ys = [];
+		values.forEach((value) => {
+			let x,y;
+			if(value !== null) {
+				x = centerX * (1 - (value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.sin(-(i + offset) * avgRad))
+								 - (questionsStartRadiusPct * Math.sin(-(i + offset) * avgRad))),
+				y = centerY * (1 - (value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.cos(-(i + offset) * avgRad))
+								 - (questionsStartRadiusPct * Math.cos(-(i + offset) * avgRad)));
+			}
+			xs.push(x);
+			ys.push(y);
+		});
+		if(values.length > this.valuesNr) this.valuesNr = values.length;
+
+		return [xs, ys];
 	}
 
 	renderFillings() {
@@ -81,20 +97,21 @@ export default class Questions {
 		let questionsStartRadius = this.questionsStartRadius,
 			questionsTitleInnerRadius = this.questionsTitleInnerRadius;
 
-		if(!isNaN(question.value)) {
-			let fillingArc = d3.svg.arc()
-				.innerRadius(questionsStartRadius)
-				.outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.value)
-				.startAngle(question.startAngle)
-				.endAngle(question.endAngle);
+		question.values.forEach((value, idx) => {
+			if(value !== null) {
+				let fillingArc = d3.svg.arc()
+					.innerRadius(questionsStartRadius)
+					.outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * value)
+					.startAngle(question.valueStartAngles[idx])
+					.endAngle(question.valueEndAngles[idx]);
 
-			this.g.append("path")
-				.attr("d", fillingArc)
-				.attr("transform", `translate(${centerX}, ${centerY})`)
-				.attr("fill", question.color);
-		}
+				this.g.append("path")
+					.attr("d", fillingArc)
+					.attr("transform", `translate(${centerX}, ${centerY})`)
+					.attr("fill", question.color);
+			}
+		});
 	}
-
 
 	renderTitles() {
 		for(let question of this.questions) {
@@ -224,34 +241,40 @@ export default class Questions {
 
 	renderAverages() {
 		let pixel = this.cfg.pixel,
-			color = this.cfg.avgLineColor;
+			colors = this.cfg.avgLineColors;
+		let valuesNr = this.valuesNr;
 
-		let renderables = this.questions.filter((q) => q.value);
+		let coordinateLists = [];
+		for(let i = 0; i < valuesNr; i++) {
+			let coordinates = this.questions.map((q) => {return {x: q.avgXs[i], y: q.avgYs[i]}});
+			coordinates = coordinates.filter((coordinate) => coordinate.x !== undefined && coordinate.y !== undefined);
+			coordinateLists.push(coordinates);
+
+			this.g.selectAll(".avgNodes")
+				.data(coordinates).enter()
+				.append("svg:circle")
+				.attr("class", "radar-chart-series")
+				.attr('r', (pixel * 2) + "px")
+				.attr("cx", (coordinate) => coordinate.x)
+				.attr("cy", (coordinate) => coordinate.y)
+				.style("fill", colors[i % colors.length]);
+		}
 
 		this.g.selectAll(".area")
-			 .data([renderables])
+			 .data(coordinateLists)
 			 .enter()
 			 .append("polygon")
 			 .attr("class", "radar-chart-series")
 			 .style("stroke-width", (pixel * 1.5) + "px")
-			 .style("stroke", color)
-			 .attr("points", function(questions) {
+			 .style("stroke", (c, i) => colors[i % colors.length])
+			 .attr("points", function(coordinates) {
 				 let str="";
-				 for(let question of questions){
-					 str += question.avgX + "," + question.avgY + " ";
+				 for(let coordinate of coordinates){
+					 str += coordinate.x + "," + coordinate.y + " ";
 				 }
 				 return str;
 			  })
 			 .style("fill", "none");
-
-		this.g.selectAll(".avgNodes")
-			.data(renderables).enter()
-			.append("svg:circle")
-			.attr("class", "radar-chart-series")
-			.attr('r', (pixel * 2) + "px")
-			.attr("cx", (question) => question.avgX)
-			.attr("cy", (question) => question.avgY)
-			.style("fill", color);
 	}
 
 	renderAllDetails() {
@@ -261,19 +284,20 @@ export default class Questions {
 	}
 
 	renderQuestionDetails(question) {
-		let pixel = this.cfg.pixel;
+		let pixel = this.cfg.pixel,
+			colors = this.cfg.avgLineColors;
 
-		let details = question.details.filter((detail) => !isNaN(detail.posX) && !isNaN(detail.posY));
+		let details = question.details.filter((detail) => !isNaN(detail.posXs[0]) && !isNaN(detail.posYs[0])); // TODO
 
 		this.g.selectAll(".detailNodes")
 			.data(details).enter()
 			.append("svg:circle")
 			.attr("class", "radar-chart-series")
 			.attr('r', (pixel * 2) + "px")
-			.attr("cx", (detail) => detail.posX)
-			.attr("cy", (detail) => detail.posY)
+			.attr("cx", (detail) => detail.posXs[0]) //TODO make dynamic or safer
+			.attr("cy", (detail) => detail.posYs[0])
 			.attr("title", (question) => question.title)
-			.style("fill", "black");
+			.style("fill", colors[0]); //TODO
 	}
 
 	renderMinMaxs() {

@@ -1785,7 +1785,7 @@
 				pixel: cfg.pixel,
 				questionLineWidth: cfg.questionLineWidth,
 				minMaxColor: cfg.minMaxColor,
-				avgLineColor: cfg.avgLineColor
+				avgLineColors: cfg.avgLineColors
 			};
 
 			this.questions = questions;
@@ -1800,6 +1800,8 @@
 
 			this.fontSize = (this.questionsTitleOuterRadius - this.questionsTitleInnerRadius) * cfg.questionFontSize;
 			this.tooltipFontSize = cfg.pixel * cfg.tooltipFontSize;
+
+			this.valuesNr = 0; // the # of values provided per question, to be set in calculateXYs()
 
 			this.prepare();
 		}
@@ -1818,13 +1820,20 @@
 					question.idx = i;
 					question.startAngle = avgRad * i;
 					question.endAngle = avgRad * (i + 1);
+					var questionValuesNr = question.values.length;
+					question.valueStartAngles = question.values.map(function (value, idx) {
+						return question.startAngle + avgRad * idx / questionValuesNr;
+					});
+					question.valueEndAngles = question.values.map(function (value, idx) {
+						return question.startAngle + avgRad * (idx + 1) / questionValuesNr;
+					});
 
-					var _calculateXY = _this.calculateXY(avgRad, i, question.value, 0.5);
+					var _calculateXYs = _this.calculateXYs(avgRad, i, question.values, 0.5);
 
-					var _calculateXY2 = _slicedToArray(_calculateXY, 2);
+					var _calculateXYs2 = _slicedToArray(_calculateXYs, 2);
 
-					question.avgX = _calculateXY2[0];
-					question.avgY = _calculateXY2[1];
+					question.avgXs = _calculateXYs2[0];
+					question.avgYs = _calculateXYs2[1];
 
 
 					question.minDetail = 1;
@@ -1833,12 +1842,12 @@
 					var border = 0.15;
 					var offset = (1 - 2 * border) / (question.details.length - 1);
 					question.details.forEach(function (detail, j) {
-						var _calculateXY3 = _this.calculateXY(avgRad, i, detail.value, j * offset + border);
+						var _calculateXYs3 = _this.calculateXYs(avgRad, i, detail.values, j * offset + border);
 
-						var _calculateXY4 = _slicedToArray(_calculateXY3, 2);
+						var _calculateXYs4 = _slicedToArray(_calculateXYs3, 2);
 
-						detail.posX = _calculateXY4[0];
-						detail.posY = _calculateXY4[1];
+						detail.posXs = _calculateXYs4[0];
+						detail.posYs = _calculateXYs4[1];
 
 						if (detail.value > question.maxDetail) question.maxDetail = detail.value;
 						if (detail.value < question.minDetail) question.minDetail = detail.value;
@@ -1846,16 +1855,27 @@
 				});
 			}
 		}, {
-			key: "calculateXY",
-			value: function calculateXY(avgRad, i, value, offset) {
+			key: "calculateXYs",
+			value: function calculateXYs(avgRad, i, values, offset) {
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY;
 				var questionsTitleInnerRadiusPct = this.questionsTitleInnerRadiusPct,
 				    questionsStartRadiusPct = this.questionsStartRadiusPct;
 
-				var x = centerX * (1 - value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.sin(-(i + offset) * avgRad) - questionsStartRadiusPct * Math.sin(-(i + offset) * avgRad)),
-				    y = centerY * (1 - value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.cos(-(i + offset) * avgRad) - questionsStartRadiusPct * Math.cos(-(i + offset) * avgRad));
-				return [x, y];
+				var xs = [],
+				    ys = [];
+				values.forEach(function (value) {
+					var x = undefined,
+					    y = undefined;
+					if (value !== null) {
+						x = centerX * (1 - value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.sin(-(i + offset) * avgRad) - questionsStartRadiusPct * Math.sin(-(i + offset) * avgRad)), y = centerY * (1 - value * (questionsTitleInnerRadiusPct - questionsStartRadiusPct) * Math.cos(-(i + offset) * avgRad) - questionsStartRadiusPct * Math.cos(-(i + offset) * avgRad));
+					}
+					xs.push(x);
+					ys.push(y);
+				});
+				if (values.length > this.valuesNr) this.valuesNr = values.length;
+
+				return [xs, ys];
 			}
 		}, {
 			key: "renderFillings",
@@ -1888,16 +1908,20 @@
 		}, {
 			key: "renderFilling",
 			value: function renderFilling(question) {
+				var _this2 = this;
+
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY;
 				var questionsStartRadius = this.questionsStartRadius,
 				    questionsTitleInnerRadius = this.questionsTitleInnerRadius;
 
-				if (!isNaN(question.value)) {
-					var fillingArc = d3.svg.arc().innerRadius(questionsStartRadius).outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.value).startAngle(question.startAngle).endAngle(question.endAngle);
+				question.values.forEach(function (value, idx) {
+					if (value !== null) {
+						var fillingArc = d3.svg.arc().innerRadius(questionsStartRadius).outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * value).startAngle(question.valueStartAngles[idx]).endAngle(question.valueEndAngles[idx]);
 
-					this.g.append("path").attr("d", fillingArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", question.color);
-				}
+						_this2.g.append("path").attr("d", fillingArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", question.color);
+					}
+				});
 			}
 		}, {
 			key: "renderTitles",
@@ -1931,7 +1955,7 @@
 		}, {
 			key: "renderTitle",
 			value: function renderTitle(question) {
-				var _this2 = this;
+				var _this3 = this;
 
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY,
@@ -1956,7 +1980,7 @@
 				var linesNr = lines.length;
 
 				lines.forEach(function (line, i) {
-					_this2.g.append("text").attr("class", "questionTitle").attr("dy", linesNr === 1 ? fontSize / 3 : (-linesNr / 2 + i + 0.75) * fontSize).append("textPath").attr("xlink:href", "#question_" + id).text(line).attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px");
+					_this3.g.append("text").attr("class", "questionTitle").attr("dy", linesNr === 1 ? fontSize / 3 : (-linesNr / 2 + i + 0.75) * fontSize).append("textPath").attr("xlink:href", "#question_" + id).text(line).attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px");
 				});
 			}
 		}, {
@@ -2039,24 +2063,47 @@
 		}, {
 			key: "renderAverages",
 			value: function renderAverages() {
+				var _this4 = this;
+
 				var pixel = this.cfg.pixel,
-				    color = this.cfg.avgLineColor;
+				    colors = this.cfg.avgLineColors;
+				var valuesNr = this.valuesNr;
 
-				var renderables = this.questions.filter(function (q) {
-					return q.value;
-				});
+				var coordinateLists = [];
 
-				this.g.selectAll(".area").data([renderables]).enter().append("polygon").attr("class", "radar-chart-series").style("stroke-width", pixel * 1.5 + "px").style("stroke", color).attr("points", function (questions) {
+				var _loop = function _loop(i) {
+					var coordinates = _this4.questions.map(function (q) {
+						return { x: q.avgXs[i], y: q.avgYs[i] };
+					});
+					coordinates = coordinates.filter(function (coordinate) {
+						return coordinate.x !== undefined && coordinate.y !== undefined;
+					});
+					coordinateLists.push(coordinates);
+
+					_this4.g.selectAll(".avgNodes").data(coordinates).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (coordinate) {
+						return coordinate.x;
+					}).attr("cy", function (coordinate) {
+						return coordinate.y;
+					}).style("fill", colors[i % colors.length]);
+				};
+
+				for (var i = 0; i < valuesNr; i++) {
+					_loop(i);
+				}
+
+				this.g.selectAll(".area").data(coordinateLists).enter().append("polygon").attr("class", "radar-chart-series").style("stroke-width", pixel * 1.5 + "px").style("stroke", function (c, i) {
+					return colors[i % colors.length];
+				}).attr("points", function (coordinates) {
 					var str = "";
 					var _iteratorNormalCompletion4 = true;
 					var _didIteratorError4 = false;
 					var _iteratorError4 = undefined;
 
 					try {
-						for (var _iterator4 = questions[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-							var question = _step4.value;
+						for (var _iterator4 = coordinates[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+							var coordinate = _step4.value;
 
-							str += question.avgX + "," + question.avgY + " ";
+							str += coordinate.x + "," + coordinate.y + " ";
 						}
 					} catch (err) {
 						_didIteratorError4 = true;
@@ -2075,12 +2122,6 @@
 
 					return str;
 				}).style("fill", "none");
-
-				this.g.selectAll(".avgNodes").data(renderables).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (question) {
-					return question.avgX;
-				}).attr("cy", function (question) {
-					return question.avgY;
-				}).style("fill", color);
 			}
 		}, {
 			key: "renderAllDetails",
@@ -2113,19 +2154,21 @@
 		}, {
 			key: "renderQuestionDetails",
 			value: function renderQuestionDetails(question) {
-				var pixel = this.cfg.pixel;
+				var pixel = this.cfg.pixel,
+				    colors = this.cfg.avgLineColors;
 
 				var details = question.details.filter(function (detail) {
-					return !isNaN(detail.posX) && !isNaN(detail.posY);
-				});
+					return !isNaN(detail.posXs[0]) && !isNaN(detail.posYs[0]);
+				}); // TODO
 
 				this.g.selectAll(".detailNodes").data(details).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (detail) {
-					return detail.posX;
-				}).attr("cy", function (detail) {
-					return detail.posY;
+					return detail.posXs[0];
+				}) //TODO make dynamic or safer
+				.attr("cy", function (detail) {
+					return detail.posYs[0];
 				}).attr("title", function (question) {
 					return question.title;
-				}).style("fill", "black");
+				}).style("fill", colors[0]); //TODO
 			}
 		}, {
 			key: "renderMinMaxs",
@@ -2503,7 +2546,7 @@
 		subCatLineWidth: 2,
 		questionLineWidth: 1,
 		minMaxColor: "rgba(128, 128, 128, 0.33)",
-		avgLineColor: "rgba(179,10,10,1)"
+		avgLineColors: ["rgba(179,10,10,1)", "rgba(1,10,10,1)", "rgba(27, 86, 166, 1)"]
 	};
 
 	Radar2.circles = [{
@@ -2646,7 +2689,8 @@
 	        key: "parseWorkbook",
 	        value: function parseWorkbook(workbook, sheetName) {
 	            var cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 1, 3);
-	            var mainCats = this.detailParsing(cellStructure, 1, 2, 5, -1, [6, 8]);
+	            var mainCats = this.detailParsing(cellStructure, 1, 2, 5, 6, [7, 9, 15]);
+	            console.log(mainCats);
 	            return mainCats;
 	        }
 	    }, {
@@ -2720,7 +2764,7 @@
 	                    detail = undefined;
 	                }
 	                if (_this.isValidCell(detailCell)) {
-	                    detail = { title: _this.parseTitle(detailCell), values: [], questions: [] };
+	                    detail = { title: _this.parseTitle(detailCell), values: [] };
 
 	                    if (subCat === undefined) {
 	                        subCat = { title: "", values: [], questions: [] };
@@ -2840,6 +2884,8 @@
 	    }, {
 	        key: 'aggregateValues',
 	        value: function aggregateValues(mainCats, maxScaleValue) {
+	            var _this = this;
+
 	            if (maxScaleValue === undefined) throw new Error("Please provide the value scale's maximum (e.g. 100).");
 
 	            var _iteratorNormalCompletion = true;
@@ -2854,7 +2900,7 @@
 	                    var _iteratorError2 = undefined;
 
 	                    try {
-	                        for (var _iterator2 = mainCat.subCats[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                        var _loop = function _loop() {
 	                            var subCat = _step2.value;
 
 	                            var questionValueLists = [];
@@ -2875,7 +2921,7 @@
 	                                        for (var _iterator4 = question.details[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
 	                                            var detail = _step4.value;
 
-	                                            this.scaleValues(detail, maxScaleValue, detailValueLists);
+	                                            _this.scaleValues(detail, maxScaleValue, detailValueLists);
 	                                        }
 	                                    } catch (err) {
 	                                        _didIteratorError4 = true;
@@ -2893,12 +2939,14 @@
 	                                    }
 
 	                                    if (question.values.length > 0) {
-	                                        this.scaleValues(question, maxScaleValue, questionValueLists);
+	                                        _this.scaleValues(question, maxScaleValue, questionValueLists);
 	                                    } else if (detailValueLists.length > 0) {
-	                                        question.values = detailValueLists.map(function (detailValues) {
-	                                            return detailValues.reduce(function (sum, next) {
+	                                        question.values = detailValueLists.map(function (detailValues, i) {
+	                                            var avg = detailValues.reduce(function (sum, next) {
 	                                                return sum += next;
 	                                            }) / detailValues.length;
+	                                            questionValueLists[i] = questionValueLists[i] === undefined ? [avg] : questionValueLists[i].concat(avg);
+	                                            return avg;
 	                                        });
 	                                    }
 	                                }
@@ -2918,7 +2966,7 @@
 	                            }
 
 	                            if (subCat.values.length > 0) {
-	                                this.scaleValues(subCat, maxScaleValue);
+	                                _this.scaleValues(subCat, maxScaleValue);
 	                            } else if (questionValueLists.length > 0) {
 	                                subCat.values = questionValueLists.map(function (questionValues) {
 	                                    return questionValues.reduce(function (sum, next) {
@@ -2926,6 +2974,10 @@
 	                                    }) / questionValues.length;
 	                                });
 	                            }
+	                        };
+
+	                        for (var _iterator2 = mainCat.subCats[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                            _loop();
 	                        }
 	                    } catch (err) {
 	                        _didIteratorError2 = true;
@@ -2977,89 +3029,64 @@
 	        key: 'assignColors',
 	        value: function assignColors(mainCats) {
 	            var colorScale = [{ r: 59, g: 128, b: 62, a: 1.0 }, { r: 90, g: 80, b: 140, a: 1.0 }, { r: 181, g: 48, b: 60, a: 1.0 }, { r: 27, g: 86, b: 166, a: 1.0 }, { r: 208, g: 89, b: 61, a: 1.0 }],
-	                colorIdx = 0,
 	                sign = -1;
 
-	            var _iteratorNormalCompletion5 = true;
-	            var _didIteratorError5 = false;
-	            var _iteratorError5 = undefined;
+	            mainCats.forEach(function (mainCat, idx) {
+	                var color = colorScale[idx % colorScale.length];
+	                mainCat.color = 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + color.a + ')';
 
-	            try {
-	                for (var _iterator5 = mainCats[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	                    var mainCat = _step5.value;
+	                var _iteratorNormalCompletion5 = true;
+	                var _didIteratorError5 = false;
+	                var _iteratorError5 = undefined;
 
-	                    var color = colorScale[colorIdx];
-	                    mainCat.color = 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + color.a + ')';
-
-	                    var _iteratorNormalCompletion6 = true;
-	                    var _didIteratorError6 = false;
-	                    var _iteratorError6 = undefined;
-
-	                    try {
-	                        for (var _iterator6 = mainCat.subCats[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	                            var subCat = _step6.value;
-
-	                            var opacity = 0.65 + sign * (Math.random() * 0.25);
-	                            sign = sign * -1;
-	                            subCat.color = 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + opacity + ')';
-
-	                            var _iteratorNormalCompletion7 = true;
-	                            var _didIteratorError7 = false;
-	                            var _iteratorError7 = undefined;
-
-	                            try {
-	                                for (var _iterator7 = subCat.questions[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-	                                    var question = _step7.value;
-
-	                                    question.color = 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + opacity + ')';
-	                                }
-	                            } catch (err) {
-	                                _didIteratorError7 = true;
-	                                _iteratorError7 = err;
-	                            } finally {
-	                                try {
-	                                    if (!_iteratorNormalCompletion7 && _iterator7.return) {
-	                                        _iterator7.return();
-	                                    }
-	                                } finally {
-	                                    if (_didIteratorError7) {
-	                                        throw _iteratorError7;
-	                                    }
-	                                }
-	                            }
-	                        }
-	                    } catch (err) {
-	                        _didIteratorError6 = true;
-	                        _iteratorError6 = err;
-	                    } finally {
-	                        try {
-	                            if (!_iteratorNormalCompletion6 && _iterator6.return) {
-	                                _iterator6.return();
-	                            }
-	                        } finally {
-	                            if (_didIteratorError6) {
-	                                throw _iteratorError6;
-	                            }
-	                        }
-	                    }
-
-	                    colorIdx = colorIdx === colorScale.length - 1 ? 0 : colorIdx + 1;
-	                }
-	            } catch (err) {
-	                _didIteratorError5 = true;
-	                _iteratorError5 = err;
-	            } finally {
 	                try {
-	                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
-	                        _iterator5.return();
+	                    for (var _iterator5 = mainCat.subCats[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	                        var _subCat = _step5.value;
+
+	                        var opacity = 0.65 + sign * (Math.random() * 0.25);
+	                        sign = sign * -1;
+	                        _subCat.color = 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + opacity + ')';
+
+	                        var _iteratorNormalCompletion6 = true;
+	                        var _didIteratorError6 = false;
+	                        var _iteratorError6 = undefined;
+
+	                        try {
+	                            for (var _iterator6 = _subCat.questions[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	                                var question = _step6.value;
+
+	                                question.color = 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + opacity + ')';
+	                            }
+	                        } catch (err) {
+	                            _didIteratorError6 = true;
+	                            _iteratorError6 = err;
+	                        } finally {
+	                            try {
+	                                if (!_iteratorNormalCompletion6 && _iterator6.return) {
+	                                    _iterator6.return();
+	                                }
+	                            } finally {
+	                                if (_didIteratorError6) {
+	                                    throw _iteratorError6;
+	                                }
+	                            }
+	                        }
 	                    }
+	                } catch (err) {
+	                    _didIteratorError5 = true;
+	                    _iteratorError5 = err;
 	                } finally {
-	                    if (_didIteratorError5) {
-	                        throw _iteratorError5;
+	                    try {
+	                        if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	                            _iterator5.return();
+	                        }
+	                    } finally {
+	                        if (_didIteratorError5) {
+	                            throw _iteratorError5;
+	                        }
 	                    }
 	                }
-	            }
-
+	            });
 	            return mainCats;
 	        }
 	    }]);

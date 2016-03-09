@@ -23,9 +23,11 @@ class DataService {
                     if(question.values.length > 0) {
                         this.scaleValues(question, maxScaleValue, questionValueLists);
                     } else if(detailValueLists.length > 0) {
-                        question.values = detailValueLists.map((detailValues) =>
-                            detailValues.reduce((sum, next) => sum += next) / detailValues.length
-                        );
+                        question.values = detailValueLists.map((detailValues, i) => {
+                            let avg = detailValues.reduce((sum, next) => sum += next) / detailValues.length
+                            questionValueLists[i] = questionValueLists[i] === undefined ? [avg] : questionValueLists[i].concat(avg);
+                            return avg;
+                        });
                     }
                 }
 
@@ -58,11 +60,10 @@ class DataService {
                 {r: 181, g: 48, b: 60, a: 1.0},
                 {r: 27, g: 86, b: 166, a: 1.0},
                 {r: 208, g: 89, b: 61, a: 1.0}],
-            colorIdx = 0,
             sign = -1;
 
-        for(let mainCat of mainCats) {
-            let color = colorScale[colorIdx]
+        mainCats.forEach((mainCat, idx) => {
+            let color = colorScale[idx % colorScale.length];
             mainCat.color = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
 
             for(let subCat of mainCat.subCats) {
@@ -74,8 +75,7 @@ class DataService {
                     question.color = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
                 }
             }
-            colorIdx = colorIdx === colorScale.length - 1 ? 0 : colorIdx + 1;
-        }
+        });
         return mainCats;
     }
 }

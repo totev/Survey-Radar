@@ -102,7 +102,7 @@ Radar2.cfg = {
 			subCatLineWidth: 2,
 			questionLineWidth: 1,
 			minMaxColor: "rgba(128, 128, 128, 0.33)",
-			avgLineColor: "rgba(179,10,10,1)"
+			avgLineColors: ["rgba(179,10,10,1)", "rgba(1,10,10,1)", "rgba(27, 86, 166, 1)"]
 		};
 
 Radar2.circles = [{
