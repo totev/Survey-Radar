@@ -38,6 +38,10 @@ export default class SubCategories {
 
 			subCat.startAngle = (radians / questionsNr) * questionCounter;
 			subCat.endAngle = (radians / questionsNr) * (questionCounter + subCat.questionsNr);
+			let subCatValuesNr = subCat.values.length;
+			subCat.valueStartAngles = subCat.values.map((value, idx) => subCat.startAngle + (subCat.endAngle - subCat.startAngle) * idx / subCatValuesNr);
+			subCat.valueEndAngles = subCat.values.map((value, idx) => subCat.startAngle + (subCat.endAngle - subCat.startAngle) * (idx + 1) / subCatValuesNr);
+
 			questionCounter += subCat.questionsNr;
 		}
 	}
@@ -57,16 +61,18 @@ export default class SubCategories {
 			subCatTitleOuterRadius = this.subCatTitleOuterRadius,
 			subCatTitleMiddleRadius = this.subCatTitleMiddleRadius;
 
-		let fillingArc = d3.svg.arc()
-					.innerRadius(1)
-					.outerRadius(centerDotSizePx + (subCatTitleInnerRadius - centerDotSizePx) * subCat.value)
-					.startAngle(subCat.startAngle)
-					.endAngle(subCat.endAngle);
+		subCat.values.forEach((value, idx) => {
+			let fillingArc = d3.svg.arc()
+				.innerRadius(1)
+				.outerRadius(centerDotSizePx + (subCatTitleInnerRadius - centerDotSizePx) * value)
+				.startAngle(subCat.valueStartAngles[idx])
+				.endAngle(subCat.valueEndAngles[idx]);
 
-		this.g.append("path")
-			.attr("d", fillingArc)
-			.attr("transform", `translate(${centerX}, ${centerY})`)
-			.attr("fill", subCat.color);
+			this.g.append("path")
+				.attr("d", fillingArc)
+				.attr("transform", `translate(${centerX}, ${centerY})`)
+				.attr("fill", subCat.color);
+		});
 	}
 
 	renderTitles(withBackground) {

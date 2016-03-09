@@ -32,7 +32,6 @@ class ExcelService {
     parseWorkbook(workbook, sheetName) {
         let cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 1, 3);
         let mainCats = this.detailParsing(cellStructure, 1, 2, 5, 6, [7, 9, 15]);
-        console.log(mainCats);
         return mainCats;
     }
 

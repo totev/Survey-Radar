@@ -1584,7 +1584,7 @@
 				var _iteratorError = undefined;
 
 				try {
-					for (var _iterator = this.subCats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+					var _loop = function _loop() {
 						var subCat = _step.value;
 
 						subCat.firstQuestionIdx = questionCounter;
@@ -1592,7 +1592,19 @@
 
 						subCat.startAngle = radians / questionsNr * questionCounter;
 						subCat.endAngle = radians / questionsNr * (questionCounter + subCat.questionsNr);
+						var subCatValuesNr = subCat.values.length;
+						subCat.valueStartAngles = subCat.values.map(function (value, idx) {
+							return subCat.startAngle + (subCat.endAngle - subCat.startAngle) * idx / subCatValuesNr;
+						});
+						subCat.valueEndAngles = subCat.values.map(function (value, idx) {
+							return subCat.startAngle + (subCat.endAngle - subCat.startAngle) * (idx + 1) / subCatValuesNr;
+						});
+
 						questionCounter += subCat.questionsNr;
+					};
+
+					for (var _iterator = this.subCats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+						_loop();
 					}
 				} catch (err) {
 					_didIteratorError = true;
@@ -1618,9 +1630,9 @@
 
 				try {
 					for (var _iterator2 = this.subCats[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-						var subCat = _step2.value;
+						var _subCat = _step2.value;
 
-						this.renderFilling(subCat);
+						this.renderFilling(_subCat);
 					}
 				} catch (err) {
 					_didIteratorError2 = true;
@@ -1640,6 +1652,8 @@
 		}, {
 			key: "renderFilling",
 			value: function renderFilling(subCat) {
+				var _this = this;
+
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY;
 
@@ -1648,9 +1662,11 @@
 				    subCatTitleOuterRadius = this.subCatTitleOuterRadius,
 				    subCatTitleMiddleRadius = this.subCatTitleMiddleRadius;
 
-				var fillingArc = d3.svg.arc().innerRadius(1).outerRadius(centerDotSizePx + (subCatTitleInnerRadius - centerDotSizePx) * subCat.value).startAngle(subCat.startAngle).endAngle(subCat.endAngle);
+				subCat.values.forEach(function (value, idx) {
+					var fillingArc = d3.svg.arc().innerRadius(1).outerRadius(centerDotSizePx + (subCatTitleInnerRadius - centerDotSizePx) * value).startAngle(subCat.valueStartAngles[idx]).endAngle(subCat.valueEndAngles[idx]);
 
-				this.g.append("path").attr("d", fillingArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", subCat.color);
+					_this.g.append("path").attr("d", fillingArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", subCat.color);
+				});
 			}
 		}, {
 			key: "renderTitles",
@@ -1661,12 +1677,12 @@
 
 				try {
 					for (var _iterator3 = this.subCats[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-						var subCat = _step3.value;
+						var _subCat2 = _step3.value;
 
 						if (withBackground) {
-							this.renderTitleBackground(subCat);
+							this.renderTitleBackground(_subCat2);
 						}
-						this.renderTitle(subCat);
+						this.renderTitle(_subCat2);
 					}
 				} catch (err) {
 					_didIteratorError3 = true;
@@ -1686,7 +1702,7 @@
 		}, {
 			key: "renderTitle",
 			value: function renderTitle(subCat) {
-				var _this = this;
+				var _this2 = this;
 
 				var centerX = this.cfg.centerX,
 				    centerY = this.cfg.centerY,
@@ -1712,7 +1728,7 @@
 				var linesNr = lines.length;
 
 				lines.forEach(function (line, i) {
-					_this.g.append("text").attr("class", "subCatTitle").attr("dy", linesNr === 1 ? fontSize / 3 : (-linesNr / 2 + i + 0.75) * fontSize).append("textPath").attr("xlink:href", "#subCat_" + id).text(line).attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px");
+					_this2.g.append("text").attr("class", "subCatTitle").attr("dy", linesNr === 1 ? fontSize / 3 : (-linesNr / 2 + i + 0.75) * fontSize).append("textPath").attr("xlink:href", "#subCat_" + id).text(line).attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px");
 				});
 			}
 		}, {
@@ -2690,7 +2706,6 @@
 	        value: function parseWorkbook(workbook, sheetName) {
 	            var cellStructure = this.restructureWorksheet(workbook.Sheets[sheetName], 1, 3);
 	            var mainCats = this.detailParsing(cellStructure, 1, 2, 5, 6, [7, 9, 15]);
-	            console.log(mainCats);
 	            return mainCats;
 	        }
 	    }, {
