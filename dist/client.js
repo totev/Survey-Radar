@@ -1804,6 +1804,8 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var Questions = function () {
@@ -1872,8 +1874,12 @@
 					question.avgYs = _calculateXYs2[1];
 
 
-					question.minDetail = 1;
-					question.maxDetail = 0;
+					question.minDetails = question.values.map(function (_) {
+						return 1;
+					});
+					question.maxDetails = question.values.map(function (_) {
+						return 0;
+					});
 
 					var border = 0.15;
 					var offset = (1 - 2 * border) / (question.details.length - 1);
@@ -1885,8 +1891,10 @@
 						detail.posXs = _calculateXYs4[0];
 						detail.posYs = _calculateXYs4[1];
 
-						if (detail.values[0] !== null && detail.values[0] > question.maxDetail) question.maxDetail = detail.values[0]; //TODO
-						if (detail.values[0] !== null && detail.values[0] < question.minDetail) question.minDetail = detail.values[0];
+						detail.values.forEach(function (value, k) {
+							if (value !== null && value > question.maxDetails[k]) question.maxDetails[k] = value;
+							if (value !== null && value < question.minDetails[k]) question.minDetails[k] = value;
+						});
 					});
 				});
 			}
@@ -2101,15 +2109,19 @@
 		}, {
 			key: "renderAverages",
 			value: function renderAverages() {
-				var _this4 = this;
+				var _hoverElements,
+				    _this4 = this;
 
 				var pixel = this.cfg.pixel,
 				    colors = this.cfg.avgLineColors;
 				var valuesNr = this.valuesNr;
 
-				var coordinateLists = [];
+				var coordinateLists = [],
+				    hoverElements = [];
 
 				var _loop = function _loop(i) {
+					var _hoverElements2;
+
 					var coordinates = _this4.questions.map(function (q) {
 						return { x: q.avgXs[i], y: q.avgYs[i] };
 					});
@@ -2118,20 +2130,26 @@
 					});
 					coordinateLists.push(coordinates);
 
-					_this4.g.selectAll(".avgNodes").data(coordinates).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (coordinate) {
+					var nodes = _this4.g.selectAll(".avgNodes").data(coordinates).enter().append("svg:circle").attr("class", "avgLine" + i).attr('r', pixel * 2 + "px").attr("cx", function (coordinate) {
 						return coordinate.x;
 					}).attr("cy", function (coordinate) {
 						return coordinate.y;
-					}).style("fill", colors[i % colors.length]);
+					}).attr("valueNr", i).style("fill", colors[i % colors.length]).style("opacity", valuesNr > 1 ? 0.5 : 1);
+
+					hoverElements = (_hoverElements2 = hoverElements).concat.apply(_hoverElements2, _toConsumableArray(nodes));
 				};
 
 				for (var i = 0; i < valuesNr; i++) {
 					_loop(i);
 				}
 
-				this.g.selectAll(".area").data(coordinateLists).enter().append("polygon").attr("class", "radar-chart-series").style("stroke-width", pixel * 1.5 + "px").style("stroke", function (c, i) {
+				var areas = this.g.selectAll(".area").data(coordinateLists).enter().append("polygon").attr("class", function (d, i) {
+					return "avgLine" + i;
+				}).attr("valueNr", function (d, i) {
+					return i;
+				}).style("stroke-width", pixel * 1.5 + "px").style("stroke", function (c, i) {
 					return colors[i % colors.length];
-				}).attr("points", function (coordinates) {
+				}).style("opacity", valuesNr > 1 ? 0.5 : 1).attr("points", function (coordinates) {
 					var str = "";
 					var _iteratorNormalCompletion4 = true;
 					var _didIteratorError4 = false;
@@ -2160,6 +2178,25 @@
 
 					return str;
 				}).style("fill", "none");
+
+				hoverElements = (_hoverElements = hoverElements).concat.apply(_hoverElements, _toConsumableArray(areas));
+
+				if (valuesNr > 1) {
+					hoverElements.forEach(function (element) {
+						var el = d3.select(element);
+						var i = el.attr("valueNr");
+
+						el.on("mouseover", function () {
+							d3.selectAll(".detailNodes" + i).transition().duration(100).style("opacity", 1);
+							d3.selectAll(".avgLine" + i).transition().duration(100).style("opacity", 1);
+							d3.selectAll(".minMax" + i).transition().duration(100).style("opacity", 1);
+						}).on("mouseout", function () {
+							d3.selectAll(".detailNodes" + i).transition().duration(200).style("opacity", 0.4);
+							d3.selectAll(".avgLine" + i).transition().duration(200).style("opacity", 0.5);
+							d3.selectAll(".minMax" + i).transition().duration(200).style("opacity", 0);
+						});
+					});
+				}
 			}
 		}, {
 			key: "renderAllDetails",
@@ -2192,21 +2229,27 @@
 		}, {
 			key: "renderQuestionDetails",
 			value: function renderQuestionDetails(question) {
+				var _this5 = this;
+
 				var pixel = this.cfg.pixel,
 				    colors = this.cfg.avgLineColors;
+				var valuesNr = this.valuesNr;
 
-				var details = question.details.filter(function (detail) {
-					return !isNaN(detail.posXs[0]) && !isNaN(detail.posYs[0]);
-				}); // TODO
+				var _loop2 = function _loop2(i) {
+					var details = question.details.filter(function (detail) {
+						return !isNaN(detail.posXs[i]) && !isNaN(detail.posYs[i]);
+					});
 
-				this.g.selectAll(".detailNodes").data(details).enter().append("svg:circle").attr("class", "radar-chart-series").attr('r', pixel * 2 + "px").attr("cx", function (detail) {
-					return detail.posXs[0];
-				}) //TODO make dynamic or safer
-				.attr("cy", function (detail) {
-					return detail.posYs[0];
-				}).attr("title", function (question) {
-					return question.title;
-				}).style("fill", colors[0]); //TODO
+					_this5.g.selectAll(".detailNodes").data(details).enter().append("svg:circle").attr("class", "detailNodes" + i).attr('r', pixel * 2 + "px").attr("cx", function (detail) {
+						return detail.posXs[i];
+					}).attr("cy", function (detail) {
+						return detail.posYs[i];
+					}).style("fill", colors[i % colors.length]).style("opacity", valuesNr > 1 ? 0.3 : 1);
+				};
+
+				for (var i = 0; i < this.valuesNr; i++) {
+					_loop2(i);
+				}
 			}
 		}, {
 			key: "renderMinMaxs",
@@ -2247,9 +2290,12 @@
 				var questionsStartRadius = this.questionsStartRadius,
 				    questionsTitleInnerRadius = this.questionsTitleInnerRadius;
 
-				var fillingArc = d3.svg.arc().innerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.minDetail).outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.maxDetail).startAngle(question.startAngle).endAngle(question.endAngle);
+				var valuesNr = question.values.length;
+				for (var i = 0; i < valuesNr; i++) {
+					var fillingArc = d3.svg.arc().innerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.minDetails[i]).outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.maxDetails[i]).startAngle(question.startAngle).endAngle(question.endAngle);
 
-				this.g.append("path").attr("d", fillingArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", minMaxColor);
+					this.g.append("path").attr("d", fillingArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", minMaxColor).attr("class", "minMax" + i).style("opacity", valuesNr > 1 ? 0 : 1);
+				}
 			}
 		}]);
 

@@ -48,15 +48,17 @@ export default class Questions {
 			question.valueEndAngles = question.values.map((value, idx) => question.startAngle + avgRad * (idx + 1) / questionValuesNr);
 			[question.avgXs, question.avgYs] = this.calculateXYs(avgRad, i, question.values, 0.5);
 
-			question.minDetail = 1;
-			question.maxDetail = 0;
+			question.minDetails = question.values.map(_ => 1);
+			question.maxDetails = question.values.map(_ => 0);
 
 			let border = 0.15;
 			let offset = (1 - (2*border)) / (question.details.length - 1);
 			question.details.forEach((detail, j) => {
-				[detail.posXs, detail.posYs] = this.calculateXYs(avgRad, i, detail.values, j * offset + border)
-				if(detail.values[0] !== null && detail.values[0] > question.maxDetail) question.maxDetail = detail.values[0]; //TODO
-				if(detail.values[0] !== null && detail.values[0] < question.minDetail) question.minDetail = detail.values[0];
+				[detail.posXs, detail.posYs] = this.calculateXYs(avgRad, i, detail.values, j * offset + border);
+				detail.values.forEach((value, k) => {
+					if(value !== null && value > question.maxDetails[k]) question.maxDetails[k] = value;
+					if(value !== null && value < question.minDetails[k]) question.minDetails[k] = value;
+				});
 			});
 		});
 	}
@@ -246,37 +248,78 @@ export default class Questions {
 			colors = this.cfg.avgLineColors;
 		let valuesNr = this.valuesNr;
 
-		let coordinateLists = [];
+		let coordinateLists = [],
+			hoverElements = [];
 		for(let i = 0; i < valuesNr; i++) {
 			let coordinates = this.questions.map((q) => ({x: q.avgXs[i], y: q.avgYs[i]}));
 			coordinates = coordinates.filter((coordinate) => coordinate.x !== undefined && coordinate.y !== undefined);
 			coordinateLists.push(coordinates);
 
-			this.g.selectAll(".avgNodes")
+			let nodes = this.g.selectAll(".avgNodes")
 				.data(coordinates).enter()
 				.append("svg:circle")
-				.attr("class", "radar-chart-series")
+				.attr("class", "avgLine" + i)
 				.attr('r', (pixel * 2) + "px")
 				.attr("cx", (coordinate) => coordinate.x)
 				.attr("cy", (coordinate) => coordinate.y)
-				.style("fill", colors[i % colors.length]);
+				.attr("valueNr", i)
+				.style("fill", colors[i % colors.length])
+				.style("opacity", valuesNr > 1 ? 0.5 : 1);
+
+			hoverElements = hoverElements.concat(...nodes);
 		}
 
-		this.g.selectAll(".area")
-			 .data(coordinateLists)
-			 .enter()
-			 .append("polygon")
-			 .attr("class", "radar-chart-series")
-			 .style("stroke-width", (pixel * 1.5) + "px")
-			 .style("stroke", (c, i) => colors[i % colors.length])
-			 .attr("points", function(coordinates) {
-				 let str="";
-				 for(let coordinate of coordinates){
-					 str += coordinate.x + "," + coordinate.y + " ";
-				 }
-				 return str;
-			  })
-			 .style("fill", "none");
+		let areas = this.g.selectAll(".area")
+			.data(coordinateLists)
+			.enter()
+			.append("polygon")
+			.attr("class", (d, i) => "avgLine" + i)
+			.attr("valueNr", (d, i) => i)
+			.style("stroke-width", (pixel * 1.5) + "px")
+			.style("stroke", (c, i) => colors[i % colors.length])
+			.style("opacity", valuesNr > 1 ? 0.5 : 1)
+			.attr("points", function(coordinates) {
+				let str="";
+				for(let coordinate of coordinates){
+					str += coordinate.x + "," + coordinate.y + " ";
+				}
+				return str;
+			})
+			.style("fill", "none");
+
+		hoverElements = hoverElements.concat(...areas);
+
+		if(valuesNr > 1) {
+			hoverElements.forEach(function(element) {
+				let el = d3.select(element);
+				let i = el.attr("valueNr");
+
+				el.on("mouseover", () => {
+						d3.selectAll(".detailNodes" + i)
+							.transition()
+							.duration(100)
+							.style("opacity", 1);
+						d3.selectAll(".avgLine" + i).transition()
+							.duration(100)
+							.style("opacity", 1);
+						d3.selectAll(".minMax" + i).transition()
+							.duration(100)
+							.style("opacity", 1);
+					})
+					.on("mouseout", () => {
+						d3.selectAll(".detailNodes" + i)
+							.transition()
+							.duration(200)
+							.style("opacity", 0.4);
+						d3.selectAll(".avgLine" + i).transition()
+							.duration(200)
+							.style("opacity", 0.5);
+						d3.selectAll(".minMax" + i).transition()
+							.duration(200)
+							.style("opacity", 0);
+					});
+			});
+		}
 	}
 
 	renderAllDetails() {
@@ -288,18 +331,21 @@ export default class Questions {
 	renderQuestionDetails(question) {
 		let pixel = this.cfg.pixel,
 			colors = this.cfg.avgLineColors;
+		let valuesNr = this.valuesNr;
 
-		let details = question.details.filter((detail) => !isNaN(detail.posXs[0]) && !isNaN(detail.posYs[0])); // TODO
+		for(let i=0; i < this.valuesNr; i++) {
+			let details = question.details.filter((detail) => !isNaN(detail.posXs[i]) && !isNaN(detail.posYs[i]));
 
-		this.g.selectAll(".detailNodes")
-			.data(details).enter()
-			.append("svg:circle")
-			.attr("class", "radar-chart-series")
-			.attr('r', (pixel * 2) + "px")
-			.attr("cx", (detail) => detail.posXs[0]) //TODO make dynamic or safer
-			.attr("cy", (detail) => detail.posYs[0])
-			.attr("title", (question) => question.title)
-			.style("fill", colors[0]); //TODO
+			this.g.selectAll(".detailNodes")
+				.data(details).enter()
+				.append("svg:circle")
+				.attr("class", "detailNodes" + i)
+				.attr('r', (pixel * 2) + "px")
+				.attr("cx", (detail) => detail.posXs[i])
+				.attr("cy", (detail) => detail.posYs[i])
+				.style("fill", colors[i % colors.length])
+				.style("opacity", valuesNr > 1 ? 0.3 : 1);
+		}
 	}
 
 	renderMinMaxs() {
@@ -317,15 +363,20 @@ export default class Questions {
 		let questionsStartRadius = this.questionsStartRadius,
 			questionsTitleInnerRadius = this.questionsTitleInnerRadius;
 
-		let fillingArc = d3.svg.arc()
-						.innerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.minDetail)
-						.outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.maxDetail)
-						.startAngle(question.startAngle)
-						.endAngle(question.endAngle);
+		let valuesNr = question.values.length;
+		for(let i = 0; i < valuesNr; i++) {
+			let fillingArc = d3.svg.arc()
+				.innerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.minDetails[i])
+				.outerRadius(questionsStartRadius + (questionsTitleInnerRadius - questionsStartRadius) * question.maxDetails[i])
+				.startAngle(question.startAngle)
+				.endAngle(question.endAngle);
 
-		this.g.append("path")
-			.attr("d", fillingArc)
-			.attr("transform", `translate(${centerX}, ${centerY})`)
-			.attr("fill", minMaxColor);
+			this.g.append("path")
+				.attr("d", fillingArc)
+				.attr("transform", `translate(${centerX}, ${centerY})`)
+				.attr("fill", minMaxColor)
+				.attr("class", "minMax" + i)
+				.style("opacity", valuesNr > 1 ? 0 : 1);
+		}
 	}
 }
