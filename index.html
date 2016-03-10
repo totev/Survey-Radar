@@ -39,47 +39,110 @@
 				list-style: none;
 			}
 
+			.file-table {
+				width: 700px;
+				margin-bottom: 0;
+			}
+
+			table td {
+				border-top:none !important;
+			}
+
 			#config-table {
-				max-width: 700px;
+				width: 700px;
+				margin-top: 20px;
 			}
 
 			#config-container {
 				height:100%;
+				max-width: 710px;
 				padding: 5px;
 				overflow: scroll;
 				border-right: 2px dashed lightgray;
+			}
+
+			.btn-file {
+				position: relative;
+				overflow: hidden;
+			}
+			.btn-file input[type=file] {
+				position: absolute;
+				top: 0;
+				right: 0;
+				min-width: 100%;
+				min-height: 100%;
+				font-size: 100px;
+				text-align: right;
+				filter: alpha(opacity=0);
+				opacity: 0;
+				outline: none;
+				background: white;
+				cursor: inherit;
+				display: block;
 			}
 		</style>
   </head>
   <body>
     <div id="body" ng-controller="MainCtrl as m">
 		<div class="pull-left" id="config-container">
-			<div>
-				TODO: Circles (colors, widths, types, heights respecting center dot?), <br />Extra averages and dots?, Dot colors?, Popups an den Dots? Legende!<br/>
-				Load Excel sheet: <input type="file" custom-on-change="m.handleFile" />
-
-				<div ng-hide="m.workbook === undefined" class="form-inline">
-					<select ng-options="s as s for s in m.workbook.SheetNames" ng-model="sheetname" class="form-control input-sm"></select>
-					<input type="number" ng-model="offset.col" class="form-control input-sm" />
-					<input type="number" ng-model="offset.row" class="form-control input-sm" />
-					<button ng-click="m.parseFile(sheetname, offset.col, offset.row)" class="btn btn-sm btn-default">Parse</button>
-				</div>
-				<div ng-hide="m.parsedWorkbook === undefined" class="form-inline">
-					<input type="number" ng-model="parseCfg.maxScaleValue" class="form-control input-sm" />
-					<input type="number" ng-model="parseCfg.mainCatCol" class="form-control input-sm" />
-					<input type="number" ng-model="parseCfg.subCatCol" class="form-control input-sm" />
-					<input type="number" ng-model="parseCfg.questionCol" class="form-control input-sm" />
-					<input type="number" ng-model="parseCfg.detailCol" class="form-control input-sm" />
-					<select multiple ng-model="parseCfg.valueCols" class="form-control input-sm">
-						<option value="7">7</option>
-						<option value="9">9</option>
-						<option value="11">11</option>
-						<option value="13">13</option>
-						<option value="15">15</option>
-					</select>
-					<button ng-click="m.parseMainCats(parseCfg)" class="btn btn-sm btn-default">Render</button>
-				</div>
-			</div>
+			<table class="file-table table table-condensed">
+				<tr>
+					<td>
+						<span class="btn btn-sm btn-primary btn-file">
+							Load Excel sheet<input type="file" ng-model="filename" custom-on-change="m.handleFile" />
+						</span>
+					</td>
+					<td colspan="4">
+						<samp>{{m.selectedFile.name}}</samp>
+					</td>
+				</tr>
+				<tr ng-hide="m.workbook === undefined">
+					<td class="form-inline">
+						Worksheet: <select ng-options="s as s for s in m.workbook.SheetNames" ng-model="sheetname" class="form-control input-sm"></select>
+					</td>
+					<td class="form-inline">
+						Column offset: <input type="number" ng-model="offset.col" class="form-control input-sm" />
+					</td>
+					<td class="form-inline">
+						Row offset: <input type="number" ng-model="offset.row" class="form-control input-sm" />
+					</td>
+					<td class="form-inline text-right" colspan="2">
+						<button ng-click="m.parseFile(sheetname, offset.col, offset.row)" class="btn btn-sm btn-primary">Parse</button>
+					</td>
+				</tr>
+			</table>
+			<table class="file-table table table-condensed">
+				<tr ng-hide="m.parsedWorkbook === undefined">
+					<td>
+						Main Category Column:
+						<select ng-options="col.key as col.name for col in m.workbookCols" ng-model="parseCfg.mainCatCol" class="form-control input-sm"></select>
+					</td>
+					<td>
+						Subcategory Column:
+						<select ng-options="col.key as col.name for col in m.workbookCols" ng-model="parseCfg.subCatCol" class="form-control input-sm"></select>
+					</td>
+					<td>
+						Question Column:
+						<select ng-options="col.key as col.name for col in m.workbookCols" ng-model="parseCfg.questionCol" class="form-control input-sm"></select>
+					</td>
+					<td>
+						Detail Column:
+						<select ng-options="col.key as col.name for col in m.workbookCols" ng-model="parseCfg.detailCol" class="form-control input-sm"></select>
+					</td>
+					<td rowspan="2">
+						Value Columns:
+						<select multiple ng-options="col.key as col.name for col in m.workbookCols" ng-model="parseCfg.valueCols" class="form-control input-sm"></select>
+					</td>
+				</tr>
+				<tr ng-hide="m.parsedWorkbook === undefined">
+					<td colspan="2" class="form-group">
+						Maximum scale value: <input type="number" ng-model="parseCfg.maxScaleValue" min="0" class="form-control input-sm" />
+					</td>
+					<td colspan="2" class="text-center form-inline">
+						<button ng-click="m.parseMainCats(parseCfg)" class="btn btn-sm btn-primary">Render</button>
+					</td>
+				</tr>
+			</table>
 			<table id="config-table" class="table table-condensed text-right">
 				<tr>
 					<td class="form-inline">
@@ -194,6 +257,9 @@
 			</ul>
 		</div>
 		<div style="height:100%;overflow:scroll;">
+			<div>
+				TODO: Circles (colors, widths, types, heights respecting center dot?), <br />Extra averages and dots?, Dot colors?, Popups an den Dots? Legende!<br/>
+			</div>
 			<button id="download-svg" ng-click="m.downloadSVG('#surveyRadar1')" ng-show="m.mainCats !== undefined" class="btn btn-default">Download as SVG</button>
 			<div id="surveyRadar1" class="pull-left"></div>
 			<div id="surveyRadar2"></div>

@@ -248,7 +248,7 @@ export default class Questions {
 
 		let coordinateLists = [];
 		for(let i = 0; i < valuesNr; i++) {
-			let coordinates = this.questions.map((q) => {return {x: q.avgXs[i], y: q.avgYs[i]}});
+			let coordinates = this.questions.map((q) => ({x: q.avgXs[i], y: q.avgYs[i]}));
 			coordinates = coordinates.filter((coordinate) => coordinate.x !== undefined && coordinate.y !== undefined);
 			coordinateLists.push(coordinates);
 

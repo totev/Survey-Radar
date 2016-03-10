@@ -5,7 +5,7 @@ function customOnChange() {
             var onChangeHandler = scope.$eval(attrs.customOnChange);
             var controllerAs = attrs.customOnChange.split('.');
             if(controllerAs.length == 2)
-                element.bind('change', onChangeHandler.bind(scope[controllerAs[0]]));
+                element.bind('change', onChangeHandler.bind(scope[controllerAs[0]], element[0]));
             else
                 element.bind('change', onChangeHandler);
         }

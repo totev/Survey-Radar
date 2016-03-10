@@ -64,7 +64,10 @@ export default class MainCtrl {
 
     // File handling
 
-    handleFile(event) {
+    handleFile(input, event) {
+        if(input.files.length > 0) {
+            this.selectedFile = input.files[0];
+        }
         this.excelService.handleFile(event).then(
             (workbook) => {
                 this.workbook = workbook;
@@ -76,6 +79,8 @@ export default class MainCtrl {
     parseFile(sheetName, offsetCol, offsetRow) {
         let worksheet = this.workbook.Sheets[sheetName];
         this.parsedWorkbook = this.excelService.restructureWorksheet(worksheet, offsetCol, offsetRow);
+        this.workbookCols = Object.keys(this.parsedWorkbook.cols).map(key => ({key: parseInt(key), name: this.parsedWorkbook.cols[key].colName}));
+        this.mainCats = undefined;
     }
 
     parseMainCats(parseCfg) {

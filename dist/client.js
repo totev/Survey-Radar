@@ -177,9 +177,12 @@
 
 	    }, {
 	        key: 'handleFile',
-	        value: function handleFile(event) {
+	        value: function handleFile(input, event) {
 	            var _this4 = this;
 
+	            if (input.files.length > 0) {
+	                this.selectedFile = input.files[0];
+	            }
 	            this.excelService.handleFile(event).then(function (workbook) {
 	                _this4.workbook = workbook;
 	            }, function (exception) {
@@ -189,8 +192,14 @@
 	    }, {
 	        key: 'parseFile',
 	        value: function parseFile(sheetName, offsetCol, offsetRow) {
+	            var _this5 = this;
+
 	            var worksheet = this.workbook.Sheets[sheetName];
 	            this.parsedWorkbook = this.excelService.restructureWorksheet(worksheet, offsetCol, offsetRow);
+	            this.workbookCols = Object.keys(this.parsedWorkbook.cols).map(function (key) {
+	                return { key: parseInt(key), name: _this5.parsedWorkbook.cols[key].colName };
+	            });
+	            this.mainCats = undefined;
 	        }
 	    }, {
 	        key: 'parseMainCats',
@@ -2659,7 +2668,7 @@
 	        link: function link(scope, element, attrs) {
 	            var onChangeHandler = scope.$eval(attrs.customOnChange);
 	            var controllerAs = attrs.customOnChange.split('.');
-	            if (controllerAs.length == 2) element.bind('change', onChangeHandler.bind(scope[controllerAs[0]]));else element.bind('change', onChangeHandler);
+	            if (controllerAs.length == 2) element.bind('change', onChangeHandler.bind(scope[controllerAs[0]], element[0]));else element.bind('change', onChangeHandler);
 	        }
 	    };
 	}
@@ -2755,12 +2764,12 @@
 	                detail = undefined;
 
 	            var _loop = function _loop(i) {
-	                var mainCatCell = mainCatCol === undefined ? undefined : mainCatCol[i],
-	                    subCatCell = subCatCol === undefined ? undefined : subCatCol[i],
-	                    questionCell = questionCol === undefined ? undefined : questionCol[i],
-	                    detailCell = detailCol === undefined ? undefined : detailCol[i],
+	                var mainCatCell = mainCatCol === undefined ? undefined : mainCatCol.cells[i],
+	                    subCatCell = subCatCol === undefined ? undefined : subCatCol.cells[i],
+	                    questionCell = questionCol === undefined ? undefined : questionCol.cells[i],
+	                    detailCell = detailCol === undefined ? undefined : detailCol.cells[i],
 	                    valueCells = valueCols.map(function (col) {
-	                    return col[i];
+	                    return col.cells[i];
 	                });
 
 	                if (_this.isValidCell(mainCatCell)) {
@@ -2861,10 +2870,11 @@
 
 	                var colNr = _translateCellName.colNr;
 	                var rowNr = _translateCellName.rowNr;
+	                var colName = _translateCellName.colName;
 
 	                if (colNr >= colOffset && rowNr >= rowOffset) {
-	                    if (cols[colNr] === undefined) cols[colNr] = {};
-	                    cols[colNr][rowNr] = worksheet[key];
+	                    if (cols[colNr] === undefined) cols[colNr] = { colName: colName, cells: {} };
+	                    cols[colNr].cells[rowNr] = worksheet[key];
 	                }
 	            });
 	            return { maxRowNr: maxCell.rowNr, cols: cols };
@@ -2875,10 +2885,12 @@
 	            var columnNrs = [];
 	            var colNr = undefined,
 	                rowNr = undefined;
+	            var colName = "";
 	            for (var i = 0; i < cellName.length; i++) {
 	                var charCode = cellName.charCodeAt(i);
 	                if (charCode > 64 && charCode < 91) {
 	                    columnNrs.push(charCode - 65);
+	                    colName += cellName[i];
 	                } else if (charCode > 48 && charCode < 58) {
 	                    rowNr = parseInt(cellName.substr(i)) - 1;
 	                    break;
@@ -2893,7 +2905,7 @@
 	                    }
 	                });
 	            }
-	            return { colNr: colNr, rowNr: rowNr };
+	            return { colNr: colNr, rowNr: rowNr, colName: colName };
 	        }
 	    }]);
 

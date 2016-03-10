@@ -54,11 +54,11 @@ class ExcelService {
             detail;
 
         for(let i = 0; i <= maxRowNr; i++) {
-            let mainCatCell = mainCatCol === undefined ? undefined : mainCatCol[i],
-                subCatCell = subCatCol === undefined ? undefined : subCatCol[i],
-                questionCell = questionCol === undefined ? undefined : questionCol[i],
-                detailCell = detailCol === undefined ? undefined : detailCol[i],
-                valueCells = valueCols.map((col) => col[i]);
+            let mainCatCell = mainCatCol === undefined ? undefined : mainCatCol.cells[i],
+                subCatCell = subCatCol === undefined ? undefined : subCatCol.cells[i],
+                questionCell = questionCol === undefined ? undefined : questionCol.cells[i],
+                detailCell = detailCol === undefined ? undefined : detailCol.cells[i],
+                valueCells = valueCols.map((col) => col.cells[i]);
 
             if (this.isValidCell(mainCatCell)) {
                 mainCat = {mainCat: this.parseTitle(mainCatCell), subCats: []};
@@ -134,10 +134,10 @@ class ExcelService {
         let {max: maxCell} = this.getMaxDimensionsWorksheet(worksheet);
         let cols = {};
         Object.keys(worksheet).forEach((key) => {
-            let {colNr, rowNr} = this.translateCellName(key);
+            let {colNr, rowNr, colName} = this.translateCellName(key);
             if(colNr >= colOffset && rowNr >= rowOffset) {
-                if(cols[colNr] === undefined) cols[colNr] = {};
-                cols[colNr][rowNr] = worksheet[key];
+                if(cols[colNr] === undefined) cols[colNr] = {colName, cells:{}};
+                cols[colNr].cells[rowNr] = worksheet[key];
             }
         });
         return {maxRowNr: maxCell.rowNr, cols};
@@ -146,10 +146,12 @@ class ExcelService {
     translateCellName(cellName) {
         let columnNrs = [];
         let colNr, rowNr;
+        let colName = "";
         for(let i = 0; i < cellName.length; i++) {
             let charCode = cellName.charCodeAt(i);
             if(charCode > 64 && charCode < 91) {
                 columnNrs.push(charCode - 65);
+                colName += cellName[i];
             } else if(charCode > 48 && charCode < 58) {
                 rowNr = parseInt(cellName.substr(i)) - 1;
                 break;
@@ -164,7 +166,7 @@ class ExcelService {
                 }
             });
         }
-        return {colNr, rowNr};
+        return {colNr, rowNr, colName};
     }
 }
 
