@@ -77,6 +77,7 @@ export default class Radar2 {
 
 		q.renderAverages();
 		q.renderAllDetails();
+		q.renderLegend();
 	}
 }
 

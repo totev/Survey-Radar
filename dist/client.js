@@ -2119,6 +2119,7 @@
 				var pixel = this.cfg.pixel,
 				    colors = this.cfg.avgLineColors;
 				var valuesNr = this.valuesNr;
+				var self = this;
 
 				var coordinateLists = [],
 				    hoverElements = [];
@@ -2191,13 +2192,11 @@
 						var i = el.attr("valueNr");
 
 						el.on("mouseover", function () {
-							d3.selectAll(".detailNodes" + i).transition().duration(100).style("opacity", 1);
-							d3.selectAll(".avgLine" + i).transition().duration(100).style("opacity", 1);
-							d3.selectAll(".minMax" + i).transition().duration(100).style("opacity", 1);
+							self.toggleQuestionDisplay(i, true);
 						}).on("mouseout", function () {
-							d3.selectAll(".detailNodes" + i).transition().duration(200).style("opacity", 0.1);
-							d3.selectAll(".avgLine" + i).transition().duration(200).style("opacity", 0.35);
-							d3.selectAll(".minMax" + i).transition().duration(200).style("opacity", 0);
+							if (d3.select("#questionButton" + i).attr("active") === "true") return;
+
+							self.toggleQuestionDisplay(i, false);
 						});
 					});
 				}
@@ -2300,6 +2299,47 @@
 
 					this.g.append("path").attr("d", fillingArc).attr("transform", "translate(" + centerX + ", " + centerY + ")").attr("fill", minMaxColor).attr("class", "minMax" + i).style("opacity", valuesNr > 1 ? 0 : 1);
 				}
+			}
+		}, {
+			key: "renderLegend",
+			value: function renderLegend() {
+				var _this6 = this;
+
+				if (this.valuesNr < 2) return;
+
+				var pixel = this.cfg.pixel,
+				    colors = this.cfg.avgLineColors;
+				var self = this;
+
+				var _loop3 = function _loop3(i) {
+					_this6.g.append("rect").attr("id", "questionButton" + i).attr("x", 10).attr("y", 10 + pixel * 20 * i).attr("width", pixel * 20).attr("height", pixel * 15).attr("fill", colors[i % colors.length]).attr("active", false).attr("opacity", 0.5).on("click", function () {
+						var el = d3.select(this);
+						var active = el.attr("active") === "true";
+						el.transition().duration(200).attr("opacity", active ? 0.5 : 1).attr("active", !active);
+
+						self.toggleQuestionDisplay(i, !active);
+					}).on("mouseover", function () {
+						d3.select(this).transition().duration(100).attr("opacity", 0.75);
+						self.toggleQuestionDisplay(i, true);
+					}).on("mouseout", function () {
+						var el = d3.select(this);
+						var active = el.attr("active") === "true";
+						el.transition().duration(200).attr("opacity", active ? 1 : 0.5);
+
+						if (!active) self.toggleQuestionDisplay(i, false);
+					});
+				};
+
+				for (var i = 0; i < this.valuesNr; i++) {
+					_loop3(i);
+				}
+			}
+		}, {
+			key: "toggleQuestionDisplay",
+			value: function toggleQuestionDisplay(idx, display) {
+				d3.selectAll(".detailNodes" + idx).transition().duration(100).style("opacity", display ? 1 : 0.1);
+				d3.selectAll(".avgLine" + idx).transition().duration(100).style("opacity", display ? 1 : 0.35);
+				d3.selectAll(".minMax" + idx).transition().duration(100).style("opacity", display ? 1 : 0);
 			}
 		}]);
 
@@ -2603,6 +2643,7 @@
 
 				q.renderAverages();
 				q.renderAllDetails();
+				q.renderLegend();
 			}
 		}]);
 

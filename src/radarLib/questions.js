@@ -247,6 +247,7 @@ export default class Questions {
 		let pixel = this.cfg.pixel,
 			colors = this.cfg.avgLineColors;
 		let valuesNr = this.valuesNr;
+		let self = this;
 
 		let coordinateLists = [],
 			hoverElements = [];
@@ -295,28 +296,12 @@ export default class Questions {
 				let i = el.attr("valueNr");
 
 				el.on("mouseover", () => {
-						d3.selectAll(".detailNodes" + i)
-							.transition()
-							.duration(100)
-							.style("opacity", 1);
-						d3.selectAll(".avgLine" + i).transition()
-							.duration(100)
-							.style("opacity", 1);
-						d3.selectAll(".minMax" + i).transition()
-							.duration(100)
-							.style("opacity", 1);
+						self.toggleQuestionDisplay(i, true);
 					})
 					.on("mouseout", () => {
-						d3.selectAll(".detailNodes" + i)
-							.transition()
-							.duration(200)
-							.style("opacity", 0.1);
-						d3.selectAll(".avgLine" + i).transition()
-							.duration(200)
-							.style("opacity", 0.35);
-						d3.selectAll(".minMax" + i).transition()
-							.duration(200)
-							.style("opacity", 0);
+						if(d3.select("#questionButton" + i).attr("active") === "true") return;
+
+						self.toggleQuestionDisplay(i, false);
 					});
 			});
 		}
@@ -379,4 +364,58 @@ export default class Questions {
 				.style("opacity", valuesNr > 1 ? 0 : 1);
 		}
 	}
+
+	renderLegend() {
+		if(this.valuesNr < 2) return;
+
+		let pixel = this.cfg.pixel,
+			colors = this.cfg.avgLineColors;
+		let self = this;
+
+		for(let i = 0; i < this.valuesNr; i++) {
+			this.g.append("rect")
+				  .attr("id", "questionButton" + i)
+				  .attr("x", 10)
+				  .attr("y", 10 + pixel * 20 * i)
+				  .attr("width", pixel * 20)
+				  .attr("height", pixel * 15)
+				  .attr("fill", colors[i % colors.length])
+				  .attr("active", false)
+				  .attr("opacity", 0.5)
+				  .on("click", function() {
+					  let el = d3.select(this);
+					  let active = el.attr("active") === "true";
+					  el.transition().duration(200)
+						  .attr("opacity", active ? 0.5 : 1)
+						  .attr("active", !active);
+
+					  self.toggleQuestionDisplay(i, !active);
+				  }).on("mouseover", function() {
+					  d3.select(this).transition().duration(100)
+						.attr("opacity", 0.75);
+					  self.toggleQuestionDisplay(i, true);
+				  }).on("mouseout", function() {
+						let el = d3.select(this);
+						let active = el.attr("active") === "true";
+						el.transition().duration(200)
+							.attr("opacity", active ? 1 : 0.5);
+
+						if(!active)	self.toggleQuestionDisplay(i, false);
+				  });
+		}
+	}
+
+	toggleQuestionDisplay(idx, display) {
+		d3.selectAll(".detailNodes" + idx)
+			.transition()
+			.duration(100)
+			.style("opacity", display ? 1 : 0.1);
+		d3.selectAll(".avgLine" + idx).transition()
+			.duration(100)
+			.style("opacity", display ? 1 : 0.35);
+		d3.selectAll(".minMax" + idx).transition()
+			.duration(100)
+			.style("opacity", display ? 1 : 0);
+	}
+
 }
