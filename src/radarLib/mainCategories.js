@@ -13,7 +13,8 @@ export default class MainCategories {
 			mainCatLetterSpacing: cfg.mainCatLetterSpacing,
 			turnTextThresholds: cfg.turnTextThresholds,
 			pixel: cfg.pixel,
-			mainCatLineWidth: cfg.mainCatLineWidth
+			mainCatLineWidth: cfg.mainCatLineWidth,
+			showMainCatValues: cfg.showMainCatValues
 		};
 
 		this.mainCats = mainCats;
@@ -82,7 +83,8 @@ export default class MainCategories {
 			mainCatFontSize = this.cfg.mainCatFontSize,
 			letterSpacing = this.cfg.mainCatLetterSpacing,
 			turnTextThresholds = this.cfg.turnTextThresholds,
-			pixel = this.cfg.pixel;
+			pixel = this.cfg.pixel,
+			showMainCatValues = this.cfg.showMainCatValues;
 
 		let id = Math.random() * new Date();
 
@@ -120,7 +122,7 @@ export default class MainCategories {
 			.attr("dy", fontSize / 3)
 		   	.append("textPath")
 			.attr("xlink:href", "#mainCat_" + id)
-			.text(mainCat.mainCat)
+			.text(mainCat.mainCat + (showMainCatValues ? " [" + mainCat.values.map(v => Math.round(v*100) + "%").toString() + "]" : ""))
 			.attr("fill", "white")
 			.attr("startOffset", startOffset + "%")
 			.style("text-anchor","middle")

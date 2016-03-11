@@ -61,7 +61,7 @@ class ExcelService {
                 valueCells = valueCols.map((col) => col.cells[i]);
 
             if (this.isValidCell(mainCatCell)) {
-                mainCat = {mainCat: this.parseTitle(mainCatCell), subCats: []};
+                mainCat = {mainCat: this.parseTitle(mainCatCell), values: [], subCats: []};
                 mainCats.push(mainCat);
 
                 subCat = undefined;
@@ -72,7 +72,7 @@ class ExcelService {
                 subCat = {title: this.parseTitle(subCatCell), values: [], questions: []};
 
                 if (mainCat === undefined) {
-                    mainCat = {mainCat: "", subCats: []};
+                    mainCat = {mainCat: "", values: [], subCats: []};
                     mainCats.push(mainCat);
                 }
 

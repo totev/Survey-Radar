@@ -99,11 +99,10 @@
 
 	        _classCallCheck(this, MainCtrl);
 
-	        this.cfgR1 = _index.Radar1.cfg;
-	        this.cfgR2 = _index.Radar2.cfg;
+	        this.cfg = _index.Radar2.cfg;
 
 	        $scope.$watch(function () {
-	            return _this.cfgR1;
+	            return _this.cfg;
 	        }, this.configWatcher.bind(this), true);
 	        $scope.$watch(function () {
 	            return _this.mainCats;
@@ -122,8 +121,8 @@
 	            var mainCats = arguments.length <= 0 || arguments[0] === undefined ? this.mainCats : arguments[0];
 
 	            console.info(new Date().toLocaleTimeString() + ": Rendering Radars");
-	            this.renderRadar1(mainCats, this.cfgR1);
-	            this.renderRadar2(mainCats, this.cfgR2);
+	            this.renderRadar1(mainCats, this.cfg);
+	            this.renderRadar2(mainCats, this.cfg);
 	        }
 	    }, {
 	        key: 'renderRadar1',
@@ -140,7 +139,7 @@
 	    }, {
 	        key: 'reset',
 	        value: function reset() {
-	            this.cfgR1 = _index.Radar1.cfg;
+	            this.cfg = JSON.parse(JSON.stringify(_index.Radar2.cfg));
 	            this.$scope.$apply(); //TODO doesn't work yet
 	        }
 
@@ -1263,7 +1262,8 @@
 		legendDotPct: 0.015,
 		mainCatLineWidth: 3,
 		subCatLineWidth: 2,
-		questionLineWidth: 1
+		questionLineWidth: 1,
+		showMainCatValues: false
 	};
 
 	Radar1.circles = [{
@@ -1354,7 +1354,8 @@
 				mainCatLetterSpacing: cfg.mainCatLetterSpacing,
 				turnTextThresholds: cfg.turnTextThresholds,
 				pixel: cfg.pixel,
-				mainCatLineWidth: cfg.mainCatLineWidth
+				mainCatLineWidth: cfg.mainCatLineWidth,
+				showMainCatValues: cfg.showMainCatValues
 			};
 
 			this.mainCats = mainCats;
@@ -1504,7 +1505,8 @@
 				    mainCatFontSize = this.cfg.mainCatFontSize,
 				    letterSpacing = this.cfg.mainCatLetterSpacing,
 				    turnTextThresholds = this.cfg.turnTextThresholds,
-				    pixel = this.cfg.pixel;
+				    pixel = this.cfg.pixel,
+				    showMainCatValues = this.cfg.showMainCatValues;
 
 				var id = Math.random() * new Date();
 
@@ -1521,7 +1523,9 @@
 				var startOffset = 25 + 50 * offset;
 				var fontSize = (radius - innerTitleRadius) * mainCatFontSize;
 
-				this.g.append("text").attr("class", "mainCatTitle").attr("dy", fontSize / 3).append("textPath").attr("xlink:href", "#mainCat_" + id).text(mainCat.mainCat).attr("fill", "white").attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px").style("letter-spacing", letterSpacing * pixel + "px");
+				this.g.append("text").attr("class", "mainCatTitle").attr("dy", fontSize / 3).append("textPath").attr("xlink:href", "#mainCat_" + id).text(mainCat.mainCat + (showMainCatValues ? " [" + mainCat.values.map(function (v) {
+					return Math.round(v * 100) + "%";
+				}).toString() + "]" : "")).attr("fill", "white").attr("startOffset", startOffset + "%").style("text-anchor", "middle").style("font-size", fontSize + "px").style("letter-spacing", letterSpacing * pixel + "px");
 			}
 		}, {
 			key: "renderLines",
@@ -2134,7 +2138,7 @@
 						return coordinate.x;
 					}).attr("cy", function (coordinate) {
 						return coordinate.y;
-					}).attr("valueNr", i).style("fill", colors[i % colors.length]).style("opacity", valuesNr > 1 ? 0.5 : 1);
+					}).attr("valueNr", i).style("fill", colors[i % colors.length]).style("opacity", valuesNr > 1 ? 0.35 : 1);
 
 					hoverElements = (_hoverElements2 = hoverElements).concat.apply(_hoverElements2, _toConsumableArray(nodes));
 				};
@@ -2149,7 +2153,7 @@
 					return i;
 				}).style("stroke-width", pixel * 1.5 + "px").style("stroke", function (c, i) {
 					return colors[i % colors.length];
-				}).style("opacity", valuesNr > 1 ? 0.5 : 1).attr("points", function (coordinates) {
+				}).style("opacity", valuesNr > 1 ? 0.35 : 1).attr("points", function (coordinates) {
 					var str = "";
 					var _iteratorNormalCompletion4 = true;
 					var _didIteratorError4 = false;
@@ -2191,8 +2195,8 @@
 							d3.selectAll(".avgLine" + i).transition().duration(100).style("opacity", 1);
 							d3.selectAll(".minMax" + i).transition().duration(100).style("opacity", 1);
 						}).on("mouseout", function () {
-							d3.selectAll(".detailNodes" + i).transition().duration(200).style("opacity", 0.4);
-							d3.selectAll(".avgLine" + i).transition().duration(200).style("opacity", 0.5);
+							d3.selectAll(".detailNodes" + i).transition().duration(200).style("opacity", 0.1);
+							d3.selectAll(".avgLine" + i).transition().duration(200).style("opacity", 0.35);
 							d3.selectAll(".minMax" + i).transition().duration(200).style("opacity", 0);
 						});
 					});
@@ -2244,7 +2248,7 @@
 						return detail.posXs[i];
 					}).attr("cy", function (detail) {
 						return detail.posYs[i];
-					}).style("fill", colors[i % colors.length]).style("opacity", valuesNr > 1 ? 0.3 : 1);
+					}).style("fill", colors[i % colors.length]).style("opacity", valuesNr > 1 ? 0.1 : 1);
 				};
 
 				for (var i = 0; i < this.valuesNr; i++) {
@@ -2629,6 +2633,7 @@
 		mainCatLineWidth: 3,
 		subCatLineWidth: 2,
 		questionLineWidth: 1,
+		showCatMainValues: false,
 		minMaxColor: "rgba(128, 128, 128, 0.33)",
 		avgLineColors: ["rgba(179,10,10,1)", "rgba(1,10,10,1)", "rgba(27, 86, 166, 1)"]
 	};
@@ -2819,7 +2824,7 @@
 	                });
 
 	                if (_this.isValidCell(mainCatCell)) {
-	                    mainCat = { mainCat: _this.parseTitle(mainCatCell), subCats: [] };
+	                    mainCat = { mainCat: _this.parseTitle(mainCatCell), values: [], subCats: [] };
 	                    mainCats.push(mainCat);
 
 	                    subCat = undefined;
@@ -2830,7 +2835,7 @@
 	                    subCat = { title: _this.parseTitle(subCatCell), values: [], questions: [] };
 
 	                    if (mainCat === undefined) {
-	                        mainCat = { mainCat: "", subCats: [] };
+	                        mainCat = { mainCat: "", values: [], subCats: [] };
 	                        mainCats.push(mainCat);
 	                    }
 
@@ -2998,14 +3003,16 @@
 	            var _iteratorError = undefined;
 
 	            try {
-	                for (var _iterator = mainCats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var _loop = function _loop() {
 	                    var mainCat = _step.value;
+
+	                    var subCatValueLists = [];
 	                    var _iteratorNormalCompletion2 = true;
 	                    var _didIteratorError2 = false;
 	                    var _iteratorError2 = undefined;
 
 	                    try {
-	                        var _loop = function _loop() {
+	                        var _loop2 = function _loop2() {
 	                            var subCat = _step2.value;
 
 	                            var questionValueLists = [];
@@ -3047,9 +3054,9 @@
 	                                        _this.scaleValues(question, maxScaleValue, questionValueLists);
 	                                    } else if (detailValueLists.length > 0) {
 	                                        question.values = detailValueLists.map(function (detailValues, i) {
-	                                            var avg = detailValues.reduce(function (sum, next) {
+	                                            var avg = _this.roundFloat(detailValues.reduce(function (sum, next) {
 	                                                return sum += next;
-	                                            }) / detailValues.length;
+	                                            }) / detailValues.length);
 	                                            questionValueLists[i] = questionValueLists[i] === undefined ? [avg] : questionValueLists[i].concat(avg);
 	                                            return avg;
 	                                        });
@@ -3073,16 +3080,18 @@
 	                            if (subCat.values.length > 0) {
 	                                _this.scaleValues(subCat, maxScaleValue);
 	                            } else if (questionValueLists.length > 0) {
-	                                subCat.values = questionValueLists.map(function (questionValues) {
-	                                    return questionValues.reduce(function (sum, next) {
+	                                subCat.values = questionValueLists.map(function (questionValues, i) {
+	                                    var avg = _this.roundFloat(questionValues.reduce(function (sum, next) {
 	                                        return sum += next;
-	                                    }) / questionValues.length;
+	                                    }) / questionValues.length);
+	                                    subCatValueLists[i] = subCatValueLists[i] === undefined ? [avg] : subCatValueLists[i].concat(avg);
+	                                    return avg;
 	                                });
 	                            }
 	                        };
 
 	                        for (var _iterator2 = mainCat.subCats[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                            _loop();
+	                            _loop2();
 	                        }
 	                    } catch (err) {
 	                        _didIteratorError2 = true;
@@ -3098,6 +3107,20 @@
 	                            }
 	                        }
 	                    }
+
+	                    if (mainCat.values.length > 0) {
+	                        _this.scaleValues(mainCat, maxScaleValue);
+	                    } else if (subCatValueLists.length > 0) {
+	                        mainCat.values = subCatValueLists.map(function (subCatValues) {
+	                            return _this.roundFloat(subCatValues.reduce(function (sum, next) {
+	                                return sum += next;
+	                            }) / subCatValues.length);
+	                        });
+	                    }
+	                };
+
+	                for (var _iterator = mainCats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    _loop();
 	                }
 	            } catch (err) {
 	                _didIteratorError = true;
@@ -3124,11 +3147,19 @@
 	            for (var i = 0; i < element.values.length; i++) {
 	                var value = element.values[i];
 	                if (value !== undefined) {
-	                    var scaledValue = value / maxScaleValue;
+	                    var scaledValue = this.roundFloat(value / maxScaleValue, 3);
 	                    element.values[i] = scaledValue;
 	                    elementValueLists[i] = elementValueLists[i] === undefined ? [scaledValue] : elementValueLists[i].concat(scaledValue);
 	                }
 	            }
+	        }
+	    }, {
+	        key: 'roundFloat',
+	        value: function roundFloat(float) {
+	            var decimals = arguments.length <= 1 || arguments[1] === undefined ? 3 : arguments[1];
+
+	            var pow = Math.pow(10, decimals);
+	            return Math.round(float * pow) / pow;
 	        }
 	    }, {
 	        key: 'assignColors',

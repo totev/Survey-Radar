@@ -102,7 +102,8 @@ Radar1.cfg = {
 		 	legendDotPct: 0.015,
 			mainCatLineWidth: 3,
 			subCatLineWidth: 2,
-			questionLineWidth: 1
+			questionLineWidth: 1,
+			showMainCatValues: false
 		};
 
 

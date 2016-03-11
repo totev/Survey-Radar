@@ -12,6 +12,7 @@ class DataService {
         if(maxScaleValue === undefined) throw new Error("Please provide the value scale's maximum (e.g. 100).");
 
         for(let mainCat of mainCats) {
+            let subCatValueLists = [];
             for(let subCat of mainCat.subCats) {
                 let questionValueLists = [];
                 for(let question of subCat.questions) {
@@ -24,7 +25,7 @@ class DataService {
                         this.scaleValues(question, maxScaleValue, questionValueLists);
                     } else if(detailValueLists.length > 0) {
                         question.values = detailValueLists.map((detailValues, i) => {
-                            let avg = detailValues.reduce((sum, next) => sum += next) / detailValues.length
+                            let avg = this.roundFloat(detailValues.reduce((sum, next) => sum += next) / detailValues.length);
                             questionValueLists[i] = questionValueLists[i] === undefined ? [avg] : questionValueLists[i].concat(avg);
                             return avg;
                         });
@@ -34,10 +35,19 @@ class DataService {
                 if(subCat.values.length > 0) {
                     this.scaleValues(subCat, maxScaleValue);
                 } else if(questionValueLists.length > 0) {
-                    subCat.values = questionValueLists.map((questionValues) =>
-                        questionValues.reduce((sum, next) => sum += next) / questionValues.length
-                    );
+                    subCat.values = questionValueLists.map((questionValues, i) => {
+                        let avg = this.roundFloat(questionValues.reduce((sum, next) => sum += next) / questionValues.length);
+                        subCatValueLists[i] = subCatValueLists[i] === undefined ? [avg] : subCatValueLists[i].concat(avg);
+                        return avg;
+                    });
                 }
+            }
+            if(mainCat.values.length > 0) {
+                this.scaleValues(mainCat, maxScaleValue);
+            } else if(subCatValueLists.length > 0) {
+                mainCat.values = subCatValueLists.map((subCatValues) =>
+                    this.roundFloat(subCatValues.reduce((sum, next) => sum += next) / subCatValues.length)
+                );
             }
         }
         return mainCats;
@@ -47,11 +57,16 @@ class DataService {
         for(let i = 0; i < element.values.length; i++) {
             let value = element.values[i];
             if(value !== undefined) {
-                let scaledValue = value / maxScaleValue;
+                let scaledValue = this.roundFloat(value / maxScaleValue, 3);
                 element.values[i] = scaledValue
                 elementValueLists[i] = elementValueLists[i] === undefined ? [scaledValue] : elementValueLists[i].concat(scaledValue);
             }
         }
+    }
+
+    roundFloat(float, decimals = 3) {
+        let pow = Math.pow(10, decimals)
+        return Math.round(float * pow) / pow;
     }
 
     assignColors(mainCats) {

@@ -2,10 +2,9 @@ import {Radar1, Radar2} from './radarLib/index.js'
 
 export default class MainCtrl {
     constructor($scope, $timeout, excelService, dataService, downloadService) {
-        this.cfgR1 = Radar1.cfg;
-        this.cfgR2 = Radar2.cfg;
+        this.cfg = Radar2.cfg;
 
-        $scope.$watch(() => this.cfgR1, this.configWatcher.bind(this), true);
+        $scope.$watch(() => this.cfg, this.configWatcher.bind(this), true);
         $scope.$watch(() => this.mainCats, this.dataWatcher.bind(this), true);
 
         this.$scope = $scope;
@@ -17,8 +16,8 @@ export default class MainCtrl {
 
     render(mainCats = this.mainCats) {
         console.info((new Date()).toLocaleTimeString() + ": Rendering Radars")
-        this.renderRadar1(mainCats, this.cfgR1);
-        this.renderRadar2(mainCats, this.cfgR2);
+        this.renderRadar1(mainCats, this.cfg);
+        this.renderRadar2(mainCats, this.cfg);
     }
 
     renderRadar1(mainCats, cfg) {
@@ -32,7 +31,7 @@ export default class MainCtrl {
     }
 
     reset() {
-        this.cfgR1 = Radar1.cfg;
+        this.cfg = JSON.parse(JSON.stringify(Radar2.cfg));
         this.$scope.$apply(); //TODO doesn't work yet
     }
 

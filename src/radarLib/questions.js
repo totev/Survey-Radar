@@ -264,7 +264,7 @@ export default class Questions {
 				.attr("cy", (coordinate) => coordinate.y)
 				.attr("valueNr", i)
 				.style("fill", colors[i % colors.length])
-				.style("opacity", valuesNr > 1 ? 0.5 : 1);
+				.style("opacity", valuesNr > 1 ? 0.35 : 1);
 
 			hoverElements = hoverElements.concat(...nodes);
 		}
@@ -277,7 +277,7 @@ export default class Questions {
 			.attr("valueNr", (d, i) => i)
 			.style("stroke-width", (pixel * 1.5) + "px")
 			.style("stroke", (c, i) => colors[i % colors.length])
-			.style("opacity", valuesNr > 1 ? 0.5 : 1)
+			.style("opacity", valuesNr > 1 ? 0.35 : 1)
 			.attr("points", function(coordinates) {
 				let str="";
 				for(let coordinate of coordinates){
@@ -310,10 +310,10 @@ export default class Questions {
 						d3.selectAll(".detailNodes" + i)
 							.transition()
 							.duration(200)
-							.style("opacity", 0.4);
+							.style("opacity", 0.1);
 						d3.selectAll(".avgLine" + i).transition()
 							.duration(200)
-							.style("opacity", 0.5);
+							.style("opacity", 0.35);
 						d3.selectAll(".minMax" + i).transition()
 							.duration(200)
 							.style("opacity", 0);
@@ -344,7 +344,7 @@ export default class Questions {
 				.attr("cx", (detail) => detail.posXs[i])
 				.attr("cy", (detail) => detail.posYs[i])
 				.style("fill", colors[i % colors.length])
-				.style("opacity", valuesNr > 1 ? 0.3 : 1);
+				.style("opacity", valuesNr > 1 ? 0.1 : 1);
 		}
 	}
 
