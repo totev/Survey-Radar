@@ -57,25 +57,25 @@
 
 	var _mainCtrl2 = _interopRequireDefault(_mainCtrl);
 
-	var _onChangeDirective = __webpack_require__(11);
+	var _onChangeDirective = __webpack_require__(10);
 
 	var _onChangeDirective2 = _interopRequireDefault(_onChangeDirective);
 
-	var _excelService = __webpack_require__(12);
+	var _excelService = __webpack_require__(11);
 
 	var _excelService2 = _interopRequireDefault(_excelService);
 
-	var _dataService = __webpack_require__(13);
+	var _dataService = __webpack_require__(12);
 
 	var _dataService2 = _interopRequireDefault(_dataService);
 
-	var _downloadService = __webpack_require__(14);
+	var _svgService = __webpack_require__(13);
 
-	var _downloadService2 = _interopRequireDefault(_downloadService);
+	var _svgService2 = _interopRequireDefault(_svgService);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	angular.module('radarApp', ['colorpicker.module', _onChangeDirective2.default, _excelService2.default, _dataService2.default, _downloadService2.default]).controller('MainCtrl', _mainCtrl2.default);
+	angular.module('radarApp', ['colorpicker.module', _onChangeDirective2.default, _excelService2.default, _dataService2.default, _svgService2.default]).controller('MainCtrl', _mainCtrl2.default);
 
 /***/ },
 /* 2 */
@@ -94,7 +94,7 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var MainCtrl = function () {
-	    function MainCtrl($scope, $timeout, excelService, dataService, downloadService) {
+	    function MainCtrl($scope, $timeout, excelService, dataService, svgService) {
 	        var _this = this;
 
 	        _classCallCheck(this, MainCtrl);
@@ -112,7 +112,7 @@
 	        this.$timeout = $timeout;
 	        this.excelService = excelService;
 	        this.dataService = dataService;
-	        this.downloadService = downloadService;
+	        this.downloadService = svgService;
 	    }
 
 	    _createClass(MainCtrl, [{
@@ -211,6 +211,11 @@
 	        value: function downloadSVG(svgContainerId) {
 	            this.downloadService.downloadSVG(svgContainerId);
 	        }
+	    }, {
+	        key: 'downloadDataConfig',
+	        value: function downloadDataConfig() {
+	            this.downloadService.downloadDataConfig(this.mainCats);
+	        }
 	    }]);
 
 	    return MainCtrl;
@@ -219,843 +224,7 @@
 	exports.default = MainCtrl;
 
 
-	MainCtrl.mainCats = [{
-	    mainCat: "PERFORMANCE",
-	    color: "rgba(59, 128, 62, 1)",
-	    subCats: [{
-	        title: "Confidence",
-	        color: "rgba(59, 128, 62, 0.7)",
-	        value: 0.6,
-	        questions: [{
-	            title: "Product\nOwner",
-	            color: "rgba(59, 128, 62, 0.7)",
-	            value: 0.4,
-	            details: [{
-	                title: "asd1",
-	                value: 0.111
-	            }, {
-	                title: "asd2",
-	                value: 0.444
-	            }, {
-	                title: "asd3",
-	                value: 0.222
-	            }, {
-	                title: "asd4",
-	                value: 0.888
-	            }, {
-	                title: "asd5",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Team",
-	            color: "rgba(59, 128, 62, 0.7)",
-	            value: 0.4,
-	            details: [{
-	                title: "bsd1",
-	                value: 0.555
-	            }, {
-	                title: "bsd2",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Stakeholder",
-	            color: "rgba(59, 128, 62, 0.7)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.666
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }, {
-	        title: "Measurements",
-	        color: "rgba(59, 128, 62, 0.9)",
-	        value: 0.3,
-	        questions: [{
-	            title: "Predictable\nVelocity",
-	            color: "rgba(59, 128, 62, 0.9)",
-	            value: 0.3,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Time to\nMarket",
-	            color: "rgba(59, 128, 62, 0.9)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Value\nDelivered",
-	            color: "rgba(59, 128, 62, 0.9)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Quality",
-	            color: "rgba(59, 128, 62, 0.9)",
-	            value: 0.9,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Response\nto Change",
-	            color: "rgba(59, 128, 62, 0.9)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }]
-	}, {
-	    mainCat: "LEADERSHIP",
-	    color: "rgba(90, 80, 140, 1)",
-	    subCats: [{
-	        title: "Mgmt.",
-	        color: "rgba(90, 80, 140, 0.5)",
-	        value: 0.6,
-	        questions: [{
-	            title: "Process\nImprovement",
-	            color: "rgba(90, 80, 140, 0.5)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "People\nDevelopment",
-	            color: "rgba(90, 80, 140, 0.5)",
-	            value: 0.8,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Servant\nLeadership",
-	            color: "rgba(90, 80, 140, 0.5)",
-	            value: 0.8,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }, {
-	        title: "Product\nOwner",
-	        color: "rgba(90, 80, 140, 0.8)",
-	        value: 0.7,
-	        questions: [{
-	            title: "Leadership",
-	            color: "rgba(90, 80, 140, 0.8)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Backlog\nMgmt.",
-	            color: "rgba(90, 80, 140, 0.8)",
-	            value: 0.8,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Engagement",
-	            color: "rgba(90, 80, 140, 0.8)",
-	            value: 0.8,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }, {
-	        title: "Technical\nLead(s)",
-	        color: "rgba(90, 80, 140, 0.6)",
-	        value: 0.2,
-	        questions: [{
-	            title: "Technical\nLeadership",
-	            color: "rgba(90, 80, 140, 0.6)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Servant\nLeadership",
-	            color: "rgba(90, 80, 140, 0.6)",
-	            value: 0.8,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }, {
-	        title: "Team\nFacilitator",
-	        color: "rgba(90, 80, 140, 0.9)",
-	        value: 0.6,
-	        questions: [{
-	            title: "Impediment\nMgmt.",
-	            color: "rgba(90, 80, 140, 0.9)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Servant\nLeadership",
-	            color: "rgba(90, 80, 140, 0.9)",
-	            value: 0.8,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Effective\nFacilitation",
-	            color: "rgba(90, 80, 140, 0.9)",
-	            value: 0.8,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }]
-	}, {
-	    mainCat: "CULTURE",
-	    color: "rgba(181, 48, 60, 1)",
-	    subCats: [{
-	        title: "Team Dynamics",
-	        color: "rgba(181, 48, 60, 0.9)",
-	        value: 0.3,
-	        questions: [{
-	            title: "Accountability",
-	            color: "rgba(181, 48, 60, 0.9)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Creativity",
-	            color: "rgba(181, 48, 60, 0.9)",
-	            value: 0.2,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Trust\n& Respect",
-	            color: "rgba(181, 48, 60, 0.9)",
-	            value: 0.2,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Collaboration",
-	            color: "rgba(181, 48, 60, 0.9)",
-	            value: 0.2,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Happiness",
-	            color: "rgba(181, 48, 60, 0.9)",
-	            value: 0.2,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }]
-	}, {
-	    mainCat: "FOUNDATION",
-	    color: "rgba(27, 86, 166, 1)",
-	    subCats: [{
-	        title: "Agility",
-	        color: "rgba(27, 86, 166, 0.4)",
-	        value: 0.6,
-	        questions: [{
-	            title: "Effective\nMeetings",
-	            color: "rgba(27, 86, 166, 0.4)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Planning\n& Estimating",
-	            color: "rgba(27, 86, 166, 0.4)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Technical\nExcellence",
-	            color: "rgba(27, 86, 166, 0.4)",
-	            value: 0.8,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Self\nOrganization",
-	            color: "rgba(27, 86, 166, 0.4)",
-	            value: 0.2,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Sustainable\nPace",
-	            color: "rgba(27, 86, 166, 0.4)",
-	            value: 0.2,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }, {
-	        title: "Team\nStructure",
-	        color: "rgba(27, 86, 166, 0.8)",
-	        value: 0.3,
-	        questions: [{
-	            title: "Size\n& Skills",
-	            color: "rgba(27, 86, 166, 0.8)",
-	            value: 0.3,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Allocation\n& Stability",
-	            color: "rgba(27, 86, 166, 0.8)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Environment",
-	            color: "rgba(27, 86, 166, 0.8)",
-	            value: 0.2,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }]
-	}, {
-	    mainCat: "CLARITY",
-	    color: "#d0593d",
-	    subCats: [{
-	        title: "Vision",
-	        color: "rgba(208, 89, 61, 0.5)",
-	        value: 0.6,
-	        questions: [{
-	            title: "Vision\n& Purpose",
-	            color: "rgba(208, 89, 61, 0.5)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Measure\nof Success",
-	            color: "rgba(208, 89, 61, 0.5)",
-	            value: 0.8,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }, {
-	        title: "Planning",
-	        color: "rgba(208, 89, 61, 0.9)",
-	        value: 0.3,
-	        questions: [{
-	            title: "Roadmap",
-	            color: "rgba(208, 89, 61, 0.9)",
-	            value: 0.3,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Release Plan",
-	            color: "rgba(208, 89, 61, 0.9)",
-	            value: 0.4,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }, {
-	            title: "Iteration Plan",
-	            color: "rgba(208, 89, 61, 0.9)",
-	            value: 0.2,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }, {
-	        title: "Roles",
-	        color: "rgba(208, 89, 61, 0.7)",
-	        value: 0.3,
-	        questions: [{
-	            title: "Roles",
-	            color: "rgba(208, 89, 61, 0.7)",
-	            value: null,
-	            details: []
-	        }, {
-	            title: "Generalizing\nSpecialists",
-	            color: "rgba(208, 89, 61, 0.7)",
-	            value: 0.99,
-	            details: [{
-	                title: "",
-	                value: 0.111
-	            }, {
-	                title: "",
-	                value: 0.444
-	            }, {
-	                title: "",
-	                value: 0.222
-	            }, {
-	                title: "",
-	                value: 0.888
-	            }, {
-	                title: "",
-	                value: 0.333
-	            }]
-	        }]
-	    }]
-	}];
+	MainCtrl.mainCats = [];
 
 /***/ },
 /* 3 */
@@ -1068,11 +237,11 @@
 	});
 	exports.Radar2 = exports.Radar1 = undefined;
 
-	var _radar = __webpack_require__(5);
+	var _radar = __webpack_require__(4);
 
 	var _radar2 = _interopRequireDefault(_radar);
 
-	var _radar3 = __webpack_require__(10);
+	var _radar3 = __webpack_require__(9);
 
 	var _radar4 = _interopRequireDefault(_radar3);
 
@@ -1082,8 +251,7 @@
 	var Radar2 = exports.Radar2 = _radar4.default;
 
 /***/ },
-/* 4 */,
-/* 5 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1094,19 +262,19 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _mainCategories = __webpack_require__(6);
+	var _mainCategories = __webpack_require__(5);
 
 	var _mainCategories2 = _interopRequireDefault(_mainCategories);
 
-	var _subCategories = __webpack_require__(7);
+	var _subCategories = __webpack_require__(6);
 
 	var _subCategories2 = _interopRequireDefault(_subCategories);
 
-	var _questions = __webpack_require__(8);
+	var _questions = __webpack_require__(7);
 
 	var _questions2 = _interopRequireDefault(_questions);
 
-	var _circles = __webpack_require__(9);
+	var _circles = __webpack_require__(8);
 
 	var _circles2 = _interopRequireDefault(_circles);
 
@@ -1325,7 +493,7 @@
 	}];
 
 /***/ },
-/* 6 */
+/* 5 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1553,7 +721,7 @@
 	exports.default = MainCategories;
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1795,7 +963,7 @@
 	exports.default = SubCategories;
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2236,18 +1404,52 @@
 
 				var pixel = this.cfg.pixel,
 				    colors = this.cfg.avgLineColors;
-				var valuesNr = this.valuesNr;
+				var valuesNr = this.valuesNr,
+				    fontSize = this.tooltipFontSize;
 
 				var _loop2 = function _loop2(i) {
 					var details = question.details.filter(function (detail) {
 						return !isNaN(detail.posXs[i]) && !isNaN(detail.posYs[i]);
 					});
+					var _iteratorNormalCompletion6 = true;
+					var _didIteratorError6 = false;
+					var _iteratorError6 = undefined;
 
-					_this5.g.selectAll(".detailNodes").data(details).enter().append("svg:circle").attr("class", "detailNodes" + i).attr('r', pixel * 2 + "px").attr("cx", function (detail) {
-						return detail.posXs[i];
-					}).attr("cy", function (detail) {
-						return detail.posYs[i];
-					}).style("fill", colors[i % colors.length]).style("opacity", valuesNr > 1 ? 0.1 : 1);
+					try {
+						var _loop3 = function _loop3() {
+							var detail = _step6.value;
+
+							var div = d3.select("#tooltipBin").append("div").html(detail.title).attr("class", "tooltip").style("font-size", fontSize * 1.5 + "px").style("opacity", 0).style("border-color", colors[i % colors.length]);
+
+							_this5.g.append("svg:circle").attr("class", "detailNodes" + i).attr('r', pixel * 2 + "px").attr("cx", detail.posXs[i]).attr("cy", detail.posYs[i]).style("fill", colors[i % colors.length]).style("opacity", valuesNr > 1 ? 0.1 : 1).on("mouseover", function () {
+								d3.select(this).transition().duration(200).attr("opacity", 1); //TODO does not work
+								div.transition().duration(200).style("opacity", .9);
+								div.style("left", d3.event.pageX + 10 + "px").style("top", d3.event.pageY + "px");
+							}).on("mouseout", function () {
+								if (valuesNr === 1 || d3.select("#questionButton" + i).attr("active") === "true") {
+									d3.select(this).attr("opacity", 0.1);
+								}
+								div.transition().duration(500).style("opacity", 0);
+							});
+						};
+
+						for (var _iterator6 = details[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+							_loop3();
+						}
+					} catch (err) {
+						_didIteratorError6 = true;
+						_iteratorError6 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion6 && _iterator6.return) {
+								_iterator6.return();
+							}
+						} finally {
+							if (_didIteratorError6) {
+								throw _iteratorError6;
+							}
+						}
+					}
 				};
 
 				for (var i = 0; i < this.valuesNr; i++) {
@@ -2257,29 +1459,29 @@
 		}, {
 			key: "renderMinMaxs",
 			value: function renderMinMaxs() {
-				var _iteratorNormalCompletion6 = true;
-				var _didIteratorError6 = false;
-				var _iteratorError6 = undefined;
+				var _iteratorNormalCompletion7 = true;
+				var _didIteratorError7 = false;
+				var _iteratorError7 = undefined;
 
 				try {
-					for (var _iterator6 = this.questions[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-						var question = _step6.value;
+					for (var _iterator7 = this.questions[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+						var question = _step7.value;
 
 						if (question.details.length > 0) {
 							this.renderMinMax(question);
 						}
 					}
 				} catch (err) {
-					_didIteratorError6 = true;
-					_iteratorError6 = err;
+					_didIteratorError7 = true;
+					_iteratorError7 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion6 && _iterator6.return) {
-							_iterator6.return();
+						if (!_iteratorNormalCompletion7 && _iterator7.return) {
+							_iterator7.return();
 						}
 					} finally {
-						if (_didIteratorError6) {
-							throw _iteratorError6;
+						if (_didIteratorError7) {
+							throw _iteratorError7;
 						}
 					}
 				}
@@ -2311,7 +1513,7 @@
 				    colors = this.cfg.avgLineColors;
 				var self = this;
 
-				var _loop3 = function _loop3(i) {
+				var _loop4 = function _loop4(i) {
 					_this6.g.append("rect").attr("id", "questionButton" + i).attr("x", 10).attr("y", 10 + pixel * 20 * i).attr("width", pixel * 20).attr("height", pixel * 15).attr("fill", colors[i % colors.length]).attr("active", false).attr("opacity", 0.5).on("click", function () {
 						var el = d3.select(this);
 						var active = el.attr("active") === "true";
@@ -2331,7 +1533,7 @@
 				};
 
 				for (var i = 0; i < this.valuesNr; i++) {
-					_loop3(i);
+					_loop4(i);
 				}
 			}
 		}, {
@@ -2349,7 +1551,7 @@
 	exports.default = Questions;
 
 /***/ },
-/* 9 */
+/* 8 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2494,7 +1696,7 @@
 	exports.default = Circles;
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2505,19 +1707,19 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _mainCategories = __webpack_require__(6);
+	var _mainCategories = __webpack_require__(5);
 
 	var _mainCategories2 = _interopRequireDefault(_mainCategories);
 
-	var _subCategories = __webpack_require__(7);
+	var _subCategories = __webpack_require__(6);
 
 	var _subCategories2 = _interopRequireDefault(_subCategories);
 
-	var _questions = __webpack_require__(8);
+	var _questions = __webpack_require__(7);
 
 	var _questions2 = _interopRequireDefault(_questions);
 
-	var _circles = __webpack_require__(9);
+	var _circles = __webpack_require__(8);
 
 	var _circles2 = _interopRequireDefault(_circles);
 
@@ -2746,7 +1948,7 @@
 	}];
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2768,7 +1970,7 @@
 	exports.default = angular.module('directives.customOnChange', []).directive('customOnChange', customOnChange).name;
 
 /***/ },
-/* 12 */
+/* 11 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3007,7 +2209,7 @@
 	exports.default = angular.module('services.excel-service', []).service('excelService', ExcelService).name;
 
 /***/ },
-/* 13 */
+/* 12 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3274,7 +2476,7 @@
 	exports.default = angular.module('services.data-service', []).service('dataService', DataService).name;
 
 /***/ },
-/* 14 */
+/* 13 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3291,15 +2493,15 @@
 	 * Based on https://github.com/NYTimes/svg-crowbar
 	 */
 
-	var DownloadService = function () {
-	    function DownloadService($window, $timeout) {
-	        _classCallCheck(this, DownloadService);
+	var SVGService = function () {
+	    function SVGService($window, $timeout) {
+	        _classCallCheck(this, SVGService);
 
 	        this.$window = $window;
 	        this.$timeout = $timeout;
 	    }
 
-	    _createClass(DownloadService, [{
+	    _createClass(SVGService, [{
 	        key: "downloadSVG",
 	        value: function downloadSVG(svgContainerId) {
 	            var _this = this;
@@ -3409,10 +2611,10 @@
 	        }
 	    }]);
 
-	    return DownloadService;
+	    return SVGService;
 	}();
 
-	exports.default = angular.module('services.download-service', []).service('downloadService', DownloadService).name;
+	exports.default = angular.module('services.svg-service', []).service('svgService', SVGService).name;
 
 /***/ }
 /******/ ]);

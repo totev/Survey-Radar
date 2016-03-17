@@ -1,7 +1,7 @@
 /**
  * Based on https://github.com/NYTimes/svg-crowbar
  */
-class DownloadService {
+class SVGService {
     constructor($window, $timeout) {
         this.$window = $window;
         this.$timeout = $timeout;
@@ -104,6 +104,6 @@ class DownloadService {
     }
 }
 
-export default angular.module('services.download-service', [])
-                      .service('downloadService', DownloadService)
+export default angular.module('services.svg-service', [])
+                      .service('svgService', SVGService)
                       .name;
