@@ -89,7 +89,7 @@
 				<tr>
 					<td>
 						<span class="btn btn-sm btn-primary btn-file">
-							Load Excel sheet<input type="file" ng-model="filename" custom-on-change="m.handleFile" />
+							Load Excel sheet<input type="file" ng-model="filename" custom-on-change="m.handleWorkbook" />
 						</span>
 					</td>
 					<td colspan="4">
@@ -143,129 +143,137 @@
 					</td>
 				</tr>
 			</table>
-			<table id="config-table" class="table table-condensed text-right" ng-hide="m.mainCats === undefined">
-				<tr>
-					<td class="form-inline">
-						Diagram width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.w" min="100" step="10" /> <div class="input-group-addon">px</div></div>
-					</td>
-					<td class="form-inline">
-						Diagram height: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.h" min="100" step="10" /> <div class="input-group-addon">px</div></div>
-					</td>
-				</tr>
-				<tr>
-					<td class="form-inline">
-						Turn text threshold: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.turnTextThresholds[0]" min="0" max="1" step="0.05" /> <div class="input-group-addon">/1</div></div> - <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.turnTextThresholds[1]" min="0" max="1" step="0.05" /> <div class="input-group-addon">/1</div></div>
-					</td>
-					<td class="form-inline">
-						Background opacity: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.backgroundOpacity" min="0" max="1" step="0.05" /> <div class="input-group-addon">/1</div></div>
-					</td>
-				</tr>
-				<tr>
-					<td class="form-inline">
-						Main category letter spacing: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.mainCatLetterSpacing" min="0" step="1" /> <div class="input-group-addon">x</div></div>
-					</td>
-					<td class="form-inline">
-						Center dot size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.centerDotSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
-					</td>
-				</tr>
-				<tr>
-					<td class="form-inline">
-						Main category font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.mainCatFontSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
-					</td>
-					<td class="form-inline">
-						Subcategory font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.subCatFontSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
-					</td>
-				</tr>
-				<tr>
-					<td class="form-inline">
-						Question font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.questionFontSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
-					</td>
-					<td class="form-inline">
-						Tooltip font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.tooltipFontSize" min="0" step="1" /> <div class="input-group-addon">x</div></div>
-					</td>
-				</tr>
-				<tr>
-					<td class="form-inline">
-						Legend dots size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.legendDotPct" min="0" max="1" step="0.001" /> <div class="input-group-addon">/1</div></div>
-					</td>
-					<td class="form-inline">
-						Main category divider width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.mainCatLineWidth" min="0" step="0.5" /> <div class="input-group-addon">x</div></div>
-					</td>
-				</tr>
-				<tr>
-					<td class="form-inline">
-						Subcategory divider width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.subCatLineWidth" min="0" step="0.5" /> <div class="input-group-addon">x</div></div>
-					</td>
-					<td class="form-inline">
-						Question divider width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.questionLineWidth" min="0" step="0.5" /> <div class="input-group-addon">x</div></div>
-					</td>
-				</tr>
-				<tr>
-					<td class="form-inline">
-						<div class="checkbox">
-							<label> Show main category value: <input type="checkbox" ng-model="m.cfg.showMainCatValues" /></label>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td class="form-inline">
-						Min-max color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="m.cfg.minMaxColor" />
-					</td>
-					<td class="form-inline">
-						Average line color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="m.cfg.avgLineColor" />
-					</td>
-				</tr>
-				<tr>
-					<td class="form-inline text-center" colspan="2">
-						<button class="btn btn-sm btn-primary" ng-click="m.render()">Rerender</button>
-						<button class="btn btn-sm btn-default" ng-click="m.reset()">Reset to default</button>
-					</td>
-				</tr>
-			</table>
-
-			<ul id="tree1">
-				<li ng-repeat="mainCat in m.mainCats" ng-init="mcIdx = $index + 1">
-					<div class="form-inline">
-						<em>{{mcIdx}}.</em>
-						<input type="text" ng-model="mainCat.mainCat" class="form-control input-sm" />
-						Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="mainCat.color" />
-						Value(s): {{mainCat.values}}
-					</div>
-					<ul>
-						<li ng-repeat="subCat in mainCat.subCats" ng-init="scIdx = $index + 1">
-							<div class="form-inline">
-								<em>{{mcIdx}}.{{scIdx}}</em>
-								<textarea ng-model="subCat.title" class="form-control input-sm"></textarea>
-								Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="subCat.color" />
-								Value(s): {{subCat.values}}
+			<div ng-hide="m.mainCats === undefined">
+				<table id="config-table" class="table table-condensed text-right">
+					<tr>
+						<td class="form-inline">
+							Diagram width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.w" min="100" step="10" /> <div class="input-group-addon">px</div></div>
+						</td>
+						<td class="form-inline">
+							Diagram height: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.h" min="100" step="10" /> <div class="input-group-addon">px</div></div>
+						</td>
+					</tr>
+					<tr>
+						<td class="form-inline">
+							Turn text threshold: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.turnTextThresholds[0]" min="0" max="1" step="0.05" /> <div class="input-group-addon">/1</div></div> - <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.turnTextThresholds[1]" min="0" max="1" step="0.05" /> <div class="input-group-addon">/1</div></div>
+						</td>
+						<td class="form-inline">
+							Background opacity: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.backgroundOpacity" min="0" max="1" step="0.05" /> <div class="input-group-addon">/1</div></div>
+						</td>
+					</tr>
+					<tr>
+						<td class="form-inline">
+							Main category letter spacing: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.mainCatLetterSpacing" min="0" step="1" /> <div class="input-group-addon">x</div></div>
+						</td>
+						<td class="form-inline">
+							Center dot size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.centerDotSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
+						</td>
+					</tr>
+					<tr>
+						<td class="form-inline">
+							Main category font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.mainCatFontSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
+						</td>
+						<td class="form-inline">
+							Subcategory font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.subCatFontSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
+						</td>
+					</tr>
+					<tr>
+						<td class="form-inline">
+							Question font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.questionFontSize" min="0" max="1" step="0.01" /> <div class="input-group-addon">/1</div></div>
+						</td>
+						<td class="form-inline">
+							Tooltip font size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.tooltipFontSize" min="0" step="1" /> <div class="input-group-addon">x</div></div>
+						</td>
+					</tr>
+					<tr>
+						<td class="form-inline">
+							Legend dots size: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.legendDotPct" min="0" max="1" step="0.001" /> <div class="input-group-addon">/1</div></div>
+						</td>
+						<td class="form-inline">
+							Main category divider width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.mainCatLineWidth" min="0" step="0.5" /> <div class="input-group-addon">x</div></div>
+						</td>
+					</tr>
+					<tr>
+						<td class="form-inline">
+							Subcategory divider width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.subCatLineWidth" min="0" step="0.5" /> <div class="input-group-addon">x</div></div>
+						</td>
+						<td class="form-inline">
+							Question divider width: <div class="input-group"><input type="number" class="form-control input-sm" ng-model="m.cfg.questionLineWidth" min="0" step="0.5" /> <div class="input-group-addon">x</div></div>
+						</td>
+					</tr>
+					<tr>
+						<td class="form-inline">
+							<div class="checkbox">
+								<label> Show main category value: <input type="checkbox" ng-model="m.cfg.showMainCatValues" /></label>
 							</div>
-							<ul>
-								<li ng-repeat="question in subCat.questions" ng-init="qIdx = $index + 1">
-									<div class="form-inline">
-										<em>{{mcIdx}}.{{scIdx}}.{{qIdx}}</em>
-										<textarea ng-model="question.title" class="form-control input-sm"></textarea>
-										Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="question.color" />
-										Value(s): {{question.values}}
-									</div>
-									<ul>
-										<li ng-repeat="detail in question.details" ng-init="dIdx = $index + 1">
-											<div class="form-inline">
-												<em>{{mcIdx}}.{{scIdx}}.{{qIdx}}.{{dIdx}}</em>
-												<input ng-model="detail.title" class="form-control input-sm" />
-												Value(s): {{detail.values}}
-											</div>
-										</li>
-									</ul>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</li>
-			</ul>
+						</td>
+					</tr>
+					<tr>
+						<td class="form-inline">
+							Min-max color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="m.cfg.minMaxColor" />
+						</td>
+						<td class="form-inline">
+							Average line color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="m.cfg.avgLineColor" />
+						</td>
+					</tr>
+					<tr>
+						<td class="form-inline text-center" colspan="2">
+							<button class="btn btn-sm btn-primary" ng-click="m.render()">Rerender</button>
+							<button class="btn btn-sm btn-default" ng-click="m.reset()">Reset to default</button>
+						</td>
+					</tr>
+				</table>
+
+				<div class="text-right">
+					<button class="btn btn-sm btn-default" ng-click="m.downloadDataConfig()">Save label changes</button>
+					<span class="btn btn-sm btn-primary btn-file">
+						Load label changes<input type="file" custom-on-change="m.handleDataConfig" />
+					</span>
+				</div>
+				<ul id="tree1">
+					<li ng-repeat="mainCat in m.mainCats" ng-init="mcIdx = $index + 1">
+						<div class="form-inline">
+							<em>{{mcIdx}}.</em>
+							<input type="text" ng-model="mainCat.mainCat" class="form-control input-sm" />
+							Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="mainCat.color" />
+							Value(s): {{mainCat.values}}
+						</div>
+						<ul>
+							<li ng-repeat="subCat in mainCat.subCats" ng-init="scIdx = $index + 1">
+								<div class="form-inline">
+									<em>{{mcIdx}}.{{scIdx}}</em>
+									<textarea ng-model="subCat.title" class="form-control input-sm"></textarea>
+									Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="subCat.color" />
+									Value(s): {{subCat.values}}
+								</div>
+								<ul>
+									<li ng-repeat="question in subCat.questions" ng-init="qIdx = $index + 1">
+										<div class="form-inline">
+											<em>{{mcIdx}}.{{scIdx}}.{{qIdx}}</em>
+											<textarea ng-model="question.title" class="form-control input-sm"></textarea>
+											Color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="question.color" />
+											Value(s): {{question.values}}
+										</div>
+										<ul>
+											<li ng-repeat="detail in question.details" ng-init="dIdx = $index + 1">
+												<div class="form-inline">
+													<em>{{mcIdx}}.{{scIdx}}.{{qIdx}}.{{dIdx}}</em>
+													<input ng-model="detail.title" class="form-control input-sm" />
+													Value(s): {{detail.values}}
+												</div>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
 		</div>
 		<div style="height:100%;overflow:scroll;">
 			<div>
-				TODO: Circles (colors, widths, types, heights respecting center dot?), <br />Extra averages and dots?, Dot colors?, Popups an den Dots? Legende!<br/>
+				TODO: Circles (colors, widths, types, heights respecting center dot?), <br />Dot colors, Legende?<br/>
 			</div>
 			<button id="download-svg" ng-click="m.downloadSVG('#surveyRadar1')" ng-show="m.mainCats !== undefined" class="btn btn-default">Download as SVG</button>
 			<div id="surveyRadar1" class="pull-left"></div>

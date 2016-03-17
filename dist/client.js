@@ -73,9 +73,13 @@
 
 	var _svgService2 = _interopRequireDefault(_svgService);
 
+	var _jsonService = __webpack_require__(14);
+
+	var _jsonService2 = _interopRequireDefault(_jsonService);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	angular.module('radarApp', ['colorpicker.module', _onChangeDirective2.default, _excelService2.default, _dataService2.default, _svgService2.default]).controller('MainCtrl', _mainCtrl2.default);
+	angular.module('radarApp', ['colorpicker.module', _onChangeDirective2.default, _excelService2.default, _dataService2.default, _svgService2.default, _jsonService2.default]).controller('MainCtrl', _mainCtrl2.default);
 
 /***/ },
 /* 2 */
@@ -94,7 +98,7 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var MainCtrl = function () {
-	    function MainCtrl($scope, $timeout, excelService, dataService, svgService) {
+	    function MainCtrl($scope, $timeout, excelService, dataService, svgService, jsonService) {
 	        var _this = this;
 
 	        _classCallCheck(this, MainCtrl);
@@ -112,7 +116,8 @@
 	        this.$timeout = $timeout;
 	        this.excelService = excelService;
 	        this.dataService = dataService;
-	        this.downloadService = svgService;
+	        this.svgService = svgService;
+	        this.jsonService = jsonService;
 	    }
 
 	    _createClass(MainCtrl, [{
@@ -175,8 +180,8 @@
 	        // File handling
 
 	    }, {
-	        key: 'handleFile',
-	        value: function handleFile(input, event) {
+	        key: 'handleWorkbook',
+	        value: function handleWorkbook(input, event) {
 	            var _this4 = this;
 
 	            if (input.files.length > 0) {
@@ -204,17 +209,29 @@
 	        key: 'parseMainCats',
 	        value: function parseMainCats(parseCfg) {
 	            var pw = this.excelService.detailParsing(this.parsedWorkbook, parseCfg.mainCatCol, parseCfg.subCatCol, parseCfg.questionCol, parseCfg.detailCol, parseCfg.valueCols);
-	            this.mainCats = this.dataService.prepareData(pw, parseCfg.maxScaleValue); // rerender triggered automatically by watcher
+	            this.originalData = this.dataService.prepareData(pw, parseCfg.maxScaleValue); // rerender triggered automatically by watcher
+	            this.mainCats = JSON.parse(JSON.stringify(this.originalData));
 	        }
 	    }, {
 	        key: 'downloadSVG',
 	        value: function downloadSVG(svgContainerId) {
-	            this.downloadService.downloadSVG(svgContainerId);
+	            this.svgService.downloadSVG(svgContainerId);
 	        }
 	    }, {
 	        key: 'downloadDataConfig',
 	        value: function downloadDataConfig() {
-	            this.downloadService.downloadDataConfig(this.mainCats);
+	            this.jsonService.downloadDataConfig(this.originalData, this.mainCats);
+	        }
+	    }, {
+	        key: 'handleDataConfig',
+	        value: function handleDataConfig(input, event) {
+	            var _this6 = this;
+
+	            this.jsonService.handleFile(event).then(function (dataConfig) {
+	                _this6.jsonService.merge(_this6.mainCats, dataConfig);
+	            }, function (exception) {
+	                return console.error('fail', exception);
+	            });
 	        }
 	    }]);
 
@@ -2615,6 +2632,142 @@
 	}();
 
 	exports.default = angular.module('services.svg-service', []).service('svgService', SVGService).name;
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var JSONService = function () {
+	    function JSONService($window, $timeout, $q) {
+	        _classCallCheck(this, JSONService);
+
+	        this.$window = $window;
+	        this.$timeout = $timeout;
+	        this.$q = $q;
+	    }
+
+	    _createClass(JSONService, [{
+	        key: "downloadDataConfig",
+	        value: function downloadDataConfig(originalData, editedData) {
+	            var diff = this.assertDiff(originalData, editedData);
+
+	            var url = this.$window.URL.createObjectURL(new Blob([JSON.stringify(diff)], { "type": "application/json" }));
+
+	            var a = this.$window.document.createElement("a");
+	            body.appendChild(a);
+	            a.setAttribute("download", "dataConfig.json");
+	            a.setAttribute("href", url);
+	            a.style["display"] = "none";
+	            a.click();
+
+	            var self = this;
+	            this.$timeout(function () {
+	                return self.$window.URL.revokeObjectURL(url);
+	            }, 10);
+	        }
+	    }, {
+	        key: "assertDiff",
+	        value: function assertDiff(originalData, editedData) {
+	            var mainCatDiff = {},
+	                subCatDiff = {},
+	                questionDiff = {},
+	                detailDiff = {};
+
+	            editedData.forEach(function (mainCat, idx) {
+	                var origMainCat = originalData[idx];
+	                if (mainCat.mainCat !== origMainCat.mainCat) {
+	                    mainCatDiff[origMainCat.mainCat] = mainCat.mainCat;
+	                }
+	                mainCat.subCats.forEach(function (subCat, idx) {
+	                    var origSubCat = origMainCat.subCats[idx];
+	                    if (subCat.title !== origSubCat.title) {
+	                        subCatDiff[origSubCat.title] = subCat.title;
+	                    }
+	                    subCat.questions.forEach(function (question, idx) {
+	                        var origQuestion = origSubCat.questions[idx];
+	                        if (question.title !== origQuestion.title) {
+	                            questionDiff[origQuestion.title] = question.title;
+	                        }
+	                        question.details.forEach(function (detail, idx) {
+	                            var origDetail = origQuestion.details[idx];
+	                            if (detail.title !== origDetail.title) {
+	                                detailDiff[origDetail.title] = detail.title;
+	                            }
+	                        });
+	                    });
+	                });
+	            });
+
+	            return { mainCats: mainCatDiff, subCats: subCatDiff, questions: questionDiff, details: detailDiff };
+	        }
+	    }, {
+	        key: "handleFile",
+	        value: function handleFile(e) {
+	            var deferred = this.$q.defer();
+
+	            try {
+	                var files = e.target.files;
+
+	                var f = files[0];
+	                var reader = new FileReader();
+
+	                reader.onload = function (e) {
+	                    try {
+	                        var data = e.target.result;
+	                        var dataConfig = JSON.parse(data);
+	                        deferred.resolve(dataConfig);
+	                    } catch (exception) {
+	                        deferred.reject(exception);
+	                    }
+	                };
+	                reader.readAsBinaryString(f);
+	            } catch (exception) {
+	                deferred.reject(exception);
+	            }
+
+	            return deferred.promise;
+	        }
+	    }, {
+	        key: "merge",
+	        value: function merge(currentData, _ref) {
+	            var mainCats = _ref.mainCats;
+	            var subCats = _ref.subCats;
+	            var questions = _ref.questions;
+	            var details = _ref.details;
+
+	            currentData.forEach(function (mainCat) {
+	                var changedMainCat = mainCats[mainCat.mainCat];
+	                if (changedMainCat !== undefined) mainCat.mainCat = changedMainCat;
+	                mainCat.subCats.forEach(function (subCat) {
+	                    var changedSubCat = subCats[subCat.title];
+	                    if (changedSubCat !== undefined) subCat.title = changedSubCat;
+	                    subCat.questions.forEach(function (question) {
+	                        var changedQuestion = questions[question.title];
+	                        if (changedQuestion !== undefined) question.title = changedQuestion;
+	                        question.details.forEach(function (detail) {
+	                            var changedDetail = details[detail.title];
+	                            if (changedDetail !== undefined) detail.title = changedDetail;
+	                        });
+	                    });
+	                });
+	            });
+	        }
+	    }]);
+
+	    return JSONService;
+	}();
+
+	exports.default = angular.module('services.json-service', []).service('jsonService', JSONService).name;
 
 /***/ }
 /******/ ]);

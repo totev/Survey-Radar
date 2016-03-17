@@ -1,7 +1,7 @@
 import {Radar1, Radar2} from './../radarLib/index.js'
 
 export default class MainCtrl {
-    constructor($scope, $timeout, excelService, dataService, svgService) {
+    constructor($scope, $timeout, excelService, dataService, svgService, jsonService) {
         this.cfg = Radar2.cfg;
 
         $scope.$watch(() => this.cfg, this.configWatcher.bind(this), true);
@@ -11,7 +11,8 @@ export default class MainCtrl {
         this.$timeout = $timeout;
         this.excelService = excelService;
         this.dataService = dataService;
-        this.downloadService = svgService;
+        this.svgService = svgService;
+        this.jsonService = jsonService;
     }
 
     render(mainCats = this.mainCats) {
@@ -63,7 +64,7 @@ export default class MainCtrl {
 
     // File handling
 
-    handleFile(input, event) {
+    handleWorkbook(input, event) {
         if(input.files.length > 0) {
             this.selectedFile = input.files[0];
         }
@@ -84,15 +85,25 @@ export default class MainCtrl {
 
     parseMainCats(parseCfg) {
         let pw = this.excelService.detailParsing(this.parsedWorkbook, parseCfg.mainCatCol, parseCfg.subCatCol, parseCfg.questionCol, parseCfg.detailCol, parseCfg.valueCols);
-        this.mainCats = this.dataService.prepareData(pw, parseCfg.maxScaleValue); // rerender triggered automatically by watcher
+        this.originalData = this.dataService.prepareData(pw, parseCfg.maxScaleValue); // rerender triggered automatically by watcher
+        this.mainCats = JSON.parse(JSON.stringify(this.originalData))
     }
 
     downloadSVG(svgContainerId) {
-        this.downloadService.downloadSVG(svgContainerId);
+        this.svgService.downloadSVG(svgContainerId);
     }
 
     downloadDataConfig() {
-        this.downloadService.downloadDataConfig(this.mainCats);
+        this.jsonService.downloadDataConfig(this.originalData, this.mainCats);
+    }
+
+    handleDataConfig(input, event) {
+        this.jsonService.handleFile(event).then(
+            (dataConfig) => {
+                this.jsonService.merge(this.mainCats, dataConfig);
+            },
+            (exception) => console.error('fail', exception)
+        );
     }
 }
 
