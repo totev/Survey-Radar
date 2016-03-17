@@ -220,6 +220,10 @@
 						<td class="form-inline text-center" colspan="2">
 							<button class="btn btn-sm btn-primary" ng-click="m.render()">Rerender</button>
 							<button class="btn btn-sm btn-default" ng-click="m.reset()">Reset to default</button>
+							<button class="btn btn-sm btn-primary" ng-click="m.exportConfig()">Save configuration</button>
+							<span class="btn btn-sm btn-default btn-file">
+								Load configuration<input type="file" custom-on-change="m.importConfig" />
+							</span>
 						</td>
 					</tr>
 				</table>

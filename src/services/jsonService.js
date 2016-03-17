@@ -6,13 +6,19 @@ class JSONService {
     }
 
     downloadDataConfig(originalData, editedData) {
-        let diff = this.assertDiff(originalData, editedData);
+        this.downloadJSON(this.assertDiff(originalData, editedData), 'dataConfig');
+    }
 
-        let url = this.$window.URL.createObjectURL(new Blob([JSON.stringify(diff)], { "type" : "application/json" }));
+    downloadConfig(cfg) {
+        this.downloadJSON(cfg, 'config');
+    }
+
+    downloadJSON(obj, name) {
+        let url = this.$window.URL.createObjectURL(new Blob([JSON.stringify(obj)], { "type" : "application/json" }));
 
         let a = this.$window.document.createElement("a");
         body.appendChild(a);
-        a.setAttribute("download", "dataConfig.json");
+        a.setAttribute("download", name + ".json");
         a.setAttribute("href", url);
         a.style["display"] = "none";
         a.click();

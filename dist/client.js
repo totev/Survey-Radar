@@ -232,6 +232,22 @@
 	                return console.error('fail', exception);
 	            });
 	        }
+	    }, {
+	        key: 'exportConfig',
+	        value: function exportConfig() {
+	            this.jsonService.downloadConfig(this.cfg);
+	        }
+	    }, {
+	        key: 'importConfig',
+	        value: function importConfig() {
+	            var _this7 = this;
+
+	            this.jsonService.handleFile(event).then(function (cfg) {
+	                _this7.cfg = cfg;
+	            }, function (exception) {
+	                return console.error('fail', exception);
+	            });
+	        }
 	    }]);
 
 	    return MainCtrl;
@@ -2636,7 +2652,7 @@
 /* 14 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -2656,15 +2672,23 @@
 	    }
 
 	    _createClass(JSONService, [{
-	        key: "downloadDataConfig",
+	        key: 'downloadDataConfig',
 	        value: function downloadDataConfig(originalData, editedData) {
-	            var diff = this.assertDiff(originalData, editedData);
-
-	            var url = this.$window.URL.createObjectURL(new Blob([JSON.stringify(diff)], { "type": "application/json" }));
+	            this.downloadJSON(this.assertDiff(originalData, editedData), 'dataConfig');
+	        }
+	    }, {
+	        key: 'downloadConfig',
+	        value: function downloadConfig(cfg) {
+	            this.downloadJSON(cfg, 'config');
+	        }
+	    }, {
+	        key: 'downloadJSON',
+	        value: function downloadJSON(obj, name) {
+	            var url = this.$window.URL.createObjectURL(new Blob([JSON.stringify(obj)], { "type": "application/json" }));
 
 	            var a = this.$window.document.createElement("a");
 	            body.appendChild(a);
-	            a.setAttribute("download", "dataConfig.json");
+	            a.setAttribute("download", name + ".json");
 	            a.setAttribute("href", url);
 	            a.style["display"] = "none";
 	            a.click();
@@ -2675,7 +2699,7 @@
 	            }, 10);
 	        }
 	    }, {
-	        key: "assertDiff",
+	        key: 'assertDiff',
 	        value: function assertDiff(originalData, editedData) {
 	            var mainCatDiff = {},
 	                subCatDiff = {},
@@ -2710,7 +2734,7 @@
 	            return { mainCats: mainCatDiff, subCats: subCatDiff, questions: questionDiff, details: detailDiff };
 	        }
 	    }, {
-	        key: "handleFile",
+	        key: 'handleFile',
 	        value: function handleFile(e) {
 	            var deferred = this.$q.defer();
 
@@ -2737,7 +2761,7 @@
 	            return deferred.promise;
 	        }
 	    }, {
-	        key: "merge",
+	        key: 'merge',
 	        value: function merge(currentData, _ref) {
 	            var mainCats = _ref.mainCats;
 	            var subCats = _ref.subCats;

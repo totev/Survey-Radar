@@ -104,6 +104,19 @@ export default class MainCtrl {
             (exception) => console.error('fail', exception)
         );
     }
+
+    exportConfig() {
+        this.jsonService.downloadConfig(this.cfg);
+    }
+
+    importConfig() {
+        this.jsonService.handleFile(event).then(
+            (cfg) => {
+                this.cfg = cfg;
+            },
+            (exception) => console.error('fail', exception)
+        );
+    }
 }
 
 MainCtrl.mainCats = [];
