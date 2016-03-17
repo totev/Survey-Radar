@@ -200,12 +200,12 @@ export default class Questions {
 					    .style("border-color", question.color);
 
 
-			foreground.on("mouseover", () => {		
-		            div.transition()		
-		               .duration(200)		
-		               .style("opacity", .9);		
-		            div.style("left", (d3.event.pageX + 10) + "px")		
-		               .style("top", (d3.event.pageY) + "px");	
+			foreground.on("mouseover", () => {
+		            div.transition()
+		               .duration(200)
+		               .style("opacity", .9);
+		            div.style("left", (d3.event.pageX + 10) + "px")
+		               .style("top", (d3.event.pageY) + "px");
 	            })
 	            .on("mousemove", () => {			
 		            div.style("left", (d3.event.pageX + 10) + "px")		
@@ -316,20 +316,41 @@ export default class Questions {
 	renderQuestionDetails(question) {
 		let pixel = this.cfg.pixel,
 			colors = this.cfg.avgLineColors;
-		let valuesNr = this.valuesNr;
+		let valuesNr = this.valuesNr,
+			fontSize = this.tooltipFontSize;
 
-		for(let i=0; i < this.valuesNr; i++) {
+		for (let i = 0; i < this.valuesNr; i++) {
 			let details = question.details.filter((detail) => !isNaN(detail.posXs[i]) && !isNaN(detail.posYs[i]));
+			for(let detail of details) {
+				let div = d3.select("#tooltipBin").append("div")
+					.html(detail.title)
+					.attr("class", "tooltip")
+					.style("font-size", fontSize * 1.5 + "px")
+					.style("opacity", 0)
+					.style("border-color", colors[i % colors.length]);
 
-			this.g.selectAll(".detailNodes")
-				.data(details).enter()
-				.append("svg:circle")
-				.attr("class", "detailNodes" + i)
-				.attr('r', (pixel * 2) + "px")
-				.attr("cx", (detail) => detail.posXs[i])
-				.attr("cy", (detail) => detail.posYs[i])
-				.style("fill", colors[i % colors.length])
-				.style("opacity", valuesNr > 1 ? 0.1 : 1);
+				this.g.append("svg:circle")
+					.attr("class", "detailNodes" + i)
+					.attr('r', (pixel * 2) + "px")
+					.attr("cx", detail.posXs[i])
+					.attr("cy", detail.posYs[i])
+					.style("fill", colors[i % colors.length])
+					.style("opacity", valuesNr > 1 ? 0.1 : 1)
+					.on("mouseover", function() {
+						d3.select(this).transition().duration(200).attr("opacity", 1); //TODO does not work
+						div.transition()
+							.duration(200)
+							.style("opacity", .9);
+						div.style("left", (d3.event.pageX + 10) + "px")
+							.style("top", (d3.event.pageY) + "px");
+					})
+					.on("mouseout", function() {
+						if(valuesNr === 1 || d3.select("#questionButton" + i).attr("active") === "true") {
+							d3.select(this).attr("opacity", 0.1);
+						}
+						div.transition().duration(500).style("opacity", 0);
+					});
+			}
 		}
 	}
 

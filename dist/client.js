@@ -1404,18 +1404,52 @@
 
 				var pixel = this.cfg.pixel,
 				    colors = this.cfg.avgLineColors;
-				var valuesNr = this.valuesNr;
+				var valuesNr = this.valuesNr,
+				    fontSize = this.tooltipFontSize;
 
 				var _loop2 = function _loop2(i) {
 					var details = question.details.filter(function (detail) {
 						return !isNaN(detail.posXs[i]) && !isNaN(detail.posYs[i]);
 					});
+					var _iteratorNormalCompletion6 = true;
+					var _didIteratorError6 = false;
+					var _iteratorError6 = undefined;
 
-					_this5.g.selectAll(".detailNodes").data(details).enter().append("svg:circle").attr("class", "detailNodes" + i).attr('r', pixel * 2 + "px").attr("cx", function (detail) {
-						return detail.posXs[i];
-					}).attr("cy", function (detail) {
-						return detail.posYs[i];
-					}).style("fill", colors[i % colors.length]).style("opacity", valuesNr > 1 ? 0.1 : 1);
+					try {
+						var _loop3 = function _loop3() {
+							var detail = _step6.value;
+
+							var div = d3.select("#tooltipBin").append("div").html(detail.title).attr("class", "tooltip").style("font-size", fontSize * 1.5 + "px").style("opacity", 0).style("border-color", colors[i % colors.length]);
+
+							_this5.g.append("svg:circle").attr("class", "detailNodes" + i).attr('r', pixel * 2 + "px").attr("cx", detail.posXs[i]).attr("cy", detail.posYs[i]).style("fill", colors[i % colors.length]).style("opacity", valuesNr > 1 ? 0.1 : 1).on("mouseover", function () {
+								d3.select(this).transition().duration(200).attr("opacity", 1); //TODO does not work
+								div.transition().duration(200).style("opacity", .9);
+								div.style("left", d3.event.pageX + 10 + "px").style("top", d3.event.pageY + "px");
+							}).on("mouseout", function () {
+								if (valuesNr === 1 || d3.select("#questionButton" + i).attr("active") === "true") {
+									d3.select(this).attr("opacity", 0.1);
+								}
+								div.transition().duration(500).style("opacity", 0);
+							});
+						};
+
+						for (var _iterator6 = details[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+							_loop3();
+						}
+					} catch (err) {
+						_didIteratorError6 = true;
+						_iteratorError6 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion6 && _iterator6.return) {
+								_iterator6.return();
+							}
+						} finally {
+							if (_didIteratorError6) {
+								throw _iteratorError6;
+							}
+						}
+					}
 				};
 
 				for (var i = 0; i < this.valuesNr; i++) {
@@ -1425,29 +1459,29 @@
 		}, {
 			key: "renderMinMaxs",
 			value: function renderMinMaxs() {
-				var _iteratorNormalCompletion6 = true;
-				var _didIteratorError6 = false;
-				var _iteratorError6 = undefined;
+				var _iteratorNormalCompletion7 = true;
+				var _didIteratorError7 = false;
+				var _iteratorError7 = undefined;
 
 				try {
-					for (var _iterator6 = this.questions[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-						var question = _step6.value;
+					for (var _iterator7 = this.questions[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+						var question = _step7.value;
 
 						if (question.details.length > 0) {
 							this.renderMinMax(question);
 						}
 					}
 				} catch (err) {
-					_didIteratorError6 = true;
-					_iteratorError6 = err;
+					_didIteratorError7 = true;
+					_iteratorError7 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion6 && _iterator6.return) {
-							_iterator6.return();
+						if (!_iteratorNormalCompletion7 && _iterator7.return) {
+							_iterator7.return();
 						}
 					} finally {
-						if (_didIteratorError6) {
-							throw _iteratorError6;
+						if (_didIteratorError7) {
+							throw _iteratorError7;
 						}
 					}
 				}
@@ -1479,7 +1513,7 @@
 				    colors = this.cfg.avgLineColors;
 				var self = this;
 
-				var _loop3 = function _loop3(i) {
+				var _loop4 = function _loop4(i) {
 					_this6.g.append("rect").attr("id", "questionButton" + i).attr("x", 10).attr("y", 10 + pixel * 20 * i).attr("width", pixel * 20).attr("height", pixel * 15).attr("fill", colors[i % colors.length]).attr("active", false).attr("opacity", 0.5).on("click", function () {
 						var el = d3.select(this);
 						var active = el.attr("active") === "true";
@@ -1499,7 +1533,7 @@
 				};
 
 				for (var i = 0; i < this.valuesNr; i++) {
-					_loop3(i);
+					_loop4(i);
 				}
 			}
 		}, {
