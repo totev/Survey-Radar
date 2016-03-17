@@ -145,7 +145,6 @@
 	        key: 'reset',
 	        value: function reset() {
 	            this.cfg = JSON.parse(JSON.stringify(_index.Radar2.cfg));
-	            this.$scope.$apply(); //TODO doesn't work yet
 	        }
 
 	        // User change/input processing

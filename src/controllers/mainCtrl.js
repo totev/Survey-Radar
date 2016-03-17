@@ -33,7 +33,6 @@ export default class MainCtrl {
 
     reset() {
         this.cfg = JSON.parse(JSON.stringify(Radar2.cfg));
-        this.$scope.$apply(); //TODO doesn't work yet
     }
 
 
