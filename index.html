@@ -84,7 +84,7 @@
   </head>
   <body>
     <div id="body" ng-controller="MainCtrl as m">
-		<div class="pull-left" id="config-container">
+		<div class="pull-left" id="config-container" ng-hide="configHidden">
 			<table class="file-table table table-condensed">
 				<tr>
 					<td>
@@ -94,6 +94,7 @@
 					</td>
 					<td colspan="4">
 						<samp>{{m.selectedFile.name}}</samp>
+						<button class="btn btn-xs btn-danger pull-right" ng-click="configHidden = true"><span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span></button>
 					</td>
 				</tr>
 				<tr ng-hide="m.workbook === undefined">
@@ -276,6 +277,7 @@
 			</div>
 		</div>
 		<div style="height:100%;overflow:scroll;">
+			<button class="btn btn-xs btn-success" ng-click="configHidden = false" ng-show="configHidden"><span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span></button><br/>
 			<button id="download-svg" ng-click="m.downloadSVG('#surveyRadar1')" ng-show="m.mainCats !== undefined" class="btn btn-sm btn-default">Download as SVG</button>
 			<div id="surveyRadar1"></div>
 			<button id="download-svg" ng-click="m.downloadSVG('#surveyRadar2')" ng-show="m.mainCats !== undefined" class="btn btn-sm btn-default">Download as SVG</button>
