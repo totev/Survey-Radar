@@ -117,6 +117,16 @@ export default class MainCtrl {
             (exception) => console.error('fail', exception)
         );
     }
+
+    // Config handling
+
+    addAvgLineColor() {
+        this.cfg.avgLineColors.push("rgba(27, 86, 166, 1)");
+    }
+
+    removeAvgLineColor(idx) {
+        this.cfg.avgLineColors.splice(idx, 1);
+    }
 }
 
 MainCtrl.mainCats = [];

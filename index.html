@@ -80,6 +80,11 @@
 				cursor: inherit;
 				display: block;
 			}
+
+			.avgLineColorContainer {
+				max-height: 8em;
+				overflow-y: scroll;
+			}
 		</style>
   </head>
   <body>
@@ -123,11 +128,11 @@
 						<select ng-options="col.key as col.name for col in m.workbookCols" ng-model="parseCfg.subCatCol" class="form-control input-sm"></select>
 					</td>
 					<td>
-						Question Column:
+						Question Category Column:
 						<select ng-options="col.key as col.name for col in m.workbookCols" ng-model="parseCfg.questionCol" class="form-control input-sm"></select>
 					</td>
 					<td>
-						Detail Column:
+						Detail Question Column:
 						<select ng-options="col.key as col.name for col in m.workbookCols" ng-model="parseCfg.detailCol" class="form-control input-sm"></select>
 					</td>
 					<td rowspan="2">
@@ -208,21 +213,28 @@
 								<label> Show main category value: <input type="checkbox" ng-model="m.cfg.showMainCatValues" /></label>
 							</div>
 						</td>
+						<td class="form-inline" rowspan="2">
+							Average line colors:
+								<div class="avgLineColorContainer">
+									<div ng-repeat="color in m.cfg.avgLineColors track by $index">
+										{{$index + 1}}: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="m.cfg.avgLineColors[$index]" /> <button class="btn btn-xs btn-danger" ng-click="m.removeAvgLineColor($index)"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>
+
+									</div>
+									<button class="btn btn-xs btn-success" ng-click="m.addAvgLineColor()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+								</div>
+						</td>
 					</tr>
 					<tr>
 						<td class="form-inline">
 							Min-max color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="m.cfg.minMaxColor" />
 						</td>
-						<td class="form-inline">
-							Average line color: <input colorpicker="rgba" type="text" class="form-control input-sm" ng-model="m.cfg.avgLineColor" />
-						</td>
 					</tr>
 					<tr>
 						<td class="form-inline text-center" colspan="2">
-							<button class="btn btn-sm btn-primary" ng-click="m.render()">Rerender</button>
-							<button class="btn btn-sm btn-default" ng-click="m.reset()">Reset to default</button>
-							<button class="btn btn-sm btn-primary" ng-click="m.exportConfig()">Save configuration</button>
-							<span class="btn btn-sm btn-default btn-file">
+							<button class="btn btn-xs btn-primary" ng-click="m.render()">Rerender</button>
+							<button class="btn btn-xs btn-default" ng-click="m.reset()">Reset to default</button>
+							<button class="btn btn-xs btn-primary" ng-click="m.exportConfig()">Save configuration</button>
+							<span class="btn btn-xs btn-default btn-file">
 								Load configuration<input type="file" custom-on-change="m.importConfig" />
 							</span>
 						</td>
@@ -230,8 +242,8 @@
 				</table>
 
 				<div class="text-right">
-					<button class="btn btn-sm btn-default" ng-click="m.downloadDataConfig()">Save label changes</button>
-					<span class="btn btn-sm btn-primary btn-file">
+					<button class="btn btn-xs btn-default" ng-click="m.downloadDataConfig()">Save label changes</button>
+					<span class="btn btn-xs btn-primary btn-file">
 						Load label changes<input type="file" custom-on-change="m.handleDataConfig" />
 					</span>
 				</div>

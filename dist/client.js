@@ -248,6 +248,19 @@
 	                return console.error('fail', exception);
 	            });
 	        }
+
+	        // Config handling
+
+	    }, {
+	        key: 'addAvgLineColor',
+	        value: function addAvgLineColor() {
+	            this.cfg.avgLineColors.push("rgba(27, 86, 166, 1)");
+	        }
+	    }, {
+	        key: 'removeAvgLineColor',
+	        value: function removeAvgLineColor(idx) {
+	            this.cfg.avgLineColors.splice(idx, 1);
+	        }
 	    }]);
 
 	    return MainCtrl;
