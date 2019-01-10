@@ -2,90 +2,7 @@
 <html ng-app="radarApp">
 	<head>
     	<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-  		<title>Radar chart</title>
-
-		<link href="./node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-		<link href="./node_modules/angular-bootstrap-colorpicker/css/colorpicker.min.css" rel="stylesheet">
-		<style>
-			body {
-				font-family: Helvetica, sans-serif;
-				cursor: default;
-			}
-
-			html, body, #body {
-				height:100%;
-				width: 100%;
-			}
-
-			.mainCatTitle {
-				font-family: Arial, sans-serif;
-			}
-
-			div.tooltip {	
-			    position: absolute;			
-			    text-align: center;				
-			    padding: 5px 8px;	
-			    border: 1px solid;		
-			    border-radius: 4px;			
-			    pointer-events: none;
-			    background: white;
-			}
-
-			input[type="number"] {
-				width: 65px !important;
-			}
-
-			ul {
-				list-style: none;
-			}
-
-			.file-table {
-				width: 700px;
-				margin-bottom: 0;
-			}
-
-			table td {
-				border-top:none !important;
-			}
-
-			#config-table {
-				width: 700px;
-				margin-top: 20px;
-			}
-
-			#config-container {
-				height:100%;
-				max-width: 710px;
-				padding: 5px;
-				overflow: scroll;
-				border-right: 2px dashed lightgray;
-			}
-
-			.btn-file {
-				position: relative;
-				overflow: hidden;
-			}
-			.btn-file input[type=file] {
-				position: absolute;
-				top: 0;
-				right: 0;
-				min-width: 100%;
-				min-height: 100%;
-				font-size: 100px;
-				text-align: right;
-				filter: alpha(opacity=0);
-				opacity: 0;
-				outline: none;
-				background: white;
-				cursor: inherit;
-				display: block;
-			}
-
-			.avgLineColorContainer {
-				max-height: 8em;
-				overflow-y: scroll;
-			}
-		</style>
+ 		<title>Radar chart</title>
   </head>
   <body>
     <div id="body" ng-controller="MainCtrl as m">
@@ -297,7 +214,6 @@
 			<div id="tooltipBin" style="height:0px;"></div>
 		</div>
 	</div>
-	<script type="application/javascript" src="./node_modules/xlsx/dist/xlsx.core.min.js"></script>
 	<script type="text/javascript" src="app.bundle.js"></script>
   </body>
 </html>

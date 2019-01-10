@@ -1,3 +1,4 @@
+import * as XLSX from '../../node_modules/xlsx/dist/xlsx.core.min.js';
 class ExcelService {
     constructor($q) {
         this.$q = $q;
