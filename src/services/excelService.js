@@ -54,11 +54,16 @@ class ExcelService {
             detail;
 
         for(let i = 0; i <= maxRowNr; i++) {
-            let mainCatCell = mainCatCol === undefined ? undefined : mainCatCol.cells[i],
+            const mainCatCell = mainCatCol === undefined ? undefined : mainCatCol.cells[i],
                 subCatCell = subCatCol === undefined ? undefined : subCatCol.cells[i],
                 questionCell = questionCol === undefined ? undefined : questionCol.cells[i],
                 detailCell = detailCol === undefined ? undefined : detailCol.cells[i],
                 valueCells = valueCols.map((col) => col.cells[i]);
+
+            if ((mainCatCell || subCatCell || questionCell || detailCell) === undefined) {
+                console.warn('Faulty or non existant cell found');
+                continue;
+            }
 
             if (this.isValidCell(mainCatCell)) {
                 mainCat = {mainCat: this.parseTitle(mainCatCell), values: [], subCats: []};
@@ -105,10 +110,11 @@ class ExcelService {
                 question.details.push(detail);
             }
 
-            let element = detail !== undefined ? detail : question !== undefined ? question : subCat !== undefined ? subCat : undefined;
+            const element = detail !== undefined ? detail : question !== undefined ? question : subCat !== undefined ? subCat : undefined;
             if (element !== undefined) {
                 element.values = valueCells.map((cell) => this.parseValue(cell));
             }
+            console.log('element:', element);
         }
         return mainCats;
     }
