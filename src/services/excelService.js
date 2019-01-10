@@ -115,7 +115,6 @@ class ExcelService {
             if (element !== undefined) {
                 element.values = valueCells.map((cell) => this.parseValue(cell));
             }
-            console.log('element:', element);
         }
         return mainCats;
     }
