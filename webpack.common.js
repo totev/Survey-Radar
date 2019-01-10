@@ -3,7 +3,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry: {
-    app: './src/app.js',
+    app: './src/app.js'
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),
@@ -21,7 +21,7 @@ module.exports = {
         options: {
           limit: 10000,
         },
-      },
+      }
     ],
   },
   output: {

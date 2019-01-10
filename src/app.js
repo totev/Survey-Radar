@@ -5,7 +5,15 @@ import DataService from './services/dataService';
 import ExcelService from './services/excelService';
 import JSONService from './services/jsonService';
 import SVGService from './services/svgService';
-require('./dependencies');
+require('./dependencies.js');
 
-angular.module('radarApp', ['colorpicker.module', OnChangeDirective, ExcelService, DataService, SVGService, JSONService])
-       .controller('MainCtrl', MainCtrl);
+angular
+  .module('radarApp', [
+    'colorpicker.module',
+    OnChangeDirective,
+    ExcelService,
+    DataService,
+    SVGService,
+    JSONService,
+  ])
+  .controller('MainCtrl', MainCtrl);

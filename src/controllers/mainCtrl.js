@@ -1,4 +1,4 @@
-import {Radar1, Radar2} from './../radarLib/index.js'
+import { Radar1, Radar2 } from './../radarLib/index.js';
 
 export default class MainCtrl {
     constructor($scope, $timeout, excelService, dataService, svgService, jsonService) {
